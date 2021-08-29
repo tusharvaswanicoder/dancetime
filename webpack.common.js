@@ -1,10 +1,11 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     mode: 'development',
     entry: './src/js/index.js',
     devtool: 'inline-source-map',
-    target: 'electron-renderer',
+    target: 'web',
     module: {
         rules: [
             {
@@ -51,12 +52,21 @@ module.exports = {
             }
         ]
     },
+    plugins: [
+        // Use CopyWebpackPlugin to copy all public assets to the public folder
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: './src/assets', to: './assets' },
+                { from: './src/index.html', to: './index.html' }
+            ]
+        }),
+    ],
     resolve: {
         extensions: ['.js'],
     },
     output: {
-        filename: 'app.js',
-        path: path.resolve(__dirname, 'src', 'build'),
-        publicPath: path.resolve(__dirname, 'src', 'build'),
+        filename: 'build/app.js',
+        path: path.resolve(__dirname, 'public'),
+        publicPath: path.resolve(__dirname, 'public'),
     },
 };

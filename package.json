@@ -15,21 +15,15 @@
     },
     "homepage": "https://github.com/benank/dancetime#readme",
     "scripts": {
-        "start": "electron-forge start",
-        "package": "electron-forge package",
-        "make": "electron-forge make",
-        "make-mac": "electron-forge make --platform darwin",
-        "make-linux": "electron-forge make --platform linux --target zip",
         "webapp": "node webapp.js",
         "server": "node server/server.js",
         "server-test": "node server/server.js --test",
-        "watch": "webpack --config webpack.common.js --watch",
-        "dev": "npm-run-all -p -r start watch",
-        "bundle": "webpack bundle --config webpack.common.js --mode production",
+        "devserver": "webpack-dev-server --open --config webpack.dev.js --mode development",
+        "dev": "npm-run-all -p -r devserver",
+        "bundle": "webpack bundle --config webpack.prod.js --mode production",
         "deploy": "npm run bundle && npm run webapp"
     },
     "dependencies": {
-        "electron-squirrel-startup": "^1.0.0",
         "express": "^4.17.1",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
@@ -40,15 +34,9 @@
         "@babel/core": "^7.15.0",
         "@babel/preset-env": "^7.15.0",
         "@babel/preset-react": "^7.14.5",
-        "@electron-forge/cli": "^6.0.0-beta.59",
-        "@electron-forge/maker-deb": "^6.0.0-beta.59",
-        "@electron-forge/maker-rpm": "^6.0.0-beta.59",
-        "@electron-forge/maker-squirrel": "^6.0.0-beta.59",
-        "@electron-forge/maker-zip": "^6.0.0-beta.59",
         "babel-loader": "^8.2.2",
+        "copy-webpack-plugin": "^9.0.1",
         "css-loader": "^6.2.0",
-        "electron": "^13.2.3",
-        "electron-reload": "^2.0.0-alpha.1",
         "npm-run-all": "^4.1.5",
         "null-loader": "^4.0.1",
         "sass": "^1.38.2",
@@ -56,28 +44,8 @@
         "style-loader": "^3.2.1",
         "svg-url-loader": "^7.1.1",
         "webpack": "^5.51.1",
-        "webpack-cli": "^4.8.0"
-    },
-    "config": {
-        "forge": {
-            "packagerConfig": {
-                "icon": "src/favicon.ico"
-            },
-            "makers": [
-                {
-                    "name": "@electron-forge/maker-squirrel",
-                    "config": {
-                        "name": "dancetime"
-                    }
-                },
-                {
-                    "name": "@electron-forge/maker-zip",
-                    "platforms": [
-                        "darwin",
-                        "linux"
-                    ]
-                }
-            ]
-        }
+        "webpack-cli": "^4.8.0",
+        "webpack-dev-server": "^4.0.0",
+        "webpack-merge": "^5.8.0"
     }
 }
