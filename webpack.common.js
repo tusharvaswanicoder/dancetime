@@ -65,8 +65,7 @@ module.exports = {
         extensions: ['.js'],
     },
     output: {
-        filename: 'build/app.js',
-        path: path.resolve(__dirname, 'public'),
-        publicPath: path.resolve(__dirname, 'public'),
+        filename: 'app.js',
+        path: path.resolve(__dirname, 'public')
     },
 };

@@ -72,3 +72,5 @@ patches/mtime-cache.json
 
 */build/
 public/
+
+app.js
