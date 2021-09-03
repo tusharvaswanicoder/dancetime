@@ -32,11 +32,14 @@ export default class App extends React.Component {
         if (navigator.getUserMedia) {
             navigator.getUserMedia({ video: true }, this.handleVideo, this.videoError);
         }
+        
+        const maxFPS = 60;
+        const interval = 1000 / maxFPS;
 
         setInterval(() => {
             const poses = await detector.estimatePoses(video);
             console.log(poses[0].keypoints);
-        }, 100);
+        }, interval);
 
         // Outputs:
         // [
