@@ -53,8 +53,8 @@
 				.then(function (stream) {
 					camera.srcObject = stream;
 				})
-				.catch(function (err0r) {
-					console.log("Something went wrong!");
+				.catch(function (error) {
+					console.log(`Failed to get webcam: ${error}`);
 				});
 		}
 	}
@@ -76,12 +76,13 @@
 </svelte:head>
 
 <main>
-	<h1>Hello {name}!</h1>
-	<p>
-		Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn
-		how to build Svelte apps.
-	</p>
-	<video autoplay="true" bind:this={camera} />
+	{#if camera && camera.srcObject}
+		<p>Camera loaded! 😊</p>
+	{:else}
+		<p>Loading camera...</p>
+	{/if}
+	<!-- svelte-ignore a11y-media-has-caption -->
+	<video autoplay="true" bind:this={camera} controls={false} width={1920 * 0.4} height={1080 * 0.4}/>
 </main>
 
 <style>
@@ -90,6 +91,11 @@
 		padding: 1em;
 		max-width: 240px;
 		margin: 0 auto;
+	}
+	
+	video {
+		/* border: 2px solid red; */
+		border-radius: 20px;
 	}
 
 	h1 {
