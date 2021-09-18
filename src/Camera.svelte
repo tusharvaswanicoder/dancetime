@@ -1,6 +1,7 @@
 <script>
     import { onMount } from "svelte";
-    export let width, height, camera, canvas = null;
+    import { cameraStore, cameraCanvasStore } from "./stores.js"
+    export let width, height;
     
     onMount(() => 
     {
@@ -10,37 +11,36 @@
 			// or keep because it still allows you to choose camera if this one doesn't exist
 				.getUserMedia({ video: {deviceId: "8Icmu55xfG41JYbpcguRkmmGPzMEPXjeW6Ksp30PA10="} })
 				.then(function (stream) {
-					camera.srcObject = stream;
-                    console.log(`Camera loaded!`);
+					$cameraStore.srcObject = stream;
+                    console.log(`Camera loaded`);
 				})
 				.catch(function (error) {
 					console.log(`Failed to get webcam: ${error}`);
+                    $cameraStore = null;
 				});
 		}
     })
 </script>
 
 <div class='camera-container'>
-    <canvas bind:this={canvas} {width} {height}></canvas>
+    <canvas bind:this={$cameraCanvasStore} {width} {height}></canvas>
 	<!-- svelte-ignore a11y-media-has-caption -->
-    <video autoplay bind:this={camera} {width} {height}></video>
+    <video autoplay bind:this={$cameraStore} {width} {height}></video>
 </div>
 
 <style>
     
     div.camera-container {
-        position: relative;
-        width: fit-content;
+        overflow: hidden;
     }
     
     canvas {
         position: absolute;
-        border: 2px solid red;
+        background-color: rgba(255, 0, 0, 0.2);
     }
     
 	video {
 		/* border: 2px solid red; */
-		border-radius: 20px;
 	}
 
 </style>
