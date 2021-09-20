@@ -32,7 +32,6 @@
             // Get Video Properties
             // Make Detections
             const poses = await detector.estimatePoses($cameraStore);
-            console.log(poses);
 
             if (ctx) {
                 for (const pose of poses) {
@@ -144,7 +143,6 @@
                 const scoreThreshold = 0.3;
 
                 if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
-                    console.log("path");
                     ctx.beginPath();
                     ctx.moveTo(kp1.x, kp1.y);
                     ctx.lineTo(kp2.x, kp2.y);
