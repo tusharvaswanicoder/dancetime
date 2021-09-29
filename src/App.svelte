@@ -9,7 +9,7 @@
 
 <main>
 	<p>Camera loaded! 😊</p>
-	<Camera width={1920 * 0.4} height={1080 * 0.4} />
+	<Camera width={1920 * 0.5} height={1080 * 0.5} />
 	<TFJS on:tfjs-loaded={handleTFJSLoaded} />
 </main>
 

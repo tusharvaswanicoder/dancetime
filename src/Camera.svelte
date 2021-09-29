@@ -13,24 +13,60 @@
     $: {
         enableWebcam, RefreshWebcamStream();
     }
+    
+    let preferred_camera_info = null;
 
     function RefreshWebcamStream() {
         if (!enableWebcam) {
             return;
         }
 
+        if (!preferred_camera_info)
+        {
+            // TIP: once access has been allowed to video devices, all labels are shown :)
+            navigator.mediaDevices
+            .enumerateDevices()
+            .then(function (devices) {
+                devices.forEach(function (device) {
+                    // console.log(
+                    //     device.kind +
+                    //         ": " +
+                    //         device.label +
+                    //         " id = " +
+                    //         device.deviceId
+                    // );
+                    
+                    if (device.label == "OBS Virtual Camera")
+                    {
+                        preferred_camera_info = device;
+                    }
+                });
+                RefreshWebcamStream();
+            })
+            .catch(function (err) {
+                console.log(err.name + ": " + err.message);
+            });
+            return;
+        }
+
         if (navigator.mediaDevices.getUserMedia) {
+            console.log(preferred_camera_info)
             navigator.mediaDevices
                 // TEMP: only use this device id in localhost for correct camera
                 // or keep because it still allows you to choose camera if this one doesn't exist
                 .getUserMedia({
                     video: {
-                        deviceId:
-                            "8Icmu55xfG41JYbpcguRkmmGPzMEPXjeW6Ksp30PA10=",
+                        deviceId: preferred_camera_info.deviceId,
                     },
+                    // video: true,
                 })
                 .then(function (stream) {
-                    $cameraStore.srcObject = stream;
+                    if ("srcObject" in $cameraStore) {
+                        $cameraStore.srcObject = stream;
+                    } else {
+                        // Avoid using this in new browsers, as it is going away.
+                        $cameraStore.src = URL.createObjectURL(stream);
+                    }
                     console.log(`Camera loaded`);
                 })
                 .catch(function (error) {
@@ -40,7 +76,7 @@
         }
     }
 
-    let blobinvideo;
+    // https://dl.dancetime.io/video/lipa.mp4
 
     function GetVideoStuff() {
         GetVideoBlobFromDB("testblob", (blob) => {

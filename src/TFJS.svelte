@@ -3,7 +3,11 @@
     import { cameraStore, cameraCanvasStore } from "./stores.js";
     const dispatch = createEventDispatcher();
     const loaded = () => dispatch("tfjs-loaded");
-
+    
+    import {ComparePoses, SplitPoseByGroupXY} from "./PoseCompare.js"
+    import {TestKeypoints, TestWebcamKeypoints} from "./TestKeypoints"
+    import { shapeSimilarity } from 'curve-matcher';
+    
     let mounted = false;
     let tfjsReady = false;
     let frame;
@@ -12,6 +16,7 @@
     let movenetStarted = false;
     let ctx;
     $: ctx = $cameraCanvasStore && $cameraCanvasStore.getContext("2d");
+    let compared_groups = {}
 
     async function runPosenet() {
         detector = await poseDetection.createDetector(
@@ -35,12 +40,91 @@
 
             if (ctx) {
                 for (const pose of poses) {
-                    drawCanvas(pose, pose);
+                    console.log(pose)
+                    drawCanvas(pose);
+                    
+                    TestCompareGroupsNew(pose);
+                    
+                    // const compared_groups = ComparePoses(TestKeypoints.keypoints_normalized, pose.keypoints_normalized)
+                    
+                    // let i = 1;
+                    // for (const group_type in compared_groups)
+                    // {
+                    //     const group = compared_groups[group_type];
+                    //     ctx.font = '24px serif';
+                    //     ctx.fillStyle = "White";
+                    //     ctx.strokeStyle = "White";
+                    //     ctx.fillText(`${group_type}: ${group.rotation}`, 0, i * 30);
+                    //     const keypoints = group.input_transformed.to2DArray().map((point) => 
+                    //     {
+                    //         return {x: point[0], y: point[1]}
+                    //     })
+                    //     drawKeypointsTransformed(normalizedKeypointsToVideoSize(keypoints, $cameraStore), group_type);
+                    //     i++;
+                    // }
                 }
             }
         }
         
+        drawCanvas(TestKeypoints, "Green");
+        // drawCanvas(TestWebcamKeypoints, "Red");
+        // CompareTestPoses();
+        
         frame = requestAnimationFrame(detect);
+    }
+    
+    function TestCompareGroupsNew(pose)
+    {
+        const groups = SplitPoseByGroupXY(pose.keypoints)
+        const model_groups = SplitPoseByGroupXY(TestKeypoints.keypoints)
+        
+        let i = 1;
+        for (const group_name in groups)
+        {
+            const similarity = shapeSimilarity(model_groups[group_name], groups[group_name], 
+            {
+                restrictRotationAngle: 0.1 * Math.PI,
+                estimationPoints: 20,
+                rotations: 10
+            });
+            ctx.font = '24px serif';
+            ctx.fillStyle = "White";
+            ctx.strokeStyle = "White";
+            ctx.fillText(`${group_name}: ${similarity}`, 0, i * 30);
+            i++;
+        }
+    }
+    
+    function TestCompareGroups()
+    {
+        compared_groups = ComparePoses(TestKeypoints.keypoints_normalized, TestWebcamKeypoints.keypoints_normalized);
+        console.log(compared_groups)
+    }
+    
+    function CompareTestPoses()
+    {
+        let i = 1;
+        for (const group_type in compared_groups)
+        {
+            const group = compared_groups[group_type];
+            ctx.font = '24px serif';
+            const colors = 
+            {
+                "HEAD": "Blue",
+                "TORSO": "Purple",
+                "LEGS": "Pink"
+            }
+            ctx.fillStyle = colors[group_type];
+            ctx.strokeStyle = colors[group_type];
+            ctx.fillText(`${group_type}: ${group.rotation}`, 0, i * 30);
+            const keypoints = group.input_transformed.to2DArray().map((point) => 
+            {
+                return {x: point[0], y: point[1]}
+            })
+            drawKeypointsTransformed(normalizedKeypointsToVideoSize(keypoints, $cameraStore), group_type);
+            // drawKeypointsTransformed(keypoints, group_type);
+            i++;
+        }
     }
     
     function clearCanvas()
@@ -53,14 +137,19 @@
                 );
     }
 
-    function drawCanvas(pose) {
+    function drawCanvas(pose, color) {
         if (pose.keypoints != null) {
-            pose.keypoints_normalized =
-                poseDetection.calculators.keypointsToNormalizedKeypoints(
-                    pose.keypoints,
-                    { width: $cameraStore.videoWidth, height: $cameraStore.videoHeight }
-                );
+            if (!pose.keypoints_normalized)
+            {
+                pose.keypoints_normalized =
+                    poseDetection.calculators.keypointsToNormalizedKeypoints(
+                        pose.keypoints,
+                        { width: $cameraStore.videoWidth, height: $cameraStore.videoHeight }
+                    );
+            }
             pose.keypoints = normalizedKeypointsToVideoSize(pose.keypoints_normalized, $cameraStore)
+            ctx.fillStyle = color;
+            ctx.strokeStyle = color;
             drawKeypoints(pose.keypoints);
             drawSkeleton(pose.keypoints, pose.id);
         }
@@ -76,6 +165,16 @@
         });
     }
 
+    function drawKeypointsTransformed(keypoints, group_type)
+    {
+        ctx.lineWidth = 0;
+
+        for (let i = 0; i < keypoints.length; i++)
+        {
+            drawKeypoint(keypoints[i]);
+        }
+    }
+    
     /**
      * Draw the keypoints on the video.
      * @param keypoints A list of keypoints.
@@ -84,33 +183,29 @@
         const keypointInd = poseDetection.util.getKeypointIndexBySide(
             poseDetection.SupportedModels.MoveNet
         );
-        ctx.fillStyle = "Red";
-        ctx.strokeStyle = "White";
         ctx.lineWidth = 2;
 
         for (const i of keypointInd.middle) {
-            drawKeypoint(keypoints[i]);
+            drawKeypoint(keypoints[i], i);
         }
 
-        ctx.fillStyle = "Green";
         for (const i of keypointInd.left) {
-            drawKeypoint(keypoints[i]);
+            drawKeypoint(keypoints[i], i);
         }
 
-        ctx.fillStyle = "Orange";
         for (const i of keypointInd.right) {
-            drawKeypoint(keypoints[i]);
+            drawKeypoint(keypoints[i], i);
         }
     }
 
-    function drawKeypoint(keypoint) {
+    function drawKeypoint(keypoint, i) {
         // If score is null, just show the keypoint.
         const score = keypoint.score != null ? keypoint.score : 1;
         const scoreThreshold = 0.3;
 
         if (score >= scoreThreshold) {
             const circle = new Path2D();
-            circle.arc(keypoint.x, keypoint.y, 4, 0, 2 * Math.PI);
+            circle.arc(keypoint.x, keypoint.y, 2, 0, 2 * Math.PI);
             ctx.fill(circle);
             ctx.stroke(circle);
         }
@@ -126,9 +221,6 @@
         //     params.STATE.modelConfig.enableTracking && poseId != null
         //         ? COLOR_PALETTE[poseId % 20]
         //         : "White";
-        const color = "White";
-        ctx.fillStyle = color;
-        ctx.strokeStyle = color;
         ctx.lineWidth = 2;
 
         poseDetection.util
@@ -224,3 +316,5 @@
         Start MoveNet
     {/if}
 </button>
+
+<button on:click={() => TestCompareGroups()}>Test Compare Groups</button>
