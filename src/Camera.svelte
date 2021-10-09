@@ -1,6 +1,6 @@
 <script>
     import { onMount, onDestroy } from "svelte";
-    import { cameraStore, cameraCanvasStore } from "./stores.js";
+    import { cameraStore, cameraCanvasStore, cameraStoreVideo, cameraCanvasStoreVideo } from "./stores.js";
     export let width, height;
     import {
         GetVideoBlobFromURL,
@@ -79,27 +79,60 @@
     // https://dl.dancetime.io/video/lipa.mp4
 
     function GetVideoStuff() {
-        GetVideoBlobFromDB("testblob", (blob) => {
-            if (blob) {
-                const url = URL.createObjectURL(blob);
-                $cameraStore.src = url;
-            }
-        });
+        // GetVideoBlobFromDB("testblob", (blob) => {
+        //     if (blob) {
+        //         const url = URL.createObjectURL(blob);
+        //         $cameraStore.src = url;
+        //     }
+        // });
+        
+        // GetVideoBlobFromURL,
+        // StoreVideoBlob,
+        // GetVideoBlobFromURL("https://dl.dancetime.io/video/test.mp4", (data) => 
+        // {
+        //     if (data.event == "load")
+        //     {
+        //         StoreVideoBlob(data.blob, "testcam", () => 
+        //         {
+        //             console.log("Stored!")
+        //         })
+        //     }
+        //     else if (data.event == "progress")
+        //     {
+        //         console.log(data);
+        //     }
+        // })
     }
 
     onMount(() => {
         RefreshWebcamStream();
+        
+        // testcam, testblob
+        GetVideoBlobFromDB("testcam", (blob) => {
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                $cameraStoreVideo.src = url;
+            }
+        });
     });
 </script>
 
 <div class="camera-container">
     <canvas bind:this={$cameraCanvasStore} {width} {height} />
     <!-- svelte-ignore a11y-media-has-caption -->
-    {#if enableWebcam}
+    <!-- {#if enableWebcam} -->
         <video autoplay bind:this={$cameraStore} {width} {height} />
-    {:else}
-        <video autoplay muted bind:this={$cameraStore} {width} {height} />
-    {/if}
+    <!-- {:else} -->
+    <!-- {/if} -->
+</div>
+
+<div class="camera-container">
+    <canvas bind:this={$cameraCanvasStoreVideo} {width} {height} />
+    <!-- svelte-ignore a11y-media-has-caption -->
+    <!-- {#if enableWebcam} -->
+    <!-- {:else} -->
+        <video autoplay muted bind:this={$cameraStoreVideo} {width} {height} />
+    <!-- {/if} -->
 </div>
 
 <button on:click={() => (enableWebcam = !enableWebcam)}>

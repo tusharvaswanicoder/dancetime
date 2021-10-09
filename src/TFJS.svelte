@@ -1,22 +1,30 @@
 <script>
-    import { createEventDispatcher, onMount, onDestroy } from "svelte";
-    import { cameraStore, cameraCanvasStore } from "./stores.js";
+    import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+    import {
+        cameraStore,
+        cameraCanvasStore,
+        cameraStoreVideo,
+        cameraCanvasStoreVideo,
+    } from './stores.js';
     const dispatch = createEventDispatcher();
-    const loaded = () => dispatch("tfjs-loaded");
-    
-    import {ComparePoses, SplitPoseByGroupXY} from "./PoseCompare.js"
-    import {TestKeypoints, TestWebcamKeypoints} from "./TestKeypoints"
+    const loaded = () => dispatch('tfjs-loaded');
+
+    import { ComparePoses, SplitPoseByGroupXY } from './PoseCompare.js';
+    import { TestKeypoints, TestWebcamKeypoints } from './TestKeypoints';
     import { shapeSimilarity } from 'curve-matcher';
-    
+
     let mounted = false;
     let tfjsReady = false;
     let frame;
     let detector;
 
     let movenetStarted = false;
-    let ctx;
-    $: ctx = $cameraCanvasStore && $cameraCanvasStore.getContext("2d");
-    let compared_groups = {}
+    let ctxcam;
+    let ctxvideo;
+    $: ctxcam = $cameraCanvasStore && $cameraCanvasStore.getContext('2d');
+    $: ctxvideo =
+        $cameraCanvasStoreVideo && $cameraCanvasStoreVideo.getContext('2d');
+    let compared_groups = {};
 
     async function runPosenet() {
         detector = await poseDetection.createDetector(
@@ -28,130 +36,139 @@
     }
 
     async function detect() {
-        if (ctx)
-        {
-            clearCanvas();
+        if (ctxcam) {
+            clearCanvas(ctxcam);
         }
 
-        if ($cameraStore && $cameraStore.readyState == 4 && movenetStarted) {
+        if (ctxvideo) {
+            clearCanvas(ctxvideo);
+        }
+
+        if (
+            $cameraStore &&
+            $cameraStore.readyState == 4 &&
+            movenetStarted &&
+            $cameraStoreVideo &&
+            $cameraStoreVideo.readyState == 4
+        ) {
             // Get Video Properties
             // Make Detections
             const poses = await detector.estimatePoses($cameraStore);
+            const poses_ref = await detector.estimatePoses($cameraStoreVideo);
+            $cameraStoreVideo.playbackRate = 0.5;
 
-            if (ctx) {
-                for (const pose of poses) {
-                    console.log(pose)
-                    drawCanvas(pose);
-                    
-                    TestCompareGroupsNew(pose);
-                    
-                    // const compared_groups = ComparePoses(TestKeypoints.keypoints_normalized, pose.keypoints_normalized)
-                    
-                    // let i = 1;
-                    // for (const group_type in compared_groups)
-                    // {
-                    //     const group = compared_groups[group_type];
-                    //     ctx.font = '24px serif';
-                    //     ctx.fillStyle = "White";
-                    //     ctx.strokeStyle = "White";
-                    //     ctx.fillText(`${group_type}: ${group.rotation}`, 0, i * 30);
-                    //     const keypoints = group.input_transformed.to2DArray().map((point) => 
-                    //     {
-                    //         return {x: point[0], y: point[1]}
-                    //     })
-                    //     drawKeypointsTransformed(normalizedKeypointsToVideoSize(keypoints, $cameraStore), group_type);
-                    //     i++;
-                    // }
+            if (ctxcam && ctxvideo) {
+                if (poses.length == 1) {
+                    drawCanvas(poses[0], 'Red', $cameraStore, ctxcam);
+                }
+
+                if (poses_ref.length == 1) {
+                    drawCanvas(
+                        poses_ref[0],
+                        'Green',
+                        $cameraStoreVideo,
+                        ctxvideo
+                    );
+                }
+
+                if (poses.length > 0 && poses_ref.length > 0) {
+                    const pose = poses[0];
+                    const pose_ref = poses_ref[0];
+
+                    TestCompareGroupsNew(pose, pose_ref, ctxvideo);
                 }
             }
         }
-        
-        drawCanvas(TestKeypoints, "Green");
-        // drawCanvas(TestWebcamKeypoints, "Red");
-        // CompareTestPoses();
-        
+
+        // drawCanvas(TestKeypoints, "Green");
+
         frame = requestAnimationFrame(detect);
     }
-    
-    function TestCompareGroupsNew(pose)
-    {
-        const groups = SplitPoseByGroupXY(pose.keypoints)
-        const model_groups = SplitPoseByGroupXY(TestKeypoints.keypoints)
-        
+
+    function TestCompareGroupsNew(pose, pose_ref, ctx) {
+        const groups = SplitPoseByGroupXY(pose.keypoints);
+        const model_groups = SplitPoseByGroupXY(pose_ref.keypoints);
+
         let i = 1;
-        for (const group_name in groups)
-        {
-            const similarity = shapeSimilarity(model_groups[group_name], groups[group_name], 
-            {
-                restrictRotationAngle: 0.1 * Math.PI,
-                estimationPoints: 20,
-                rotations: 10
-            });
+        for (const group_name in groups) {
+            const similarity = shapeSimilarity(
+                model_groups[group_name],
+                groups[group_name],
+                {
+                    restrictRotationAngle: 0.1 * Math.PI,
+                    estimationPoints: 20,
+                    rotations: 10,
+                }
+            );
             ctx.font = '24px serif';
-            ctx.fillStyle = "White";
-            ctx.strokeStyle = "White";
-            ctx.fillText(`${group_name}: ${similarity}`, 0, i * 30);
+            ctx.fillStyle = 'White';
+            ctx.strokeStyle = 'White';
+            ctx.fillText(`${group_name}: ${similarity.toFixed(2)}`, 0, i * 30);
             i++;
         }
     }
-    
-    function TestCompareGroups()
-    {
-        compared_groups = ComparePoses(TestKeypoints.keypoints_normalized, TestWebcamKeypoints.keypoints_normalized);
-        console.log(compared_groups)
+
+    function TestCompareGroups() {
+        compared_groups = ComparePoses(
+            TestKeypoints.keypoints_normalized,
+            TestWebcamKeypoints.keypoints_normalized
+        );
+        console.log(compared_groups);
     }
-    
-    function CompareTestPoses()
-    {
+
+    function CompareTestPoses() {
         let i = 1;
-        for (const group_type in compared_groups)
-        {
+        for (const group_type in compared_groups) {
             const group = compared_groups[group_type];
             ctx.font = '24px serif';
-            const colors = 
-            {
-                "HEAD": "Blue",
-                "TORSO": "Purple",
-                "LEGS": "Pink"
-            }
+            const colors = {
+                HEAD: 'Blue',
+                TORSO: 'Purple',
+                LEGS: 'Pink',
+            };
             ctx.fillStyle = colors[group_type];
             ctx.strokeStyle = colors[group_type];
             ctx.fillText(`${group_type}: ${group.rotation}`, 0, i * 30);
-            const keypoints = group.input_transformed.to2DArray().map((point) => 
-            {
-                return {x: point[0], y: point[1]}
-            })
-            drawKeypointsTransformed(normalizedKeypointsToVideoSize(keypoints, $cameraStore), group_type);
+            const keypoints = group.input_transformed
+                .to2DArray()
+                .map((point) => {
+                    return { x: point[0], y: point[1] };
+                });
+            drawKeypointsTransformed(
+                normalizedKeypointsToVideoSize(keypoints, $cameraStore),
+                group_type
+            );
             // drawKeypointsTransformed(keypoints, group_type);
             i++;
         }
     }
-    
-    function clearCanvas()
-    {
+
+    function clearCanvas(ctx) {
         ctx.clearRect(
-                    0,
-                    0,
-                    $cameraCanvasStore.width,
-                    $cameraCanvasStore.height
-                );
+            0,
+            0,
+            $cameraCanvasStore.width,
+            $cameraCanvasStore.height
+        );
     }
 
-    function drawCanvas(pose, color) {
+    function drawCanvas(pose, color, store, ctx) {
         if (pose.keypoints != null) {
-            if (!pose.keypoints_normalized)
-            {
+            if (!pose.keypoints_normalized) {
                 pose.keypoints_normalized =
                     poseDetection.calculators.keypointsToNormalizedKeypoints(
                         pose.keypoints,
-                        { width: $cameraStore.videoWidth, height: $cameraStore.videoHeight }
+                        { width: store.videoWidth, height: store.videoHeight }
                     );
             }
-            pose.keypoints = normalizedKeypointsToVideoSize(pose.keypoints_normalized, $cameraStore)
+            pose.keypoints = normalizedKeypointsToVideoSize(
+                pose.keypoints_normalized,
+                store
+            );
             ctx.fillStyle = color;
             ctx.strokeStyle = color;
-            drawKeypoints(pose.keypoints);
-            drawSkeleton(pose.keypoints, pose.id);
+            drawKeypoints(pose.keypoints, ctx);
+            drawSkeleton(pose.keypoints, pose.id, ctx);
         }
     }
 
@@ -165,40 +182,38 @@
         });
     }
 
-    function drawKeypointsTransformed(keypoints, group_type)
-    {
+    function drawKeypointsTransformed(keypoints, group_type) {
         ctx.lineWidth = 0;
 
-        for (let i = 0; i < keypoints.length; i++)
-        {
+        for (let i = 0; i < keypoints.length; i++) {
             drawKeypoint(keypoints[i]);
         }
     }
-    
+
     /**
      * Draw the keypoints on the video.
      * @param keypoints A list of keypoints.
      */
-    function drawKeypoints(keypoints) {
+    function drawKeypoints(keypoints, ctx) {
         const keypointInd = poseDetection.util.getKeypointIndexBySide(
             poseDetection.SupportedModels.MoveNet
         );
         ctx.lineWidth = 2;
 
         for (const i of keypointInd.middle) {
-            drawKeypoint(keypoints[i], i);
+            drawKeypoint(keypoints[i], i, ctx);
         }
 
         for (const i of keypointInd.left) {
-            drawKeypoint(keypoints[i], i);
+            drawKeypoint(keypoints[i], i, ctx);
         }
 
         for (const i of keypointInd.right) {
-            drawKeypoint(keypoints[i], i);
+            drawKeypoint(keypoints[i], i, ctx);
         }
     }
 
-    function drawKeypoint(keypoint, i) {
+    function drawKeypoint(keypoint, i, ctx) {
         // If score is null, just show the keypoint.
         const score = keypoint.score != null ? keypoint.score : 1;
         const scoreThreshold = 0.3;
@@ -215,7 +230,7 @@
      * Draw the skeleton of a body on the video.
      * @param keypoints A list of keypoints.
      */
-    function drawSkeleton(keypoints, poseId) {
+    function drawSkeleton(keypoints, poseId, ctx) {
         // Each poseId is mapped to a color in the color palette.
         // const color =
         //     params.STATE.modelConfig.enableTracking && poseId != null
