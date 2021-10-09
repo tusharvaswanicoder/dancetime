@@ -9,8 +9,7 @@
     const dispatch = createEventDispatcher();
     const loaded = () => dispatch('tfjs-loaded');
 
-    import { ComparePoses, SplitPoseByGroupXY } from './PoseCompare.js';
-    import { TestKeypoints, TestWebcamKeypoints } from './TestKeypoints';
+    import { SplitPoseByGroupXY } from './PoseCompare.js';
     import { shapeSimilarity } from 'curve-matcher';
 
     let mounted = false;
@@ -24,7 +23,6 @@
     $: ctxcam = $cameraCanvasStore && $cameraCanvasStore.getContext('2d');
     $: ctxvideo =
         $cameraCanvasStoreVideo && $cameraCanvasStoreVideo.getContext('2d');
-    let compared_groups = {};
 
     async function runPosenet() {
         detector = await poseDetection.createDetector(
@@ -104,41 +102,6 @@
             ctx.fillStyle = 'White';
             ctx.strokeStyle = 'White';
             ctx.fillText(`${group_name}: ${similarity.toFixed(2)}`, 0, i * 30);
-            i++;
-        }
-    }
-
-    function TestCompareGroups() {
-        compared_groups = ComparePoses(
-            TestKeypoints.keypoints_normalized,
-            TestWebcamKeypoints.keypoints_normalized
-        );
-        console.log(compared_groups);
-    }
-
-    function CompareTestPoses() {
-        let i = 1;
-        for (const group_type in compared_groups) {
-            const group = compared_groups[group_type];
-            ctx.font = '24px serif';
-            const colors = {
-                HEAD: 'Blue',
-                TORSO: 'Purple',
-                LEGS: 'Pink',
-            };
-            ctx.fillStyle = colors[group_type];
-            ctx.strokeStyle = colors[group_type];
-            ctx.fillText(`${group_type}: ${group.rotation}`, 0, i * 30);
-            const keypoints = group.input_transformed
-                .to2DArray()
-                .map((point) => {
-                    return { x: point[0], y: point[1] };
-                });
-            drawKeypointsTransformed(
-                normalizedKeypointsToVideoSize(keypoints, $cameraStore),
-                group_type
-            );
-            // drawKeypointsTransformed(keypoints, group_type);
             i++;
         }
     }
@@ -331,5 +294,3 @@
         Start MoveNet
     {/if}
 </button>
-
-<button on:click={() => TestCompareGroups()}>Test Compare Groups</button>
