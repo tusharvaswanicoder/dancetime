@@ -34,13 +34,12 @@
         --color-secondary-alpha-500: hsl(var(--secondary) 95% 50% / 0.5);
         --color-secondary-alpha-700: hsl(var(--secondary) 95% 50% / 0.7);
         
-        --gradient-deg: 45deg;
-        --color-pink-light: hsl(0deg 63% 95%); 
-        --color-pink-dark: hsl(306deg 41% 98%); 
-        --color-yellow-light: hsl(47deg 98% 83%);
-        --color-yellow-dark: hsl(47deg 100% 100%);
-        --color-blue-light: hsl(227deg 96% 77%);
-        --color-blue-dark: hsl(234deg 83% 58%);
+        --color-pink-light: hsla(306deg, 89%, 78%, 1); 
+        --color-pink-dark: hsla(0deg, 87%, 66%, 1); 
+        --color-yellow-light: hsla(43deg, 98%, 60%, 1);
+        --color-yellow-dark: hsla(35deg, 100%, 50%, 1);
+        --color-blue-light: hsl(227, 96%, 77%, 1);
+        --color-blue-dark: hsl(234, 83%, 58%, 1);
     }
     
     main {
