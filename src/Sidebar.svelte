@@ -1,11 +1,11 @@
 <script>
     import Icon from './Icon.svelte';
     import { NAV_IDS } from './constants';
-    export let SelectedNavId = NAV_IDS.PLAY;
+    import { SelectedNavIdStore } from "./stores"
     
     const click_nav = (nav_item) => 
     {
-        SelectedNavId = nav_item.nav_id;
+        SelectedNavIdStore.set(nav_item.nav_id);
     }
 
     const nav_items = [
@@ -46,7 +46,7 @@
     {#each nav_items as nav_item}
         <button
             class={`nav-item ${nav_item.class} ${
-                nav_item.nav_id == SelectedNavId ? 'selected' : ''
+                nav_item.nav_id == $SelectedNavIdStore ? 'selected' : ''
             }`}
             on:click={() => click_nav(nav_item)}
         >
@@ -67,6 +67,8 @@
         flex-direction: column;
         align-items: center;
         justify-content: space-evenly;
+        grid-area: 'sidebar';
+        z-index: 1;
     }
 
     button.nav-item {

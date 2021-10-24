@@ -48,6 +48,8 @@
         height: 100%;
         width: 100%;
         grid-template-columns: 250px 1fr;
+        grid-template-areas: 
+            'sidebar main';
         font-family: 'Lato', Arial, Helvetica, sans-serif;
         overflow: hidden;
     }

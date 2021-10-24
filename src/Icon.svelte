@@ -6,6 +6,9 @@
     
     import { writable } from "svelte/store";
     const gradient_id_store = writable(0);
+    
+	import { draw } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
 </script>
 
 <script>
@@ -30,7 +33,7 @@
     $: rotation = directions.indexOf(direction) * 45;
 </script>
 
-<svg
+<svg transition:draw="{{duration: 5000, delay: 500, easing: quintOut}}"
     viewBox="0 0 25 25"
     fill-rule="evenodd"
     clip-rule="evenodd"
