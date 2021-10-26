@@ -11,7 +11,7 @@
 <style>
     :root {
         /* Color themes */
-        --gray: 270deg;
+        --gray: 220deg;
         --color-gray-100: hsl(var(--gray) 20% 95%);
         --color-gray-300: hsl(var(--gray) 10% 75%);
         --color-gray-500: hsl(var(--gray) 5% 50%);

@@ -2,7 +2,7 @@
     import { NAV_IDS } from './constants';
     import { SelectedNavIdStore } from './stores';
     import PlaySection from './PlaySection.svelte';
-    import CreateSection from './CreateSection.svelte';
+    import CreateSection from './Create/CreateSection.svelte';
     import DownloadsSection from './DownloadsSection.svelte';
 </script>
 
@@ -21,6 +21,7 @@
         width: 100%;
         height: 100%;
         position: relative;
-        grid-area: 'main';
+        grid-area: main;
+        overflow: hidden;
     }
 </style>

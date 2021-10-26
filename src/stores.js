@@ -7,4 +7,4 @@ export const cameraCanvasStoreVideo = writable(null);
 export const playerStore = writable(null);
 
 import { NAV_IDS } from './constants';
-export const SelectedNavIdStore = writable(NAV_IDS.PLAY);
+export const SelectedNavIdStore = writable(NAV_IDS.CREATE);
