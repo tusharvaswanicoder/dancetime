@@ -111,3 +111,7 @@ body {
         /* Chrome 26+, Opera 23+, Firefox 39+ */
             url('../fonts/lato-v20-latin-900italic.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
+
+* {
+    font-family: 'Lato', Arial, Helvetica, sans-serif;
+}

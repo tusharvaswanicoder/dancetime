@@ -15,6 +15,7 @@
         --color-gray-100: hsl(var(--gray) 20% 95%);
         --color-gray-300: hsl(var(--gray) 10% 75%);
         --color-gray-500: hsl(var(--gray) 5% 50%);
+        --color-gray-650: hsl(var(--gray) 8% 35%);
         --color-gray-700: hsl(var(--gray) 10% 30%);
         --color-gray-900: hsl(var(--gray) 15% 15%);
 
@@ -50,7 +51,6 @@
         grid-template-columns: 250px 1fr;
         grid-template-areas: 
             'sidebar main';
-        font-family: 'Lato', Arial, Helvetica, sans-serif;
         overflow: hidden;
     }
 </style>

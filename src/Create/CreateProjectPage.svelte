@@ -1,23 +1,112 @@
 <script>
     import ProjectCard from './ProjectCard.svelte';
+    import { VISIBILITY } from "../constants"
+    import Icon from '../Icon.svelte';
+    
+    const STATE = {
+        PROJECTS_LIST: 1,
+        CREATE_NEW: 2
+    }
+    
+    let current_state = STATE.PROJECTS_LIST;
+    
+    const ExitCreateNew = () => {
+        current_state = STATE.PROJECTS_LIST;
+    }
+    
+    const OnCardClick = (card_data) => {
+        if (card_data.new_project)
+        {
+            // Start creating a new project
+            current_state = STATE.CREATE_NEW;
+        }
+        else
+        {
+            // Open existing project
+        }
+    }
+    
+    let create_new_title;
+    let create_new_link;
+    
+    // User clicks the CREATE button after clicking "Create New Project"
+    const CreateNewProject = () => {
+        if (create_new_link.length < 10 || create_new_title.length < 1)
+        {
+            // Invalid inputs, return
+            return;
+        }
+        
+        if (create_new_title.length > 30) {
+            // Title too long
+            return;
+        }
+        
+        // OK inputs, sanity check for duplicate project names? Or just use IDs so project names don't matter
+        
+        
+        // Create project
+        current_state = STATE.PROJECTS_LIST;
+    }
+    
+    
+    const OnClickProjectOpen = (project_card) => {
+        
+    };
+    const OnClickProjectDelete = (project_card) => {
+        
+    };
 </script>
 
-<main>
+{#if current_state == STATE.CREATE_NEW}
+    <div class='create-new-container'>
+        <div class='exit-click-container' on:click={() => {ExitCreateNew()}}></div>
+        <main class='background'>
+            <div class='content'>
+                <h1>Create New Project</h1>
+                <div class='details-container'>
+                    <h2>Project Name</h2>
+                    <input bind:value={create_new_title} placeholder="My First Project" />
+                    <!-- <h2>Video Source</h2>
+                    <h3>YouTube</h3> -->
+                    <h2>Video Link</h2>
+                    <input bind:value={create_new_link} placeholder="https://www.youtube.com/watch?v=pdsGv5B9OSQ" />
+                    <h2 class="create-button" on:click={() => CreateNewProject()}>Create</h2>
+                </div>
+                <div class="icon-container" on:click={() => {ExitCreateNew()}}>
+                    <Icon name="x_icon" />
+                </div>
+            </div>
+        </main>
+    </div>
+{/if}
+
+<main class={`${current_state == STATE.CREATE_NEW ? 'blurred' : ''}`}>
     <section class="title-section">
         <h1>Create</h1>
         <h2>Create your own dance charts from YouTube videos.</h2>
     </section>
     <section class="projects-section">
-        <h1>Projects</h1>
+        <h1>My Projects</h1>
         <div class="projects-container">
-            <!-- <ProjectCard data={{
+            <ProjectCard OnClick={OnCardClick} card_data={{
                 title: "Create New Project",
                 new_project: true
-            }} /> -->
-            <div class="test">a</div>
-            <div class="test">a</div>
-            <div class="test">a</div>
-            <div class="test">a</div>
+            }} />
+            <!-- Display all existing projects here -->
+            <ProjectCard card_data={{
+                title: "My First Project",
+                chart_title: "Levitating (ft. DaBaby)",
+                song_artist: "Dua Lipa",
+                difficulty: "Hard",
+                last_edited: "Nov 13, 2021",
+                video_source: "YouTube",
+                video_id: "I6rufOlNyYM",
+                video_link: "https://www.youtube.com/watch?v=pdsGv5B9OSQ",
+                length: "00:03:13:02",
+                download: "100%",
+                visibility: VISIBILITY.DRAFT
+            }} OnClickOpen={OnClickProjectOpen} OnClickDelete={OnClickProjectDelete} />
         </div>
     </section>
 </main>
@@ -28,14 +117,12 @@
         display: grid;
         grid-template-rows: min-content auto;
         height: 100%;
-        --card-height: 350px;
+        --card-height: 22rem;
+        transition: 0.2s linear filter;
     }
-
-    div.test {
-        background-color: orange;
-        border: 2px solid green;
-        border-radius: 20px;
-        height: var(--card-height);
+    
+    main.blurred {
+        filter: blur(8px);
     }
 
     section.title-section {
@@ -97,4 +184,109 @@
         padding-top: 10px;
     }
     
+    div.create-new-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: hsla(0deg 0% 0% / 0.25);
+        z-index: 2;
+        cursor: default;
+    }
+    
+    div.create-new-container div.exit-click-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    
+    div.create-new-container main.background {
+        width: clamp(50%, 650px, 75%);
+        display: flex;
+        flex-direction: row;
+        justify-content: stretch;
+        align-items: stretch;
+        background-image: linear-gradient(
+            45deg,
+            var(--color-yellow-dark),
+            var(--color-yellow-light)
+        );
+        min-height: 200px;
+        height: fit-content;
+        border-radius: 20px;
+        transition: 0.1s cubic-bezier(0.165, 0.84, 0.44, 1) all;
+    }
+    
+    div.create-new-container div.content {
+        max-width: 100%;
+        position: relative;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        background-color: var(--color-gray-700);
+        margin: 6px;
+        padding: 12px;
+        padding-right: 40px;
+        border-radius: 14px;
+        color: white;
+    }
+    
+    div.create-new-container div.icon-container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: var(--color-gray-300);
+        margin: 10px;
+        font-size: 1.25rem;
+        cursor: pointer;
+    }
+    
+    div.create-new-container div.icon-container:hover {
+        color: white;
+    }
+    
+    div.create-new-container div.content h1 {
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+    
+    div.create-new-container div.content div.details-container {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        align-items: center;
+        gap: 10px 30px;
+        margin-top: 10px;
+    }
+    
+    div.create-new-container div.content div.details-container input {
+        background-color: var(--color-gray-900);
+        color: var(--color-gray-100);
+        padding: 8px;
+        border-radius: 6px;
+        /* font-family: 'Lato', Arial, Helvetica, sans-serif; */
+        border: 2px solid var(--color-gray-500);
+    }
+    
+    div.create-new-container div.content div.details-container h2 {
+        color: var(--color-gray-300);
+    }
+    
+    div.create-new-container div.content div.details-container h2.create-button {
+        color: var(--color-yellow-light);
+        margin-top: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 1.5rem;
+        grid-column: 1 / 3;
+        justify-self: center;
+        cursor: pointer;
+    }
+    
+    div.create-new-container div.content div.details-container h2.create-button:hover {
+        color: var(--color-yellow-dark);
+    }
+    
+
 </style>
