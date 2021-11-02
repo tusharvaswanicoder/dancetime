@@ -1,11 +1,21 @@
 <script>
     import Sidebar from "./Sidebar.svelte"
     import MainContent from "./MainContent.svelte"
+    import { onMount } from "svelte";
+    
+    import {getUserInfo, USER} from "./Auth"
+    
+    onMount(() => {
+        getUserInfo();
+    })
+    
 </script>
 
 <main>
-    <Sidebar />
-    <MainContent />
+    {#if $USER.loggedIn}
+        <Sidebar />
+        <MainContent />
+    {/if}
 </main>
 
 <style>

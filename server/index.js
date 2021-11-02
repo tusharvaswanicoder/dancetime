@@ -38,6 +38,8 @@ const createAccountLimiter = rateLimit({
       "Too many accounts created from this IP, please try again after an hour"
 });
 
+const JWT = require('./JWT');
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -59,8 +61,6 @@ app.use((req, res, next) => {
 })
 
 app.use(express.static('public'));
-
-const JWT = require('./JWT');
 
 const { AzTableManager } = require('./AzTableManager');
 
@@ -132,7 +132,11 @@ app.post('/register', createAccountLimiter, (req, res) => {
         AzTableManager.emailIsWhitelisted(req.body.email).then((result) => {
             if (result == true) {
                 const token = JWT.makeToken(req.body.email);
-                SendMagicLinkEmail(req.body.email, token);
+                SendMagicLinkEmail(req.body.email, token).then(() => {
+                    
+                }).catch((err) => {
+                    console.log(err);
+                });
             }
         });
     }

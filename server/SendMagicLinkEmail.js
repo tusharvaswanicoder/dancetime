@@ -1,7 +1,8 @@
 const https = require('https');
 const path = require('path');
 
-const MAGIC_LINK_URL = process.env.MAGIC_LINK_URL;
+const MAGIC_LINK_URL = process.env.NODE_ENV == 'production' ? 
+    process.env.MAGIC_LINK_URL : 'http://localhost:3001/login';
 
 async function SendMagicLinkEmail(email, token) {
     return post(process.env.EMAIL_POST_ENDPOINT, {
