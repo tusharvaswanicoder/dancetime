@@ -1,22 +1,32 @@
 <script>
     import Sidebar from "./Sidebar.svelte"
     import MainContent from "./MainContent.svelte"
+    import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
     import { onMount } from "svelte";
     
     import {getUserInfo, USER} from "./Auth"
     
+    let loaded = false;
+    
+    // Try to load user info before displaying anything
     onMount(() => {
-        getUserInfo();
+        getUserInfo().then(() => {
+            loaded = true;
+        });
     })
     
 </script>
 
-<main>
-    {#if $USER.loggedIn}
-        <Sidebar />
-        <MainContent />
-    {/if}
-</main>
+{#if loaded}
+    <main>
+        {#if $USER.loggedIn}
+            <Sidebar />
+            <MainContent />
+        {:else}
+            <NotLoggedInLanding />
+        {/if}
+    </main>
+{/if}
 
 <style>
     :root {

@@ -22,7 +22,7 @@ class YTDL {
     init() {
         console.log('YTDL init...');
         this.ensure_ytdl_exists().then(() => {
-            this.youtubeDlWrap = new YoutubeDlWrap(path.join(__dirname, ytdl_name));
+            this.youtubeDlWrap = new YoutubeDlWrap(path.resolve(__dirname, "..", ytdl_name));
             this.init_finished();
         });
     }

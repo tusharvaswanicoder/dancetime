@@ -11,6 +11,12 @@ async function SendMagicLinkEmail(email, token) {
     })
 }
 
+function validateEmail(email) {
+    const re =
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
 async function post(url, data) {
     const dataString = JSON.stringify(data);
 
@@ -24,6 +30,10 @@ async function post(url, data) {
     };
 
     return new Promise((resolve, reject) => {
+        if (!validateEmail(data.email)) {
+            reject();
+        }
+        
         const req = https.request(url, options, (res) => {
             if (res.statusCode < 200 || res.statusCode > 299) {
                 return reject(new Error(`HTTP status code ${res.statusCode}`));

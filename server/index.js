@@ -33,7 +33,7 @@ const apiLimiter = rateLimit({
 
 const createAccountLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour window
-    max: 5, // start blocking after 5 requests
+    max: 10, // start blocking after 10 requests
     message:
       "Too many accounts created from this IP, please try again after an hour"
 });
@@ -46,6 +46,7 @@ app.use(cookieParser());
 
 // Look for user cookies to see if they are already logged in
 app.use((req, res, next) => {
+    // If a cookie is expired it will not show up in req.cookies
     const jwtToken = req.cookies.jwtToken;
     if (jwtToken) {
         const decoded = JWT.verify(jwtToken);
@@ -55,6 +56,13 @@ app.use((req, res, next) => {
             }
             
             // TODO: check timestamp and refresh token if needed
+            if (decoded.exp < Date.now() / 1000) {
+                console.log('expired token, refreshing')
+                const token = JWT.refreshToken(decoded);
+                SetJWTCookie(token, req, res);
+                console.log(`old token: ${jwtToken}`);
+                console.log(`new token: ${token}`);
+            }
         }
     }
     next();
@@ -112,11 +120,22 @@ app.get('/login', createAccountLimiter, (req, res) => {
     }
 
     // Valid JWT token, store in cookies
-    // res.cookie('jwtToken', req.query.token, { maxAge: 900000, httpOnly: true, secure: true, sameSite: true });
-    res.cookie('jwtToken', req.query.token, { maxAge: 900000, httpOnly: true, sameSite: true });
+    // Store cookie for 6 months
+    SetJWTCookie(req.query.token, req, res);
 
     res.redirect('/');
 });
+
+/**
+ * Stores a JWT token in the cookies.
+ * @param {*} token 
+ * @param {*} req 
+ * @param {*} res 
+ */
+function SetJWTCookie (token, req, res) {
+    // Store cookie for 6 months
+    res.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: true, secure: true });
+}
 
 // User goes to site, enters email, and posts request with email to see if they can get a magic link
 app.post('/register', createAccountLimiter, (req, res) => {
@@ -155,9 +174,7 @@ app.get('/getMyInfo', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    if (req.user) {
-        res.send(req.user);
-    }
+    res.redirect('/');
     res.end();
 });
  
