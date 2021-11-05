@@ -345,6 +345,11 @@ class MediaManager {
         if (c.format_note == 'tiny') {
             return p;
         }
+        
+        // Restrict video size to 1920x1080
+        if (c.height > 1080 || c.width > 1920) {
+            return p;
+        }
 
         return p.filesize > c.filesize ? p : c;
     }

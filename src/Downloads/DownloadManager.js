@@ -3,13 +3,13 @@ import { writable } from "svelte/store";
 import {
     GetVideoBlobFromURL,
     StoreVideoBlob,
-    GetVideoBlobFromDB,
+    DeleteVideoBlobInDB,
 } from "./VideoBlobManager";
 
 const DOWNLOADED_MEDIA_LOCALSTORE_NAME = 'downloadedMedia';
 
 // Media status from server
-const MEDIA_STATUS = {
+export const MEDIA_STATUS = {
     STARTING: 0,
     NOT_STARTED: 1,
     UNAVAILABLE: 2,
@@ -59,9 +59,11 @@ class DownloadManager {
             return;
         }
         
+        this.xhrs = {};
         this.ensureMetadataInLocalStorage();
         this.metaData = JSON.parse(localStorage.getItem(DOWNLOADED_MEDIA_LOCALSTORE_NAME));
         this.metaDataStore = writable(this.metaData);
+        this.resumeInProgressDownloads();
     }
     
     /**
@@ -71,6 +73,15 @@ class DownloadManager {
         if (!localStorage.getItem(DOWNLOADED_MEDIA_LOCALSTORE_NAME)) {
             localStorage.setItem(DOWNLOADED_MEDIA_LOCALSTORE_NAME, JSON.stringify({}));
         }
+    }
+    
+    resumeInProgressDownloads () {
+        Object.values(this.metaData).forEach((songData) => {
+            if (songData.status != MEDIA_STATUS.ERROR && songData.status != MEDIA_STATUS.FINISHED) {
+                // Retry in progress downloads on page refresh
+                this.startMediaDownload(songData.media_id);
+            }
+        })
     }
     
     /**
@@ -93,12 +104,64 @@ class DownloadManager {
      * @param {*} media_id 
      */
     getMediaPercentComplete (media_id) {
-        // TODO
-        if (this.metaData[media_id]) {
-            return this.metaData[media_id].download_progress ? this.metaData[media_id].download_progress : 1;
+        const songData = this.metaData[media_id];
+        if (!songData) {
+            return 0;
         }
         
-        return 0;
+        if (songData.status == MEDIA_STATUS.FINISHED) {
+            return 100;
+        }
+        
+        if (songData.status == MEDIA_STATUS.STARTING) {
+            return 0;
+        }
+        
+        if (songData.status == MEDIA_STATUS.UNAVAILABLE) {
+            return 100;
+        }
+        
+        let completion = 0;
+        
+        const conversion_weights = {
+            ['v_up_progress']: 0.05,
+            ['v_dl_progress']: 0.05,
+            ['a_up_progress']: 0.01,
+            ['a_dl_progress']: 0.01,
+        }
+        
+        if (songData.status == MEDIA_STATUS.CONVERTING) {
+            Object.keys(conversion_weights).forEach((key) => {
+                const weight = conversion_weights[key];
+                if (songData[key]) {
+                    completion += weight * songData[key];
+                }
+            })
+            
+            return completion * 100;
+        }
+        
+        completion = Object.values(conversion_weights).reduce((prev, curr) => prev + curr);
+        const total_conversion_completion = completion;
+        
+        const download_weight = 1 - completion;
+        const download_weights = {
+            ['download-progress-v']: 0.99,
+            ['download-progress-a']: 0.01
+        }
+        
+        Object.keys(download_weights).forEach((key) => {
+            const weight = download_weights[key];
+            if (songData[key]) {
+                completion += weight * songData[key] * download_weight;
+            }
+        })
+        
+        if (completion == total_conversion_completion && songData.status == MEDIA_STATUS.ERROR) {
+            return 100;
+        }
+        
+        return completion * 100;
     }
     
     /**
@@ -106,9 +169,8 @@ class DownloadManager {
      * @param {*} media_id 
      */
     async isMediaDownloaded (media_id) {
-        // TODO
         if (this.metaData[media_id]) {
-            return typeof this.metaData[media_id].download_progress == 'undefined';
+            return this.metaData[media_id].status == MEDIA_STATUS.COMPLETED;
         }
         
         return false;
@@ -131,21 +193,62 @@ class DownloadManager {
     }
     
     /**
+     * Deletes a media entry from localStorage and any video elements from the DB
+     * @param {*} entry 
+     */
+    deleteMetadataStoreEntry (entry) {
+        if (entry.media_id) {
+            this.stopMediaDownload(entry.media_id);
+            delete this.metaData[entry.media_id];
+            this.updateMetadataInLocalStorage();
+            
+            if (entry['indexedMediaBlob-v']) {
+                DeleteVideoBlobInDB(entry['indexedMediaBlob-v']);
+            }
+            if (entry['indexedMediaBlob-a']) {
+                DeleteVideoBlobInDB(entry['indexedMediaBlob-a']);
+            }
+        }
+    }
+    
+    stopMediaDownload (media_id) {
+        const metadata_entry = this.metaData[media_id];
+        if (!metadata_entry) {
+            return;
+        }
+        
+        if (this.xhrs[media_id]) {
+            this.xhrs[media_id].abort();
+            delete this.xhrs[media_id];
+        }
+        
+        metadata_entry.stopped = true;
+        this.updateMetadataStoreEntry(metadata_entry);
+    }
+    
+    /**
      * Starts to download the media with the given youtube ID
      * @param {*} media_id 
      */
     async startMediaDownload (media_id) {
         console.log(`Starting download of ${media_id}`);
+        if (typeof media_id == 'undefined') {
+            return;
+        }
+        
+        this.stopMediaDownload(media_id);
+        
         let metadata_entry = {
             media_id: media_id,
             status: MEDIA_STATUS.STARTING
         }
         
+        metadata_entry.download_date = new Date().toISOString();
         this.updateMetadataStoreEntry(metadata_entry);
         
         // Keep polling the API until we get download links
         let shouldFetchAPI = true;
-        while (shouldFetchAPI) {
+        while (shouldFetchAPI && !metadata_entry.stopped) {
             try {
                 console.log(`Fetching API ${media_id}`);
                 const response = await this.fetchMediaFromAPI(media_id);
@@ -154,15 +257,25 @@ class DownloadManager {
                 
                 if (response.status == MEDIA_STATUS.COMPLETED) {
                     shouldFetchAPI = false;
+                } else if (response.status == MEDIA_STATUS.ERROR) {
+                    this.updateMetadataStoreEntry(metadata_entry);
+                    return;
                 }
                 
                 this.updateMetadataStoreEntry(metadata_entry);
             } catch (error) {
                 console.log(error);
+                if (!metadata_entry.title) {
+                    this.deleteMetadataStoreEntry(metadata_entry);
+                }
                 return;
             }
             
             await this.sleep(1000);
+        }
+        
+        if (metadata_entry.stopped) {
+            return;
         }
         
         metadata_entry.status = MEDIA_STATUS.DOWNLOADING;
@@ -177,8 +290,7 @@ class DownloadManager {
             return;
         }
         
-        metadata_entry.download_date = new Date().toISOString();
-        metadata_entry.status = MEDIA_STATUS.COMPLETED;
+        metadata_entry.status = MEDIA_STATUS.FINISHED;
         this.updateMetadataStoreEntry(metadata_entry);
         
         console.log(`Finished download of ${media_id}`);
@@ -189,10 +301,15 @@ class DownloadManager {
         return new Promise((resolve, reject) => {
             GetVideoBlobFromURL(url, (data) => 
             {
+                if (data.xhr && !this.xhrs[metadata_entry.media_id]) {
+                    this.xhrs[metadata_entry.media_id] = data.xhr;
+                }
+                
                 console.log(data);
                 if (data.event == "load")
                 {
                     // Completed download
+                    delete this.xhrs[metadata_entry.media_id];
                     const blobName = `${metadata_entry.media_id}-${media_type}`;
                     StoreVideoBlob(data.blob, blobName, () => 
                     {
@@ -213,6 +330,7 @@ class DownloadManager {
                 else if (data.event == "error")
                 {
                     metadata_entry.status = MEDIA_STATUS.ERROR;
+                    delete this.xhrs[metadata_entry.media_id];
                     reject();
                 }
             })

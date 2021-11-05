@@ -1,10 +1,15 @@
 <script>
     import ProgressCircle from "../ProgressCircle.svelte";
     import Icon from "../Icon.svelte"
+    import { dlManager, MEDIA_STATUS } from "./DownloadManager"
+    import { tweened } from 'svelte/motion';
+    import { quadOut } from 'svelte/easing';
+    import { slide } from 'svelte/transition';
+    
     export let songData = {};
     
     const ConvertDurationToNiceString = (duration) => {
-        return `${Math.floor(duration / 60)}:${duration % 60}`
+        return `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
     }
     
     const GetTotalMB = () => {
@@ -16,40 +21,96 @@
         return `${date.toLocaleString('default', { month: 'short' })} ${date.getDay()}, ${date.getFullYear()}`;
     }
     
-    const OnClickDelete = (e) => {
+    const GetDownloadCircleCompletion = () => {
+        return dlManager.getMediaPercentComplete(songData.media_id);
+    }
+    
+    const GetDownloadCircleColor = () => {
+        if (songData.status == MEDIA_STATUS.ERROR || songData.status == MEDIA_STATUS.UNAVAILABLE) {
+            return [
+                { color: 'var(--color-red-dark)', offset: '0' },
+                { color: 'var(--color-red-light)', offset: '1' },
+            ]
+        }
+        else if (songData.status != MEDIA_STATUS.FINISHED) {
+            return [
+                { color: 'var(--color-blue-dark)', offset: '0' },
+                { color: 'var(--color-blue-light)', offset: '1' },
+            ]
+        }
         
+        return [
+            { color: 'var(--color-green-dark)', offset: '0' },
+            { color: 'var(--color-green-light)', offset: '1' },
+        ]
+    }
+    
+    const GetDownloadCircleText = () => {
+        if (songData.status == MEDIA_STATUS.ERROR) {
+            return 'Error'
+        }
+        else if (songData.status == MEDIA_STATUS.FINISHED) {
+            return `${GetTotalMB()} MB`
+        }
+        else {
+            return `${GetDownloadCircleCompletion().toFixed(0)}%`;
+        }
+    }
+    
+    const OnClickDelete = (e) => {
+        dlManager.deleteMetadataStoreEntry(songData);
+    }
+    
+    const OnClickRetry = (e) => {
+        dlManager.startMediaDownload(songData.media_id);
+    }
+    
+    let stops = GetDownloadCircleColor();
+    let downloadCircleCompletion = tweened(GetDownloadCircleCompletion(), {
+        duration: 200,
+        easing: quadOut
+    })
+    let downloadCircleText = GetDownloadCircleText();
+    
+    $: {
+        songData,
+        stops = GetDownloadCircleColor(),
+        downloadCircleCompletion.set(GetDownloadCircleCompletion()),
+        downloadCircleText = GetDownloadCircleText()
     }
 </script>
 
 <main>
-    <a href={songData.url} target="_blank">
+    <a href={songData.url || `https://www.youtube.com/watch?v=${songData.media_id}`} target="_blank">
         <div class='image-container'>
             <!-- Image here -->
-            <div class='duration'>{ConvertDurationToNiceString(songData.duration)}</div>
+            <div class='duration'>{songData.duration ? ConvertDurationToNiceString(songData.duration) : '0:00'}</div>
         </div>
     </a>
     <div class='text-container'>
         <header>
-            <h1>{songData.title}</h1>
-            <h2>{songData.channel}</h2>
+            <h1>{songData.status == MEDIA_STATUS.STARTING ? 'Starting Download...' : songData.title || "Unknown Video"}</h1>
+            <h2>{songData.status == MEDIA_STATUS.STARTING ? '' : songData.channel || 'Unknown'}</h2>
         </header>
         <footer>
             <h2>Downloaded: {GetFormattedDate(songData.download_date)}</h2>
-            {#if songData.last_played}
-                <h2>{songData.last_played}</h2>
-            {/if}
+            <h2>Last Played: {songData.last_played || 'Never'}</h2>
         </footer>
     </div>
     <div class='right-container'>
         <div class='circle-container'>
             <ProgressCircle 
-            stops={[
-                { color: 'var(--color-blue-dark)', offset: '0' },
-                { color: 'var(--color-blue-light)', offset: '1' },
-            ]} value={50}><span>{GetTotalMB()} MB</span></ProgressCircle>
+            stops={stops} value={$downloadCircleCompletion}><span>{downloadCircleText}</span></ProgressCircle>
         </div>
-        <div class='icon-container delete' on:click={() => OnClickDelete()}>
-            <Icon name="trash_icon" />
+        <div class='icons-container'>
+            {#if songData.status != MEDIA_STATUS.FINISHED}
+                <div class='icon-container retry' on:click={() => OnClickRetry()}>
+                    <Icon name="retry_icon" />
+                </div>
+            {/if}
+            <div class='icon-container delete' on:click={() => OnClickDelete()}>
+                <Icon name="trash_icon" />
+            </div>
         </div>
     </div>
 </main>
@@ -63,6 +124,7 @@
         display: grid;
         grid-template-columns: min-content 1fr min-content;
         gap: 26px;
+        margin-bottom: 30px;
     }
     
     div.image-container {
@@ -145,6 +207,12 @@
     
     div.icon-container:hover {
         color: var(--color-gray-500);
+    }
+    
+    div.icons-container {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
     }
     
 </style>

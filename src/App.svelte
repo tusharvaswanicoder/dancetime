@@ -62,6 +62,10 @@
         --color-yellow-dark: hsla(35deg, 100%, 50%, 1);
         --color-blue-light: hsl(227, 96%, 77%, 1);
         --color-blue-dark: hsl(234, 83%, 58%, 1);
+        --color-red-light: hsl(0, 67%, 62%);
+        --color-red-dark: hsl(22, 78%, 45%);
+        --color-green-light: hsla(108, 92%, 73%);
+        --color-green-dark: hsla(108, 56%, 53%);
     }
     
     main {

@@ -49,6 +49,24 @@ export function GetVideoBlobFromDB(name, cb)
 }
 
 /**
+ * Given a string video id, deletes the video blob stored under that id, if any.
+ * @param {string} name 
+ * @param {*} cb Callback function to be called after the blob is deleted. (optional)
+ */
+ export function DeleteVideoBlobInDB(name, cb)
+ {
+     const db = GetDB();
+ 
+     db.videoblobs.where({name: name}).delete().then(() => {
+        if (cb) {
+            cb();
+        }
+     }).catch(function(error) {
+        console.error(`DeleteVideoBlobInDB error: ${error}`)
+     });
+ }
+
+/**
  * 
  * @param {string} url URL to download the video from, eg. mywebsite.com/video.mp4
  * @param {function} cb Callback function when an event fires from the request.
@@ -66,14 +84,15 @@ export function GetVideoBlobFromURL(url, cb) {
     
     // Set the responseType to blob
     xhr.responseType = "blob";
-
+    
     xhr.addEventListener("progress", (evt) => {
         if (evt.lengthComputable) {
             const percentComplete = (evt.loaded / evt.total);
             cb({
                 event: "progress",
                 progress: percentComplete,
-                evt: evt
+                evt: evt,
+                xhr: xhr
             })
         }
     });
@@ -81,13 +100,15 @@ export function GetVideoBlobFromURL(url, cb) {
     xhr.addEventListener("error", (evt) => {
         cb({
             event: "error",
-            evt: evt
+            evt: evt,
+            xhr: xhr
         })
     });
     xhr.addEventListener("abort", (evt) => {
         cb({
             event: "abort",
-            evt: evt
+            evt: evt,
+            xhr: xhr
         })
     });
 
@@ -99,7 +120,8 @@ export function GetVideoBlobFromURL(url, cb) {
             cb({
                 event: "load",
                 blob: xhr.response,
-                evt: evt
+                evt: evt,
+                xhr: xhr
             })
         }
     });

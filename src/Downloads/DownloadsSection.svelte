@@ -14,17 +14,20 @@
         return (size / (1024 * 1024)).toFixed(0);
     }
     
-    let numSongs = Object.values($dlManager).length;
-    let totalSize = GetTotalSizeInMB();
-    console.log(totalSize)
+    let numSongs = 0;
+    let totalSize = 0;
     
     function ClickTest() {
+        // dlManager.startMediaDownload('pdsGv5B9OSQ')
         dlManager.startMediaDownload('pdsGv5B9OSQ')
+        dlManager.startMediaDownload('WfwV8vkIXvI')
+        dlManager.startMediaDownload('sbMzyR9YLLg')
     }
     
     $: {
         $dlManager,
-        totalSize = GetTotalSizeInMB()
+        totalSize = GetTotalSizeInMB(),
+        numSongs = Object.values($dlManager).length
     }
 </script>
 
@@ -37,7 +40,7 @@
             {:else}
                 <h2>{numSongs} Songs</h2>
             {/if}
-            <h2>{totalSize} MB</h2>
+            <h2>{totalSize > 1000 ? `${(totalSize / 1000).toFixed(2)} GB` : `${totalSize} MB`}</h2>
         </div>
     </header>
     <section class='downloads-container'>
@@ -97,7 +100,6 @@
     }
     
     section.downloads-container {
-        border: 2px dashed red;
         padding: 20px;
         overflow-y: auto;
     }
