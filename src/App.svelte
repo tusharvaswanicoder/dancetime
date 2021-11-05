@@ -33,6 +33,7 @@
         /* Color themes */
         --gray: 220deg;
         --color-gray-100: hsl(var(--gray) 20% 95%);
+        --color-gray-200: hsl(var(--gray) 15% 85%);
         --color-gray-300: hsl(var(--gray) 10% 75%);
         --color-gray-500: hsl(var(--gray) 5% 50%);
         --color-gray-650: hsl(var(--gray) 8% 35%);

@@ -81,7 +81,7 @@
     </div>
 {/if}
 
-<main class={`${current_state == STATE.CREATE_NEW ? 'blurred' : ''}`}>
+<main class:blurred={current_state == STATE.CREATE_NEW}>
     <section class="title-section">
         <h1>Create</h1>
         <h2>Create your own dance charts from YouTube videos.</h2>

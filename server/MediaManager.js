@@ -6,6 +6,7 @@ const fs = require('fs');
 
 const DOWNLOAD_DIR = './downloads/';
 const {IS_PYTHON_INSTALLED} = require('./PythonManager');
+const MEDIA_SITES = ['youtube']
 
 const MEDIA_STATUS = {
     NOT_STARTED: 1,
@@ -24,6 +25,8 @@ const MEDIA_TYPE = {
 
 // Minimum retention time of an entry in this.in_progress_media - longer if it is accessed frequently
 const MEMORY_RETENTION_TIME = 1000 * 60 * 15;
+
+const MAX_MEDIA_DURATION = 60 * 10; // 10 minutes max for videos
 
 // TODO: use uuids instead of youtube ids for filenames so they cannot be searched for.
 // Will require a separate lookup table though with more transactions
@@ -48,14 +51,15 @@ class MediaManager {
     getNewInProgressMedia(metadata) {
         return {
             status: MEDIA_STATUS.NOT_STARTED,
-            video_id: metadata.id,
+            media_id: metadata.id,
+            ...this.getMetadataToSend(metadata)
         };
     }
 
     getCompletedMedia(metadata) {
         return {
             status: MEDIA_STATUS.COMPLETED,
-            video_id: metadata.id,
+            media_id: metadata.id,
             video_url: azBlobManager.get_download_url(
                 CONTAINER_TYPE.VIDEO,
                 this.getMediaFilename(metadata.id, MEDIA_TYPE.VIDEO)
@@ -64,7 +68,19 @@ class MediaManager {
                 CONTAINER_TYPE.AUDIO,
                 this.getMediaFilename(metadata.id, MEDIA_TYPE.AUDIO)
             ),
+            ...this.getMetadataToSend(metadata)
         };
+    }
+    
+    getMetadataToSend (metadata) {
+        return {
+            media_id: metadata.id,
+            title: metadata.fulltitle,
+            channel: metadata.channel,
+            duration: metadata.duration,
+            fps: metadata.fps,
+            url: metadata.webpage_url
+        }
     }
 
     /**
@@ -84,6 +100,7 @@ class MediaManager {
             let metadata;
             if (typeof id == 'undefined') {
                 metadata = await YTDL.get_video_metadata(videoId);
+                // console.log(metadata.thumbnails);
                 id = metadata.id;
                 this.videoid_cache_lookup[videoId] = id;
             }
@@ -164,6 +181,38 @@ class MediaManager {
             
         }, 1000 * 60);
     }
+    
+    /**
+     * Checks if the media is from a verified source (youtube), no age limit, etc
+     * @param {*} metadata 
+     */
+    verifyMediaIsOK(metadata) {
+        
+        // ONLY YOUTUBE. OTHER SITES COULD BE BAD.
+        if (!MEDIA_SITES.includes(metadata.extractor)) {
+            throw new Error(
+                `Unsupported media source: ${metadata.extractor}`
+            );
+        }
+        
+        if (metadata.age_limit != 0) {
+            throw new Error(
+                `Media source has age limit: ${metadata.age_limit}`
+            );
+        }
+
+        if (metadata.is_live != 0) {
+            throw new Error(
+                `Media source is live`
+            );
+        }
+        
+        if (metadata.duration > MAX_MEDIA_DURATION) {
+            throw new Error(
+                `Media source has too long of a duration: ${metadata.duration}`
+            );
+        }
+    }
 
     /**
      * Takes a youtube video id and gets the metadata, downloads the video and audio, and uploads it to the blob store
@@ -174,13 +223,8 @@ class MediaManager {
         try {
             this.in_progress_media[id].status = MEDIA_STATUS.CONVERTING;
 
-            // ONLY YOUTUBE. OTHER SITES COULD BE BAD.
-            if (metadata.extractor != 'youtube') {
-                throw new Error(
-                    `Unsupported media source: ${metadata.extractor}`
-                );
-            }
-
+            this.verifyMediaIsOK(metadata);
+            
             await this.downloadAndUploadMedia(metadata, MEDIA_TYPE.VIDEO);
             await this.downloadAndUploadMedia(metadata, MEDIA_TYPE.AUDIO);
 
@@ -257,7 +301,7 @@ class MediaManager {
                 `Could not find media format for ${media_type} / ${id}`
             );
         }
-
+        
         const filename = this.getMediaFilename(id, media_type);
         const filepath = path.join(DOWNLOAD_DIR, filename);
 

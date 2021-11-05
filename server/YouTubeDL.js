@@ -339,27 +339,27 @@ module.exports = {
                     protocol: 'https',
                     fps: 30
                 },
-                {
-                    format_note: '360p',
-                    acodec: 'none',
-                    url: 'https://r3---sn-nx5e6nez.googlevideo.com/videoplayback?expire=1635581379&ei=Y6l8YcPFDIiTkgbpi7WgDQ&ip=2604%3A4080%3A1181%3A8520%3A29f8%3A413b%3Ab71a%3Aa0f9&id=o-ADIYDxa-Mqib_Idurcx-I4FyyAi8klwxmELZHWaovG9E&itag=134&aitags=133%2C134%2C135%2C136%2C160%2C242%2C243%2C244%2C247%2C278%2C298%2C299%2C302%2C303&source=youtube&requiressl=yes&mh=x0&mm=31%2C29&mn=sn-nx5e6nez%2Csn-nx5s7n7d&ms=au%2Crdu&mv=m&mvi=3&pl=32&initcwndbps=2027500&vprv=1&mime=video%2Fmp4&ns=X0W887VrxcspFRlA7NGVFa0G&gir=yes&clen=3244599&dur=146.399&lmt=1635529606416112&mt=1635559487&fvip=3&keepalive=yes&fexp=24001373%2C24007246&c=WEB&txp=5432434&n=gS-QJ33bn6cUVR_U&sparams=expire%2Cei%2Cip%2Cid%2Caitags%2Csource%2Crequiressl%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRQIhALlud_L3UJzI9w1NSwSwkeQD_ZGufoBCMoSeRkfNCN-kAiBSKs-7N-u9njAOCrwGfxufNN5FovNBNR3mz3TxZzmQIg%3D%3D&sig=AOq0QJ8wRAIgd6xofr_d52-HlS4mVEfUiVx97TMogsTpZX0E80BwRb4CIGFikHEfYqEiRjJ2QO3xfJpEw9TP62vLRjHmlS6eMZ7w',
-                    ext: 'mp4',
-                    tbr: 177.301,
-                    format: '134 - 640x360 (360p)',
-                    filesize: 3244599,
-                    vcodec: 'avc1.4d401e',
-                    quality: 2,
-                    asr: null,
-                    container: 'mp4_dash',
-                    downloader_options: [Object],
-                    vbr: 177.301,
-                    height: 360,
-                    http_headers: [Object],
-                    width: 640,
-                    format_id: '134',
-                    protocol: 'https',
-                    fps: 30
-                },
+{
+    format_note: '360p',
+    acodec: 'none',
+    url: 'https://r3---sn-nx5e6nez.googlevideo.com/videoplayback?expire=1635581379&ei=Y6l8YcPFDIiTkgbpi7WgDQ&ip=2604%3A4080%3A1181%3A8520%3A29f8%3A413b%3Ab71a%3Aa0f9&id=o-ADIYDxa-Mqib_Idurcx-I4FyyAi8klwxmELZHWaovG9E&itag=134&aitags=133%2C134%2C135%2C136%2C160%2C242%2C243%2C244%2C247%2C278%2C298%2C299%2C302%2C303&source=youtube&requiressl=yes&mh=x0&mm=31%2C29&mn=sn-nx5e6nez%2Csn-nx5s7n7d&ms=au%2Crdu&mv=m&mvi=3&pl=32&initcwndbps=2027500&vprv=1&mime=video%2Fmp4&ns=X0W887VrxcspFRlA7NGVFa0G&gir=yes&clen=3244599&dur=146.399&lmt=1635529606416112&mt=1635559487&fvip=3&keepalive=yes&fexp=24001373%2C24007246&c=WEB&txp=5432434&n=gS-QJ33bn6cUVR_U&sparams=expire%2Cei%2Cip%2Cid%2Caitags%2Csource%2Crequiressl%2Cvprv%2Cmime%2Cns%2Cgir%2Cclen%2Cdur%2Clmt&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRQIhALlud_L3UJzI9w1NSwSwkeQD_ZGufoBCMoSeRkfNCN-kAiBSKs-7N-u9njAOCrwGfxufNN5FovNBNR3mz3TxZzmQIg%3D%3D&sig=AOq0QJ8wRAIgd6xofr_d52-HlS4mVEfUiVx97TMogsTpZX0E80BwRb4CIGFikHEfYqEiRjJ2QO3xfJpEw9TP62vLRjHmlS6eMZ7w',
+    ext: 'mp4',
+    tbr: 177.301,
+    format: '134 - 640x360 (360p)',
+    filesize: 3244599,
+    vcodec: 'avc1.4d401e',
+    quality: 2,
+    asr: null,
+    container: 'mp4_dash',
+    downloader_options: [Object],
+    vbr: 177.301,
+    height: 360,
+    http_headers: [Object],
+    width: 640,
+    format_id: '134',
+    protocol: 'https',
+    fps: 30
+},
                 {
                     format_note: '360p',
                     acodec: 'none',
@@ -584,3 +584,251 @@ module.exports = {
             fps: 30
         }
         */
+       
+        /*
+        
+        thumbnails array:
+        
+        [
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/3.jpg',
+    preference: -37,
+    id: '0'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/3.webp',
+    preference: -36,
+    id: '1'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/2.jpg',
+    preference: -35,
+    id: '2'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/2.webp',
+    preference: -34,
+    id: '3'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/1.jpg',
+    preference: -33,
+    id: '4'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/1.webp',
+    preference: -32,
+    id: '5'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/default.jpg',
+    preference: -31,
+    id: '6'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/default.webp',
+    height: 90,
+    width: 120,
+    preference: -30,
+    id: '7',
+    resolution: '120x90'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/mq3.jpg',
+    preference: -29,
+    id: '8'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/mq3.webp',
+    preference: -28,
+    id: '9'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/mq2.jpg',
+    preference: -27,
+    id: '10'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/mq2.webp',
+    preference: -26,
+    id: '11'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/mq1.jpg',
+    preference: -25,
+    id: '12'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/mq1.webp',
+    preference: -24,
+    id: '13'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/mqdefault.jpg',
+    preference: -23,
+    id: '14'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/mqdefault.webp',
+    height: 180,
+    width: 320,
+    preference: -22,
+    id: '15',
+    resolution: '320x180'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/0.jpg',
+    preference: -21,
+    id: '16'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/0.webp',
+    preference: -20,
+    id: '17'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hq3.jpg',
+    preference: -19,
+    id: '18'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/hq3.webp',
+    preference: -18,
+    id: '19'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hq2.jpg',
+    preference: -17,
+    id: '20'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/hq2.webp',
+    preference: -16,
+    id: '21'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hq1.jpg',
+    preference: -15,
+    id: '22'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/hq1.webp',
+    preference: -14,
+    id: '23'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hqdefault.jpg',
+    preference: -13,
+    id: '24'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLBYB2gGaqPvUjnnA9VXxpfpjf-Kmw',     
+    height: 94,
+    width: 168,
+    preference: -13,
+    id: '25',
+    resolution: '168x94'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hqdefault.jpg?sqp=-oaymwEbCMQBEG5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCo5CVgZiCRwT0z7APMaf1478WoFw',     
+    height: 110,
+    width: 196,
+    preference: -13,
+    id: '26',
+    resolution: '196x110'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hqdefault.jpg?sqp=-oaymwEcCPYBEIoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLA5czk9JMor9R-Sp7XiQwJX6gY1bw', 
+    height: 138,
+    width: 246,
+    preference: -13,
+    id: '27',
+    resolution: '246x138'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLCMrhcwsZPGfpsQRDjq0Gh-B_a_9A', 
+    height: 188,
+    width: 336,
+    preference: -13,
+    id: '28',
+    resolution: '336x188'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/hqdefault.webp',
+    height: 360,
+    width: 480,
+    preference: -12,
+    id: '29',
+    resolution: '480x360'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/sd3.jpg',
+    preference: -11,
+    id: '30'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/sd3.webp',
+    preference: -10,
+    id: '31'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/sd2.jpg',
+    preference: -9,
+    id: '32'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/sd2.webp',
+    preference: -8,
+    id: '33'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/sd1.jpg',
+    preference: -7,
+    id: '34'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/sd1.webp',
+    preference: -6,
+    id: '35'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/sddefault.jpg',
+    preference: -5,
+    id: '36'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/sddefault.webp',
+    height: 480,
+    width: 640,
+    preference: -4,
+    id: '37',
+    resolution: '640x480'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/hq720.jpg',
+    preference: -3,
+    id: '38'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/hq720.webp',
+    preference: -2,
+    id: '39'
+  },
+  {
+    url: 'https://i.ytimg.com/vi/pdsGv5B9OSQ/maxresdefault.jpg',
+    height: 720,
+    width: 1280,
+    preference: -1,
+    id: '40',
+    resolution: '1280x720'
+  },
+  {
+    url: 'https://i.ytimg.com/vi_webp/pdsGv5B9OSQ/maxresdefault.webp',
+    height: 1080,
+    width: 1920,
+    preference: 0,
+    id: '41',
+    resolution: '1920x1080'
+  }
+]
+*/

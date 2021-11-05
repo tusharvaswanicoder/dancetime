@@ -116,12 +116,14 @@
             transparent 70%
         );
         border-radius: 50%;
-        opacity: 0;
-        transition: 0.2s ease-in-out opacity;
+        opacity: 0.1;
+        transform: scale(0);
+        transition: 0.2s ease-in-out opacity, 0.2s ease-in-out transform;
     }
 
     button.nav-item.selected div.background {
         opacity: 0.25;
+        transform: scale(1);
     }
     
     div.icon-container {
@@ -134,11 +136,12 @@
         user-select: none;
         z-index: 1;
         opacity: 0.75;
-        transition: 0.1s ease-in-out font-size, 0.1s ease-in-out opacity;
+        transition: 0.1s ease-in-out transform, 0.1s ease-in-out opacity;
     }
 
     button.nav-item.selected div.title {
-        font-size: 1.5rem;
+        /* font-size: 1.5rem; */
+        transform: scale(1.2);
         opacity: 1;
     }
 </style>

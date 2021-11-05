@@ -69,7 +69,7 @@ export function GetVideoBlobFromURL(url, cb) {
 
     xhr.addEventListener("progress", (evt) => {
         if (evt.lengthComputable) {
-            const percentComplete = (evt.loaded / evt.total) * 100;
+            const percentComplete = (evt.loaded / evt.total);
             cb({
                 event: "progress",
                 progress: percentComplete,

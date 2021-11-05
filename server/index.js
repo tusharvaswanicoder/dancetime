@@ -1,6 +1,3 @@
-// https://dev.to/flippedcoding/implementing-passwordless-authentication-in-node-js-43m0
-// https://erikmartinjordan.com/use-nodemailer-gmail-alias-account
-
 const PORT = process.env.PORT || 3001;
 require('dotenv').config();
 
@@ -10,12 +7,9 @@ const rateLimit = require("express-rate-limit");
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { YTDL, YTDL_STATE } = require('./YouTubeDL');
+const { YTDL } = require('./YouTubeDL');
 YTDL.init();
 
-const path = require('path');
-
-const { azBlobManager } = require('./AzBlobManager');
 const { mediaManager } = require('./MediaManager');
 
 function isAuthenticated(req, res, next) {
@@ -27,8 +21,8 @@ function isAuthenticated(req, res, next) {
 }
 
 const apiLimiter = rateLimit({
-    windowMs: 10 * 60 * 1000, // 15 minutes
-    max: 100
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    max: 500
 });
 
 const createAccountLimiter = rateLimit({
@@ -38,41 +32,14 @@ const createAccountLimiter = rateLimit({
       "Too many accounts created from this IP, please try again after an hour"
 });
 
-const JWT = require('./JWT');
-
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
 // Look for user cookies to see if they are already logged in
-app.use((req, res, next) => {
-    // If a cookie is expired it will not show up in req.cookies
-    const jwtToken = req.cookies.jwtToken;
-    if (jwtToken) {
-        const decoded = JWT.verify(jwtToken);
-        if (!decoded.err) {
-            req.user = {
-                email: decoded.email
-            }
-            
-            // TODO: check timestamp and refresh token if needed
-            if (decoded.exp < Date.now() / 1000) {
-                console.log('expired token, refreshing')
-                const token = JWT.refreshToken(decoded);
-                SetJWTCookie(token, req, res);
-                console.log(`old token: ${jwtToken}`);
-                console.log(`new token: ${token}`);
-            }
-        }
-    }
-    next();
-})
+app.use(require('./CookieManager').CookieCheck)
 
 app.use(express.static('public'));
-
-const { AzTableManager } = require('./AzTableManager');
-
-const SendMagicLinkEmail = require('./SendMagicLinkEmail');
 
 // TODO: check if authenticated before allowing access to the endpoint
 
@@ -105,63 +72,10 @@ app.get('/api/video/:id', apiLimiter, isAuthenticated, (req, res) => {
 });
 
 // User arrives here with a magic link
-app.get('/login', createAccountLimiter, (req, res) => {
-    // No token
-    if (!req.query.token) {
-        res.redirect('/');
-        return;
-    }
-
-    // Verify token provided
-    const decoded = JWT.verify(req.query.token);
-    if (decoded.err) {
-        res.redirect('/');
-        return;
-    }
-
-    // Valid JWT token, store in cookies
-    // Store cookie for 6 months
-    SetJWTCookie(req.query.token, req, res);
-
-    res.redirect('/');
-});
-
-/**
- * Stores a JWT token in the cookies.
- * @param {*} token 
- * @param {*} req 
- * @param {*} res 
- */
-function SetJWTCookie (token, req, res) {
-    // Store cookie for 6 months
-    res.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: true, secure: true });
-}
+app.get('/login', createAccountLimiter, require('./CookieManager').MagicLinkLogin);
 
 // User goes to site, enters email, and posts request with email to see if they can get a magic link
-app.post('/register', createAccountLimiter, (req, res) => {
-    // User is already logged in, do not allow them to login again
-    if (req.user) {
-        res.status(403).end();
-        return;
-    }
-
-    if (req.body.email) {
-        // TODO: check if email is in db
-        // If so, send magic link with token
-        AzTableManager.emailIsWhitelisted(req.body.email).then((result) => {
-            if (result == true) {
-                const token = JWT.makeToken(req.body.email);
-                SendMagicLinkEmail(req.body.email, token).then(() => {
-                    
-                }).catch((err) => {
-                    console.log(err);
-                });
-            }
-        });
-    }
-
-    res.status(200).end();
-});
+app.post('/register', createAccountLimiter, require('./CookieManager').TryRegister);
 
 // User queries this on page load to get their info and load the authenticated screen(s)
 app.get('/getMyInfo', (req, res) => {
@@ -177,7 +91,5 @@ app.get('*', (req, res) => {
     res.redirect('/');
     res.end();
 });
- 
-// https://github.com/benank/ecs-162-assignment4/blob/main/index.js
 
 app.listen(PORT, () => console.log(`API server listening on port ${PORT}!`));

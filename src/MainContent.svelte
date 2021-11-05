@@ -3,7 +3,7 @@
     import { SelectedNavIdStore } from './stores';
     import PlaySection from './PlaySection.svelte';
     import CreateSection from './Create/CreateSection.svelte';
-    import DownloadsSection from './DownloadsSection.svelte';
+    import DownloadsSection from './Downloads/DownloadsSection.svelte';
 </script>
 
 <main>

@@ -6,7 +6,7 @@
         GetVideoBlobFromURL,
         StoreVideoBlob,
         GetVideoBlobFromDB,
-    } from "./VideoBlobManager";
+    } from "./Downloads/VideoBlobManager";
 
     let enableWebcam = true;
 

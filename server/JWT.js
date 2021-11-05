@@ -7,15 +7,15 @@ class JWT {
         return jwt.sign(
             { email },
             process.env.JWT_SECRET_KEY, 
-            { expiresIn: '1d'});
+            { expiresIn: '1d', algorithm: 'HS256'});
     }
     
-    // Refresh token every day, even if it is expired
+    // Refresh token if it is expired
     refreshToken(old_token_data) {
         return jwt.sign(
             old_token_data,
             process.env.JWT_SECRET_KEY, 
-            { expiresIn: '1d'});
+            { expiresIn: '1d', algorithm: 'HS256'});
     }
     
     verify (token) {

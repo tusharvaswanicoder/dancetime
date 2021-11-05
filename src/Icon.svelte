@@ -4,8 +4,7 @@
     export const iconOptions = Object.keys(pathsByName);
     export const directions = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
     
-    import { writable } from "svelte/store";
-    const gradient_id_store = writable(0);
+    import { gradientIdStore } from "./stores"
 </script>
 
 <script>
@@ -21,8 +20,8 @@
      * 
      */
     
-    const gradient_id = $gradient_id_store;
-    gradient_id_store.update(n => n + 1);
+    const gradient_id = $gradientIdStore;
+    gradientIdStore.update(n => n + 1);
     
     let has_gradient = stops.length > 0;
 
