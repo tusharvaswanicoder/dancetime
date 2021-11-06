@@ -25,6 +25,7 @@ export const MEDIA_STATUS = {
 const MEDIA_TYPE = {
     VIDEO: 'v',
     AUDIO: 'a',
+    THUMBNAIL: 't'
 };
 
 /*
@@ -283,6 +284,7 @@ class DownloadManager {
         
         // Media is ready to download
         try {
+            await this.downloadAndStoreBlobFromURL(metadata_entry, metadata_entry.thumbnail, MEDIA_TYPE.THUMBNAIL);
             await this.downloadAndStoreBlobFromURL(metadata_entry, metadata_entry.video_url, MEDIA_TYPE.VIDEO);
             await this.downloadAndStoreBlobFromURL(metadata_entry, metadata_entry.audio_url, MEDIA_TYPE.AUDIO);
         } catch (error) {
@@ -310,6 +312,7 @@ class DownloadManager {
                 {
                     // Completed download
                     delete this.xhrs[metadata_entry.media_id];
+                    console.log({size: data.blob.size})
                     const blobName = `${metadata_entry.media_id}-${media_type}`;
                     StoreVideoBlob(data.blob, blobName, () => 
                     {

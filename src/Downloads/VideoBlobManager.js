@@ -85,6 +85,10 @@ export function GetVideoBlobFromURL(url, cb) {
     // Set the responseType to blob
     xhr.responseType = "blob";
     
+    if (url.endsWith('-t')) {
+        xhr.overrideMimeType("img/jpeg");
+    }
+    
     xhr.addEventListener("progress", (evt) => {
         if (evt.lengthComputable) {
             const percentComplete = (evt.loaded / evt.total);

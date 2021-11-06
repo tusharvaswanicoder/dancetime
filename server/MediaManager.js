@@ -3,6 +3,7 @@ const { azBlobManager, CONTAINER_TYPE } = require('./AzBlobManager');
 const { YTDL } = require('./YouTubeDL');
 const path = require('path');
 const fs = require('fs');
+const https = require('https')
 
 const DOWNLOAD_DIR = './downloads/';
 const {IS_PYTHON_INSTALLED} = require('./PythonManager');
@@ -21,6 +22,7 @@ const MEDIA_STATUS = {
 const MEDIA_TYPE = {
     VIDEO: 'v',
     AUDIO: 'a',
+    THUMBNAIL: 't'
 };
 
 // Minimum retention time of an entry in this.in_progress_media - longer if it is accessed frequently
@@ -67,6 +69,10 @@ class MediaManager {
             audio_url: azBlobManager.get_download_url(
                 CONTAINER_TYPE.AUDIO,
                 this.getMediaFilename(metadata.id, MEDIA_TYPE.AUDIO)
+            ),
+            thumbnail: azBlobManager.get_download_url(
+                CONTAINER_TYPE.THUMBNAILS,
+                this.getMediaFilename(metadata.id, MEDIA_TYPE.THUMBNAIL)
             ),
             ...this.getMetadataToSend(metadata)
         };
@@ -225,6 +231,12 @@ class MediaManager {
 
             this.verifyMediaIsOK(metadata);
             
+            await this.downloadAndUploadThumbnail(metadata);
+            this.in_progress_media[id].thumbnail = azBlobManager.get_download_url(
+                CONTAINER_TYPE.THUMBNAILS,
+                this.getMediaFilename(metadata.id, MEDIA_TYPE.THUMBNAIL)
+            ),
+            
             await this.downloadAndUploadMedia(metadata, MEDIA_TYPE.VIDEO);
             await this.downloadAndUploadMedia(metadata, MEDIA_TYPE.AUDIO);
 
@@ -281,6 +293,84 @@ class MediaManager {
     }
 
     /**
+     * Downloads thumbnails from youtube and uploads them to blob storage
+     * @param {*} metadata
+     * @param {*} media_type
+     */
+     async downloadAndUploadThumbnail(metadata) {
+        const id = metadata.id;
+        const thumbnailComparator = (p, c) => {
+            // Prefer thumbnails with resolution metadata
+            if (!c.resolution) {
+                return p;
+            }
+            
+            // Restrict thumbnail size to 1920x1080. Larger videos like 4k have huge filesizes.
+            if (c.height > 720 || c.width > 1280) {
+                return p;
+            }
+    
+            // Prefer highest preference thumbnails
+            return p.preference > c.preference ? p : c;
+        };
+        
+        // Get best thumbnail info
+        const format = metadata.thumbnails.reduce(thumbnailComparator);
+
+        console.log(format);
+
+        if (!format) {
+            throw new Error(
+                `Could not find thumbnail for ${id}`
+            );
+        }
+        
+        const filename = this.getMediaFilename(id, MEDIA_TYPE.THUMBNAIL);
+        const filepath = path.join(DOWNLOAD_DIR, filename);
+
+        // File does not exist locally, so download it
+        console.log("START THUMBNAIL DONWLOAD")
+        if (!fs.existsSync(filepath)) {
+            try {
+                await this.downloadThumbnail(format.url, filepath);
+            } catch (error) {
+                console.log(error);
+                return;
+            }
+        }
+
+        console.log("START THUMBNAIL UPLOAD")
+        await azBlobManager.uploadFile(
+            CONTAINER_TYPE.THUMBNAILS,
+            filename,
+            filepath,
+            (progress) => {
+                console.log(
+                    `Upload thumbnail progress: ${
+                        progress.loadedBytes
+                    } / ${filename}`
+                );
+            }
+        );
+    }
+    
+    async downloadThumbnail(url, filepath) {
+        return new Promise((resolve, reject) => {
+            https.get(url, (res) => {
+                if (res.statusCode === 200) {
+                    res.pipe(fs.createWriteStream(filepath))
+                        .on('error', reject)
+                        .once('close', () => resolve(filepath));
+                } else {
+                    // Consume response data to free up memory
+                    res.resume();
+                    reject(new Error(`Request Failed With a Status Code: ${res.statusCode}`));
+                }
+            });
+        });
+    }
+
+    /**
      * Downloads
      * @param {*} metadata
      * @param {*} media_type
@@ -331,11 +421,11 @@ class MediaManager {
             (progress) => {
                 this.in_progress_media[id][up_progress_var] =
                     progress.loadedBytes / format.filesize;
-                console.log(
-                    `Upload progress: ${
-                        progress.loadedBytes / format.filesize
-                    } / ${filename}`
-                );
+                // console.log(
+                //     `Upload progress: ${
+                //         progress.loadedBytes / format.filesize
+                //     } / ${filename}`
+                // );
             }
         );
         this.in_progress_media[id][up_progress_var] = 1;
@@ -346,7 +436,7 @@ class MediaManager {
             return p;
         }
         
-        // Restrict video size to 1920x1080
+        // Restrict video size to 1920x1080. Larger videos like 4k have huge filesizes.
         if (c.height > 1080 || c.width > 1920) {
             return p;
         }

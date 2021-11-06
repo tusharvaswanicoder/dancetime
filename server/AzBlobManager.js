@@ -11,6 +11,7 @@ const CONTAINER_TYPE = {
     AUDIO: 'audio',
     CHARTS: 'charts',
     METADATA: 'metadata',
+    THUMBNAILS: 'thumbnails'
 };
 
 const urljoin = require('url-join');

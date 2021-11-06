@@ -1,114 +1,154 @@
 <script>
-    import ProgressCircle from "../ProgressCircle.svelte";
-    import Icon from "../Icon.svelte"
-    import { dlManager, MEDIA_STATUS } from "./DownloadManager"
+    import ProgressCircle from '../ProgressCircle.svelte';
+    import Icon from '../Icon.svelte';
+    import { dlManager, MEDIA_STATUS } from './DownloadManager';
     import { tweened } from 'svelte/motion';
     import { quadOut } from 'svelte/easing';
-    import { slide } from 'svelte/transition';
-    
+    import { GetVideoBlobFromDB } from './VideoBlobManager';
+
     export let songData = {};
-    
+
     const ConvertDurationToNiceString = (duration) => {
-        return `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
-    }
-    
+        return `${Math.floor(duration / 60)}:${(duration % 60)
+            .toString()
+            .padStart(2, '0')}`;
+    };
+
     const GetTotalMB = () => {
-        return ((songData['filesize-v'] + songData['filesize-a']) / (1024 * 1024)).toFixed(0);
-    }
-    
+        return (
+            (songData['filesize-v'] + songData['filesize-a']) /
+            (1024 * 1024)
+        ).toFixed(0);
+    };
+
     const GetFormattedDate = (_date) => {
         const date = new Date(_date);
-        return `${date.toLocaleString('default', { month: 'short' })} ${date.getDay()}, ${date.getFullYear()}`;
-    }
-    
+        return `${date.toLocaleString('default', {
+            month: 'short',
+        })} ${date.getDay()}, ${date.getFullYear()}`;
+    };
+
     const GetDownloadCircleCompletion = () => {
         return dlManager.getMediaPercentComplete(songData.media_id);
-    }
-    
+    };
+
     const GetDownloadCircleColor = () => {
-        if (songData.status == MEDIA_STATUS.ERROR || songData.status == MEDIA_STATUS.UNAVAILABLE) {
+        if (
+            songData.status == MEDIA_STATUS.ERROR ||
+            songData.status == MEDIA_STATUS.UNAVAILABLE
+        ) {
             return [
                 { color: 'var(--color-red-dark)', offset: '0' },
                 { color: 'var(--color-red-light)', offset: '1' },
-            ]
-        }
-        else if (songData.status != MEDIA_STATUS.FINISHED) {
+            ];
+        } else if (songData.status != MEDIA_STATUS.FINISHED) {
             return [
                 { color: 'var(--color-blue-dark)', offset: '0' },
                 { color: 'var(--color-blue-light)', offset: '1' },
-            ]
+            ];
         }
-        
+
         return [
             { color: 'var(--color-green-dark)', offset: '0' },
             { color: 'var(--color-green-light)', offset: '1' },
-        ]
-    }
-    
+        ];
+    };
+
     const GetDownloadCircleText = () => {
         if (songData.status == MEDIA_STATUS.ERROR) {
-            return 'Error'
-        }
-        else if (songData.status == MEDIA_STATUS.FINISHED) {
-            return `${GetTotalMB()} MB`
-        }
-        else {
+            return 'Error';
+        } else if (songData.status == MEDIA_STATUS.FINISHED) {
+            return `${GetTotalMB()} MB`;
+        } else {
             return `${GetDownloadCircleCompletion().toFixed(0)}%`;
         }
-    }
+    };
+
+    const GetThumbnailBlobUrl = () => {
+        if (songData['indexedMediaBlob-t']) {
+            GetVideoBlobFromDB(songData['indexedMediaBlob-t'], (blob) => {
+                thumbnailBlobUrl = URL.createObjectURL(blob);
+            });
+        }
+    };
     
     const OnClickDelete = (e) => {
         dlManager.deleteMetadataStoreEntry(songData);
-    }
-    
+    };
+
     const OnClickRetry = (e) => {
         dlManager.startMediaDownload(songData.media_id);
-    }
-    
+    };
+
     let stops = GetDownloadCircleColor();
     let downloadCircleCompletion = tweened(GetDownloadCircleCompletion(), {
         duration: 200,
-        easing: quadOut
-    })
+        easing: quadOut,
+    });
     let downloadCircleText = GetDownloadCircleText();
-    
+    let thumbnailBlobUrl;
+    GetThumbnailBlobUrl();
+
     $: {
         songData,
-        stops = GetDownloadCircleColor(),
-        downloadCircleCompletion.set(GetDownloadCircleCompletion()),
-        downloadCircleText = GetDownloadCircleText()
+            (stops = GetDownloadCircleColor()),
+            downloadCircleCompletion.set(GetDownloadCircleCompletion()),
+            (downloadCircleText = GetDownloadCircleText()),
+            GetThumbnailBlobUrl()
     }
 </script>
 
 <main>
-    <a href={songData.url || `https://www.youtube.com/watch?v=${songData.media_id}`} target="_blank">
-        <div class='image-container'>
-            <!-- Image here -->
-            <div class='duration'>{songData.duration ? ConvertDurationToNiceString(songData.duration) : '0:00'}</div>
+    <a
+        href={songData.url ||
+            `https://www.youtube.com/watch?v=${songData.media_id}`}
+        target="_blank"
+    >
+        <div class="image-container">
+            {#if thumbnailBlobUrl}
+                <img alt="Video thumbnail" src={thumbnailBlobUrl} />
+            {/if}
+            <div class="duration">
+                {songData.duration
+                    ? ConvertDurationToNiceString(songData.duration)
+                    : '0:00'}
+            </div>
         </div>
     </a>
-    <div class='text-container'>
+    <div class="text-container">
         <header>
-            <h1>{songData.status == MEDIA_STATUS.STARTING ? 'Starting Download...' : songData.title || "Unknown Video"}</h1>
-            <h2>{songData.status == MEDIA_STATUS.STARTING ? '' : songData.channel || 'Unknown'}</h2>
+            <h1>
+                {songData.status == MEDIA_STATUS.STARTING
+                    ? 'Starting Download...'
+                    : songData.title || 'Unknown Video'}
+            </h1>
+            <h2>
+                {songData.status == MEDIA_STATUS.STARTING
+                    ? ''
+                    : songData.channel || 'Unknown'}
+            </h2>
         </header>
         <footer>
             <h2>Downloaded: {GetFormattedDate(songData.download_date)}</h2>
             <h2>Last Played: {songData.last_played || 'Never'}</h2>
         </footer>
     </div>
-    <div class='right-container'>
-        <div class='circle-container'>
-            <ProgressCircle 
-            stops={stops} value={$downloadCircleCompletion}><span>{downloadCircleText}</span></ProgressCircle>
+    <div class="right-container">
+        <div class="circle-container">
+            <ProgressCircle {stops} value={$downloadCircleCompletion}
+                ><span>{downloadCircleText}</span></ProgressCircle
+            >
         </div>
-        <div class='icons-container'>
+        <div class="icons-container">
             {#if songData.status != MEDIA_STATUS.FINISHED}
-                <div class='icon-container retry' on:click={() => OnClickRetry()}>
+                <div
+                    class="icon-container retry"
+                    on:click={() => OnClickRetry()}
+                >
                     <Icon name="retry_icon" />
                 </div>
             {/if}
-            <div class='icon-container delete' on:click={() => OnClickDelete()}>
+            <div class="icon-container delete" on:click={() => OnClickDelete()}>
                 <Icon name="trash_icon" />
             </div>
         </div>
@@ -126,7 +166,7 @@
         gap: 26px;
         margin-bottom: 30px;
     }
-    
+
     div.image-container {
         height: 180px;
         width: 320px;
@@ -134,7 +174,14 @@
         background-color: var(--color-gray-300);
         position: relative;
     }
-    
+
+    div.image-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 14px;
+        object-fit: fill;
+    }
+
     div.duration {
         position: absolute;
         background-color: var(--color-gray-900);
@@ -149,42 +196,42 @@
         bottom: -8px;
         right: -8px;
     }
-    
+
     h1 {
         font-size: 26px;
     }
-    
+
     h2 {
         margin-top: 6px;
         font-size: 18px;
         color: var(--color-gray-700);
     }
-    
+
     div.text-container {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         cursor: default;
     }
-    
+
     footer {
         color: var(--color-gray-500);
     }
-    
+
     div.right-container {
         display: flex;
         flex-direction: column;
         align-items: flex-end;
         justify-content: space-between;
     }
-    
+
     div.circle-container {
         width: 120px;
         height: 120px;
         --progress-trackcolor: var(--color-gray-200);
         --progress-color: var(--color-blue-dark);
     }
-    
+
     div.circle-container span {
         position: absolute;
         top: 0;
@@ -198,21 +245,20 @@
         font-size: 20px;
         cursor: default;
     }
-    
+
     div.icon-container {
         color: var(--color-gray-300);
         font-size: 2rem;
         cursor: pointer;
     }
-    
+
     div.icon-container:hover {
         color: var(--color-gray-500);
     }
-    
+
     div.icons-container {
         display: flex;
         flex-direction: row;
         gap: 12px;
     }
-    
 </style>

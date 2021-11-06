@@ -20,8 +20,8 @@
     function ClickTest() {
         // dlManager.startMediaDownload('pdsGv5B9OSQ')
         dlManager.startMediaDownload('pdsGv5B9OSQ')
-        dlManager.startMediaDownload('WfwV8vkIXvI')
-        dlManager.startMediaDownload('sbMzyR9YLLg')
+        // dlManager.startMediaDownload('WfwV8vkIXvI')
+        // dlManager.startMediaDownload('sbMzyR9YLLg')
     }
     
     $: {
