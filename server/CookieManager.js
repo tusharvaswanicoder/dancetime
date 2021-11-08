@@ -30,13 +30,14 @@ function CookieCheck(req, res, next) {
         
         // TODO: check timestamp and refresh token if needed
         if (decoded.exp < Date.now() / 1000) {
+            // TODO: there is a problem with this...does not refresh automatically
             console.log('expired token, refreshing')
             
             // Ensure that they are still whitelisted before refreshing token
             const isWhitelisted = await AzTableManager.emailIsWhitelisted(decoded.email);
             
             if (isWhitelisted) {
-                const token = JWT.refreshToken({email: decoded.email});
+                const token = JWT.makeToken(decoded.email);
                 SetJWTCookie(token, req, res);
                 console.log(`old token: ${jwtToken}`);
                 console.log(`new token: ${token}`);
@@ -73,6 +74,8 @@ function MagicLinkLogin (req, res) {
         res.redirect('/');
         return;
     }
+    
+    // TODO: check date in token to see if it is expired
 
     // Valid JWT token, store in cookies
     // Store cookie for 6 months

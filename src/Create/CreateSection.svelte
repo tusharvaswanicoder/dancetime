@@ -1,9 +1,28 @@
 <script>
     import CreateProjectPage from "./CreateProjectPage.svelte";
+    import EditorPage from "./EditorPage.svelte";
+    import { CREATE_STATE, createStateStore } from "../stores"
+    
+    let selectedProject;
+    
+    const OpenProject = (project) => {
+        selectedProject = project;
+        createStateStore.set(CREATE_STATE.EDITOR_VIEW);
+    }
+    
+    const ExitEditor = () => {
+        selectedProject = null;
+        createStateStore.set(CREATE_STATE.PROJECTS_VIEW);
+    }
+    
 </script>
 
 <main>
-    <CreateProjectPage />
+    {#if $createStateStore == CREATE_STATE.PROJECTS_VIEW}
+        <CreateProjectPage OpenProject={OpenProject} />
+    {:else if $createStateStore == CREATE_STATE.EDITOR_VIEW}
+        <EditorPage ExitEditor={ExitEditor} />
+    {/if}
 </main>
 
 

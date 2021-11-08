@@ -106,7 +106,7 @@ class MediaManager {
             let metadata;
             if (typeof id == 'undefined') {
                 metadata = await YTDL.get_video_metadata(videoId);
-                // console.log(metadata.thumbnails);
+                console.log(metadata);
                 id = metadata.id;
                 this.videoid_cache_lookup[videoId] = id;
             }
@@ -305,10 +305,10 @@ class MediaManager {
                 return p;
             }
             
-            // Restrict thumbnail size to 1920x1080. Larger videos like 4k have huge filesizes.
-            if (c.height > 720 || c.width > 1280) {
-                return p;
-            }
+            // Restrict thumbnail size to 1920x1080.
+            // if (c.height > 720 || c.width > 1280) {
+            //     return p;
+            // }
     
             // Prefer highest preference thumbnails
             return p.preference > c.preference ? p : c;

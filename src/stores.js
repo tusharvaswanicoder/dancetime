@@ -8,4 +8,11 @@ export const playerStore = writable(null);
 export const gradientIdStore = writable(0);
 
 import { NAV_IDS } from './constants';
-export const SelectedNavIdStore = writable(NAV_IDS.DOWNLOADS);
+export const SelectedNavIdStore = writable(NAV_IDS.CREATE);
+
+
+export const CREATE_STATE = {
+    PROJECTS_VIEW: 1,
+    EDITOR_VIEW: 2
+}
+export const createStateStore = writable(CREATE_STATE.EDITOR_VIEW);

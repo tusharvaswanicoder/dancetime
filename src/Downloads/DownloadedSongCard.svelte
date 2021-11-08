@@ -25,7 +25,7 @@
         const date = new Date(_date);
         return `${date.toLocaleString('default', {
             month: 'short',
-        })} ${date.getDay()}, ${date.getFullYear()}`;
+        })} ${date.getDate()}, ${date.getFullYear()}`;
     };
 
     const GetDownloadCircleCompletion = () => {
@@ -41,12 +41,17 @@
                 { color: 'var(--color-red-dark)', offset: '0' },
                 { color: 'var(--color-red-light)', offset: '1' },
             ];
+        } else if (songData.status == MEDIA_STATUS.NOT_READY) {
+            return [
+                { color: 'var(--color-yellow-dark)', offset: '0' },
+                { color: 'var(--color-yellow-light)', offset: '1' },
+            ];
         } else if (songData.status != MEDIA_STATUS.FINISHED) {
             return [
                 { color: 'var(--color-blue-dark)', offset: '0' },
                 { color: 'var(--color-blue-light)', offset: '1' },
             ];
-        }
+        } 
 
         return [
             { color: 'var(--color-green-dark)', offset: '0' },
@@ -59,6 +64,8 @@
             return 'Error';
         } else if (songData.status == MEDIA_STATUS.FINISHED) {
             return `${GetTotalMB()} MB`;
+        } else if (songData.status == MEDIA_STATUS.NOT_READY) {
+            return `Wait...`;
         } else {
             return `${GetDownloadCircleCompletion().toFixed(0)}%`;
         }
@@ -177,9 +184,8 @@
 
     div.image-container img {
         width: 100%;
-        height: auto;
+        height: 100%;
         border-radius: 14px;
-        object-fit: fill;
     }
 
     div.duration {

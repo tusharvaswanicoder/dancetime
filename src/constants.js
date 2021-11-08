@@ -9,3 +9,10 @@ export const VISIBILITY = {
     UNLISTED: "Unlisted",
     PUBLIC: "Public"
 }
+
+export const DIFFICULTY = {
+    EASY: "Easy",
+    MEDIUM: "Medium",
+    HARD: "Hard",
+    EXPERT: "Expert"
+}

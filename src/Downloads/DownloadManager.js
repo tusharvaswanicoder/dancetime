@@ -131,6 +131,10 @@ class DownloadManager {
             ['a_dl_progress']: 0.01,
         }
         
+        if (songData.status == MEDIA_STATUS.NOT_READY) {
+            return 100; // 100 for full circle when waiting to start
+        }
+        
         if (songData.status == MEDIA_STATUS.CONVERTING) {
             Object.keys(conversion_weights).forEach((key) => {
                 const weight = conversion_weights[key];
@@ -169,9 +173,9 @@ class DownloadManager {
      * Returns whether or not the download of a specific youtube ID is complete (audio and video)
      * @param {*} media_id 
      */
-    async isMediaDownloaded (media_id) {
+    isMediaDownloaded (media_id) {
         if (this.metaData[media_id]) {
-            return this.metaData[media_id].status == MEDIA_STATUS.COMPLETED;
+            return this.metaData[media_id].status == MEDIA_STATUS.FINISHED;
         }
         
         return false;
@@ -231,16 +235,16 @@ class DownloadManager {
      * Starts to download the media with the given youtube ID
      * @param {*} media_id 
      */
-    async startMediaDownload (media_id) {
-        console.log(`Starting download of ${media_id}`);
-        if (typeof media_id == 'undefined') {
+    async startMediaDownload (temp_media_id, on_metadata_cb) {
+        console.log(`Starting download of ${temp_media_id}`);
+        if (typeof temp_media_id == 'undefined') {
             return;
         }
         
-        this.stopMediaDownload(media_id);
+        this.stopMediaDownload(temp_media_id);
         
         let metadata_entry = {
-            media_id: media_id,
+            media_id: temp_media_id,
             status: MEDIA_STATUS.STARTING
         }
         
@@ -251,10 +255,21 @@ class DownloadManager {
         let shouldFetchAPI = true;
         while (shouldFetchAPI && !metadata_entry.stopped) {
             try {
-                console.log(`Fetching API ${media_id}`);
-                const response = await this.fetchMediaFromAPI(media_id);
+                console.log(`Fetching API ${temp_media_id}`);
+                const response = await this.fetchMediaFromAPI(temp_media_id);
                 console.log(response);
-                metadata_entry = {...metadata_entry, ...response};
+                const metadata_copy = JSON.parse(JSON.stringify(metadata_entry));
+                if (temp_media_id != response.media_id && this.metaData[temp_media_id]) {
+                    this.deleteMetadataStoreEntry(metadata_entry); // Delete temp
+                }
+                
+                metadata_entry = {...metadata_copy, ...response};
+                console.log(metadata_entry)
+                
+                if (on_metadata_cb) {
+                    on_metadata_cb(metadata_entry);
+                    on_metadata_cb = null;
+                }
                 
                 if (response.status == MEDIA_STATUS.COMPLETED) {
                     shouldFetchAPI = false;
@@ -295,7 +310,7 @@ class DownloadManager {
         metadata_entry.status = MEDIA_STATUS.FINISHED;
         this.updateMetadataStoreEntry(metadata_entry);
         
-        console.log(`Finished download of ${media_id}`);
+        console.log(`Finished download of ${temp_media_id}`);
         console.log(metadata_entry);
     }
     
@@ -352,7 +367,16 @@ class DownloadManager {
                 media_id
             }
             
-            fetch(`/api/video/${media_id}`)
+            fetch(`/api/video`, {
+                body: JSON.stringify({
+                    media_id: media_id
+                }),
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            })
             .then(res => res.json())
             .then(res => {
                 resolve(res);

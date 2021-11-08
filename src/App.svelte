@@ -38,6 +38,8 @@
         --color-gray-500: hsl(var(--gray) 5% 50%);
         --color-gray-650: hsl(var(--gray) 8% 35%);
         --color-gray-700: hsl(var(--gray) 10% 30%);
+        --color-gray-800: hsl(var(--gray) 12% 22%);
+        --color-gray-850: hsl(var(--gray) 13% 17%);
         --color-gray-900: hsl(var(--gray) 15% 15%);
 
         --primary: 245deg;

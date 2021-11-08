@@ -1,7 +1,13 @@
 <script>
+    import { v1 } from 'uuid';
     import ProjectCard from './ProjectCard.svelte';
     import { VISIBILITY } from "../constants"
     import Icon from '../Icon.svelte';
+    import projectManager from "./ProjectManager"
+    import { fade, fly } from 'svelte/transition'
+    import { cubicOut } from 'svelte/easing';
+    
+    export let OpenProject = () => {};
     
     const STATE = {
         PROJECTS_LIST: 1,
@@ -12,6 +18,8 @@
     
     const ExitCreateNew = () => {
         current_state = STATE.PROJECTS_LIST;
+        create_new_link = '';
+        create_new_title = '';
     }
     
     const OnCardClick = (card_data) => {
@@ -26,42 +34,58 @@
         }
     }
     
-    let create_new_title;
-    let create_new_link;
+    let create_new_title = '';
+    let create_new_link = '';
+    let create_new_valid = false;
     
-    // User clicks the CREATE button after clicking "Create New Project"
-    const CreateNewProject = () => {
+    const ValidateCreateNewParams = () => {
         if (create_new_link.length < 10 || create_new_title.length < 1)
         {
             // Invalid inputs, return
-            return;
+            return false;
         }
         
-        if (create_new_title.length > 30) {
+        if (create_new_title.length > 60) {
             // Title too long
+            return false;
+        }
+        
+        return true;
+    }
+    
+    $: {
+        create_new_link,
+        create_new_title,
+        create_new_valid = ValidateCreateNewParams()
+    }
+    
+    // User clicks the CREATE button after clicking "Create New Project"
+    const CreateNewProject = () => {
+        if (!create_new_valid) {
             return;
         }
         
         // OK inputs, sanity check for duplicate project names? Or just use IDs so project names don't matter
-        
+        projectManager.createNewProject(create_new_title, create_new_link);
         
         // Create project
         current_state = STATE.PROJECTS_LIST;
     }
     
     
-    const OnClickProjectOpen = (project_card) => {
-        
+    const OnClickProjectOpen = (project) => {
+        OpenProject(project);
     };
-    const OnClickProjectDelete = (project_card) => {
-        
+    
+    const OnClickProjectDelete = (project) => {
+        projectManager.deleteProject(project);
     };
 </script>
 
 {#if current_state == STATE.CREATE_NEW}
-    <div class='create-new-container'>
+    <div class='create-new-container' transition:fade|local="{{duration: 200}}">
         <div class='exit-click-container' on:click={() => {ExitCreateNew()}}></div>
-        <main class='background'>
+        <main class='background' transition:fly|local="{{ y: 100, duration: 400, easing: cubicOut    }}">
             <div class='content'>
                 <h1>Create New Project</h1>
                 <div class='details-container'>
@@ -71,7 +95,7 @@
                     <h3>YouTube</h3> -->
                     <h2>Video Link</h2>
                     <input bind:value={create_new_link} placeholder="https://www.youtube.com/watch?v=pdsGv5B9OSQ" />
-                    <h2 class="create-button" on:click={() => CreateNewProject()}>Create</h2>
+                    <h2 class={`create-button ${create_new_valid ? '' : 'invalid'}`} on:click={() => CreateNewProject()}>Create</h2>
                 </div>
                 <div class="icon-container" on:click={() => {ExitCreateNew()}}>
                     <Icon name="x_icon" />
@@ -93,20 +117,13 @@
                 title: "Create New Project",
                 new_project: true
             }} />
-            <!-- Display all existing projects here -->
-            <ProjectCard card_data={{
-                title: "My First Project",
-                chart_title: "Levitating (ft. DaBaby)",
-                song_artist: "Dua Lipa",
-                difficulty: "Hard",
-                last_edited: "Nov 13, 2021",
-                video_source: "YouTube",
-                video_id: "I6rufOlNyYM",
-                video_link: "https://www.youtube.com/watch?v=pdsGv5B9OSQ",
-                length: "00:03:13:02",
-                download: "100%",
-                visibility: VISIBILITY.DRAFT
-            }} OnClickOpen={OnClickProjectOpen} OnClickDelete={OnClickProjectDelete} />
+            {#each Object.values($projectManager) as project}
+                <ProjectCard 
+                    card_data={project} 
+                    OnClickOpen={() => OnClickProjectOpen(project)} 
+                    OnClickDelete={() => OnClickProjectDelete(project)} 
+                />
+            {/each}
         </div>
     </section>
 </main>
@@ -282,11 +299,22 @@
         grid-column: 1 / 3;
         justify-self: center;
         cursor: pointer;
+        transition: 0.2s ease-in-out color;
     }
     
     div.create-new-container div.content div.details-container h2.create-button:hover {
         color: var(--color-yellow-dark);
     }
     
+    div.create-new-container div.content div.details-container h2.create-button.invalid {
+        --color-gray-disabled: var(--color-gray-500);
+        color: var(--color-gray-disabled);
+        cursor: not-allowed;
+        user-select: none;
+    }
 
+    div.create-new-container div.content div.details-container h2.create-button.invalid:hover {
+        color: var(--color-gray-disabled);
+    }
+    
 </style>

@@ -1,9 +1,64 @@
 <script>
     import Icon from '../Icon.svelte';
+    import { dlManager, MEDIA_STATUS } from '../Downloads/DownloadManager';
     export let card_data = {
         title: 'Create New Project',
         new_project: true,
     };
+    
+    const ConvertDurationToNiceString = (duration) => {
+        if (!duration) {
+            return '--';
+        }
+        return `${Math.floor(duration / 60)}:${(duration % 60)
+            .toString()
+            .padStart(2, '0')}`;
+    };
+
+    const GetFormattedDate = (_date) => {
+        const date = new Date(_date);
+        return `${date.toLocaleString('default', {
+            month: 'short',
+        })} ${date.getDate()}, ${date.getFullYear()}`;
+    };
+    
+    let isDownloadedOrDownloading = false;
+    
+    const DownloadMedia = () => {
+        isDownloadedOrDownloading = true;
+        dlManager.startMediaDownload(card_data.media_id);
+    }
+    
+    const GetDownloadText = (card_data) => {
+        if (!card_data.media_id) {
+            return '--';
+        }
+        
+        const songData = dlManager.metaData[card_data.media_id];
+        if (!songData) { // Not downloaded
+            return '--';
+        }
+        isDownloadedOrDownloading = true;
+        if (songData.status == MEDIA_STATUS.ERROR) {
+            return 'Error';
+        } else if (songData.status == MEDIA_STATUS.FINISHED) {
+            return `100%`;
+        } else if (songData.status == MEDIA_STATUS.NOT_READY) {
+            return `Wait...`;
+        } else {
+            return `${dlManager.getMediaPercentComplete(card_data.media_id).toFixed(0)}%`;
+        }
+    };
+    
+    let downloadText = GetDownloadText(card_data);
+    let isDownloaded = dlManager.isMediaDownloaded(card_data.media_id);
+    
+    $: {
+        $dlManager,
+        downloadText = GetDownloadText(card_data),
+        isDownloaded = dlManager.isMediaDownloaded(card_data.media_id)
+    }
+    
     export let OnClick = () => {};
     export let OnClickOpen = () => {};
     export let OnClickDelete = () => {};
@@ -17,35 +72,45 @@
                 <Icon name="plus_icon" />
             </div>
         {:else}
-            <h1>{card_data.title}</h1>
+            <h1>{card_data.project_name}</h1>
             <div class='details-container'>
                 <h2>Chart Title</h2>
-                <h3>{card_data.chart_title}</h3>
+                <h3>{card_data.title || "--"}</h3>
                 <h2>Song Artist</h2>
-                <h3>{card_data.song_artist}</h3>
+                <h3>{card_data.song_artist || "--"}</h3>
                 <h2>Difficulty</h2>
                 <h3>{card_data.difficulty}</h3>
                 <div class='hr' />
                 <h2>Last Edited</h2>
-                <h3>{card_data.last_edited}</h3>
-                <h2>Video Source</h2>
-                <h3>{card_data.video_source}</h3>
+                <h3>{GetFormattedDate(card_data.last_edited)}</h3>
+                <!-- <h2>Video Source</h2>
+                <h3>{card_data.video_source}</h3> -->
                 <h2>Video ID</h2>
-                <h3><a href={card_data.video_link} target="_blank">{card_data.video_id}</a></h3>
+                {#if card_data.video_link && card_data.media_id}
+                    <h3><a href={card_data.video_link} target="_blank">{card_data.media_id}</a></h3>
+                {:else}
+                    <h3>--</h3>
+                {/if}
                 <h2>Length</h2>
-                <h3>{card_data.length}</h3>
+                <h3>{card_data.length == 0 ? '--' : ConvertDurationToNiceString(card_data.length)}</h3>
                 <div class='hr' />
                 <h2>Download</h2>
-                <h3>{card_data.download}</h3>
+                {#if isDownloadedOrDownloading}
+                    <h3>{downloadText}</h3>
+                {:else}
+                    <h3 class='red' on:click={() => DownloadMedia()}>Not downloaded. Click to download.</h3>
+                {/if}
                 <h2>Visibility</h2>
                 <h3>{card_data.visibility}</h3>
             </div>
             <div class='icon-container delete' on:click={() => OnClickDelete(card_data)}>
                 <Icon name="trash_icon" />
             </div>
-            <div class="icon-container open" on:click={() => OnClickOpen(card_data)}>
-                <Icon name="right_arrow_icon" />
-            </div>
+            {#if isDownloaded}
+                <div class="icon-container open" on:click={() => OnClickOpen(card_data)}>
+                    <Icon name="right_arrow_icon" />
+                </div>
+            {/if}
         {/if}
     </div>
 </main>
@@ -64,6 +129,8 @@
         height: var(--card-height);
         border-radius: 20px;
         transition: 0.1s cubic-bezier(0.165, 0.84, 0.44, 1) all;
+        word-wrap: break-word;
+        word-break: break-word;
     }
     
     main.background.Draft {
@@ -73,6 +140,7 @@
 
     div.content {
         position: relative;
+        max-width: 100%;
         display: flex;
         flex: 1;
         flex-direction: column;
@@ -96,6 +164,7 @@
     div.content h1 {
         font-weight: 700;
         font-size: 1.25rem;
+        padding-right: 26px;
     }
     
     div.icon-container-add {
@@ -155,5 +224,14 @@
     
     div.icon-container:hover {
         color: var(--color-gray-100);
+    }
+    
+    div.details-container h3.red {
+        color: var(--color-red-light);
+        cursor: pointer;
+    }
+    
+    div.details-container h3.red:hover {
+        text-decoration: underline;
     }
 </style>
