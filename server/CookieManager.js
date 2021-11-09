@@ -1,5 +1,6 @@
 const JWT = require('./JWT');
 const { AzTableManager } = require('./AzTableManager');
+const secondsInADay = 86400;
 
 /**
  * Stores a JWT token in the cookies.
@@ -24,30 +25,16 @@ function CookieCheck(req, res, next) {
         
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
+            console.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
+            res.clearCookie('jwtToken');
             resolve();
             return;
         }
         
-        // TODO: check timestamp and refresh token if needed
-        if (decoded.exp < Date.now() / 1000) {
-            // TODO: there is a problem with this...does not refresh automatically
-            console.log('expired token, refreshing')
-            
-            // Ensure that they are still whitelisted before refreshing token
-            const isWhitelisted = await AzTableManager.emailIsWhitelisted(decoded.email);
-            
-            if (isWhitelisted) {
-                const token = JWT.makeToken(decoded.email);
-                SetJWTCookie(token, req, res);
-                console.log(`old token: ${jwtToken}`);
-                console.log(`new token: ${token}`);
-            }
-            else {
-                // Clear cookie as they are no longer whitelisted, and exit without setting req.user
-                res.clearCookie('jwtToken');
-                resolve();
-                return;
-            }
+        // Check timestamp and refresh token if more than a day old
+        if (Date.now() / 1000 - decoded.exp > secondsInADay) {
+            // No await so we don't have to wait for the refresh to finish
+            RefreshToken(req, res, decoded.email);
         }
         
         req.user = {
@@ -61,6 +48,20 @@ function CookieCheck(req, res, next) {
     })
 }
 
+async function RefreshToken (req, res, email) {
+    // Ensure that they are still whitelisted before refreshing token
+    const isWhitelisted = await AzTableManager.emailIsWhitelisted(email);
+    
+    if (isWhitelisted) {
+        const token = JWT.makeToken(email, '90d');
+        SetJWTCookie(token, req, res);
+    }
+    else {
+        // Clear cookie as they are no longer whitelisted, and exit without setting req.user
+        res.clearCookie('jwtToken');
+    }
+}
+
 function MagicLinkLogin (req, res) {
     // No token
     if (!req.query.token) {
@@ -71,7 +72,7 @@ function MagicLinkLogin (req, res) {
     // Verify token provided
     const decoded = JWT.verify(req.query.token);
     if (decoded.err) {
-        res.redirect('/');
+        res.redirect('/'); // Expired potentially
         return;
     }
     
@@ -79,9 +80,13 @@ function MagicLinkLogin (req, res) {
 
     // Valid JWT token, store in cookies
     // Store cookie for 6 months
-    SetJWTCookie(req.query.token, req, res);
-
-    res.redirect('/');
+    // Temp token, replace with better token
+    const expTimeInSeconds = decoded.iat - decoded.exp;
+    if (expTimeInSeconds < secondsInADay) {
+        RefreshToken(req, res, decoded.email).then(() => {
+            res.redirect('/');
+        })
+    }
 }
 
 const SendMagicLinkEmail = require('./SendMagicLinkEmail');
@@ -98,9 +103,9 @@ function TryRegister (req, res) {
         // If so, send magic link with token
         AzTableManager.emailIsWhitelisted(req.body.email).then((result) => {
             if (result == true) {
-                const token = JWT.makeToken(req.body.email);
+                const token = JWT.makeToken(req.body.email, '1h');
                 SendMagicLinkEmail(req.body.email, token).then(() => {
-                    
+                
                 }).catch((err) => {
                     console.log(err);
                 });

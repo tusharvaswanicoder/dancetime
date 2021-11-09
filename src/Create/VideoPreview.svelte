@@ -1,0 +1,191 @@
+<script>
+    import { onMount, tick, onDestroy } from 'svelte';
+    import { GetVideoBlobFromDB } from '../Downloads/VideoBlobManager';
+    import { dlManager } from '../Downloads/DownloadManager';
+    export let project;
+
+    let canvas;
+    let video;
+    let videoURL;
+    let audio;
+    let audioURL;
+    let ctx;
+    let firstFrameLoaded = false;
+
+    /**
+     * By Ken Fyrstenberg Nilsen
+     *
+     * drawImageProp(context, image [, x, y, width, height [,offsetX, offsetY]])
+     *
+     * If image and context are only arguments rectangle will equal canvas
+     */
+    function drawImageProp(ctx, img, x, y, w, h, offsetX, offsetY) {
+        if (arguments.length === 2) {
+            x = y = 0;
+            w = ctx.canvas.width;
+            h = ctx.canvas.height;
+        }
+
+        // default offset is center
+        offsetX = typeof offsetX === 'number' ? offsetX : 0.5;
+        offsetY = typeof offsetY === 'number' ? offsetY : 0.5;
+
+        // keep bounds [0.0, 1.0]
+        if (offsetX < 0) offsetX = 0;
+        if (offsetY < 0) offsetY = 0;
+        if (offsetX > 1) offsetX = 1;
+        if (offsetY > 1) offsetY = 1;
+
+        var iw = img.videoWidth,
+            ih = img.videoHeight,
+            r = Math.min(w / iw, h / ih),
+            nw = iw * r, // new prop. width
+            nh = ih * r, // new prop. height
+            cx,
+            cy,
+            cw,
+            ch,
+            ar = 1;
+
+        // decide which gap to fill
+        if (nw < w) ar = w / nw;
+        if (Math.abs(ar - 1) < 1e-14 && nh < h) ar = h / nh; // updated
+        nw *= ar;
+        nh *= ar;
+
+        // calc source rectangle
+        cw = iw / (nw / w);
+        ch = ih / (nh / h);
+
+        cx = (iw - cw) * offsetX;
+        cy = (ih - ch) * offsetY;
+
+        // make sure source rectangle is valid
+        if (cx < 0) cx = 0;
+        if (cy < 0) cy = 0;
+        if (cw > iw) cw = iw;
+        if (ch > ih) ch = ih;
+
+        // fill image in dest. rectangle
+        ctx.drawImage(img, cx, cy, cw, ch, x, y, w, h);
+    }
+
+    const animationCallback = () => {
+        
+        if (!video || (video.paused && firstFrameLoaded) || video.ended) return false;
+        // ctx.drawImage(video, 0, 0, video.videoWidth,    video.videoHeight,     // source rectangle
+        //                    0, 0, ctx.canvas.width, ctx.canvas.height); // destination rectangle
+        
+        // Wait until it has rendered a frame so it displays the first frame
+        if (!firstFrameLoaded && video.currentTime > 0) {
+            firstFrameLoaded = true;
+            video.currentTime = 0;
+        }
+        drawImageProp(ctx, video);
+        window.requestAnimationFrame(animationCallback);
+    };
+
+    const updateVideoBlobURL = () => {
+        if (!project) {
+            return;
+        }
+
+        const blob_name =
+            dlManager.metaData[project.media_id]['indexedMediaBlob-v'];
+        console.log({ blob_name });
+        GetVideoBlobFromDB(blob_name, (blob) => {
+            videoURL = URL.createObjectURL(blob);
+            console.log({ videoURL });
+            
+            // Wait for DOM to update, then render to canvas
+            tick().then(() => {
+                animationCallback();
+            })
+        });
+    };
+
+    const updateAudioBlobURL = () => {
+        if (!project) {
+            return;
+        }
+
+        const blob_name =
+            dlManager.metaData[project.media_id]['indexedMediaBlob-a'];
+        GetVideoBlobFromDB(blob_name, (blob) => {
+            audioURL = URL.createObjectURL(blob);
+            console.log(video);
+        });
+    };
+
+    const onVideoPlay = () => {
+        audio.play();
+        audio.volume = 0.05;
+        animationCallback();
+    };
+
+    const onVideoSeeked = () => {
+        animationCallback();
+    };
+
+    const onVideoPause = () => {
+        audio.pause();
+    };
+
+    $: {
+        project, updateVideoBlobURL(), updateAudioBlobURL();
+    }
+
+    onMount(() => {
+        ctx = canvas.getContext('2d');
+    });
+    
+    onDestroy(() => {
+        URL.revokeObjectURL(videoURL);
+        URL.revokeObjectURL(audioURL);
+    })
+    
+</script>
+
+<main>
+    <!-- svelte-ignore a11y-media-has-caption -->
+    {#if video}
+        <button on:click={() => (video.paused ? video.play() : video.pause())}
+            >Play/Pause</button
+        >
+    {/if}
+    <!-- svelte-ignore a11y-media-has-caption -->
+    <video
+        preload="metadata"
+        bind:this={video}
+        on:play={onVideoPlay}
+        on:pause={onVideoPause}
+        on:seeked={onVideoSeeked}
+        on:contextmenu|preventDefault
+        src={videoURL}
+        controls
+        loop
+        muted
+        disablePictureInPicture
+    />
+    <audio
+        bind:this={audio}
+        src={audioURL}
+        on:contextmenu|preventDefault
+        controls
+        loop
+    />
+    <canvas width={1920} height={1080} bind:this={canvas} on:contextmenu|preventDefault />
+</main>
+
+<style>
+    video,
+    audio {
+        display: none;
+    }
+
+    canvas {
+        width: 100%;
+        height: auto;
+        border-radius: 20px;
+    }
+</style>

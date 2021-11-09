@@ -6,6 +6,7 @@
     import projectManager from "./ProjectManager"
     import { fade, fly } from 'svelte/transition'
     import { cubicOut } from 'svelte/easing';
+    import { onMount } from 'svelte';
     
     export let OpenProject = () => {};
     
@@ -72,6 +73,16 @@
         current_state = STATE.PROJECTS_LIST;
     }
     
+    $: {
+        $projectManager,
+        TestOpenFirstProject()
+    }
+    
+    const TestOpenFirstProject = () => {
+        if (Object.keys(projectManager.projects).length > 0) {
+            OnClickProjectOpen(Object.values(projectManager.projects)[0]);
+        }
+    }
     
     const OnClickProjectOpen = (project) => {
         OpenProject(project);
@@ -83,9 +94,9 @@
 </script>
 
 {#if current_state == STATE.CREATE_NEW}
-    <div class='create-new-container' transition:fade|local="{{duration: 200}}">
+    <div class='create-new-container' transition:fade={{duration: 200}}>
         <div class='exit-click-container' on:click={() => {ExitCreateNew()}}></div>
-        <main class='background' transition:fly|local="{{ y: 100, duration: 400, easing: cubicOut    }}">
+        <main class='background' transition:fly|local="{{ y: 100, duration: 400, easing: cubicOut}}">
             <div class='content'>
                 <h1>Create New Project</h1>
                 <div class='details-container'>
@@ -105,7 +116,9 @@
     </div>
 {/if}
 
-<main class:blurred={current_state == STATE.CREATE_NEW}>
+<main class:blurred={current_state == STATE.CREATE_NEW} 
+in:fly|local={{x: -500, duration: 200, delay: 200}} 
+out:fly|local={{x: -500, duration: 200}}>
     <section class="title-section">
         <h1>Create</h1>
         <h2>Create your own dance charts from YouTube videos.</h2>

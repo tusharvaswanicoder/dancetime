@@ -21,7 +21,7 @@
     {#if $createStateStore == CREATE_STATE.PROJECTS_VIEW}
         <CreateProjectPage OpenProject={OpenProject} />
     {:else if $createStateStore == CREATE_STATE.EDITOR_VIEW}
-        <EditorPage ExitEditor={ExitEditor} />
+        <EditorPage ExitEditor={ExitEditor} selectedProject={selectedProject} />
     {/if}
 </main>
 

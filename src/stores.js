@@ -15,4 +15,4 @@ export const CREATE_STATE = {
     PROJECTS_VIEW: 1,
     EDITOR_VIEW: 2
 }
-export const createStateStore = writable(CREATE_STATE.EDITOR_VIEW);
+export const createStateStore = writable(CREATE_STATE.PROJECTS_VIEW);

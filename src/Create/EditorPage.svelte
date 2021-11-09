@@ -1,10 +1,14 @@
 <script>
     import Icon from '../Icon.svelte';
+    import { fly } from 'svelte/transition'
+    import VideoPreview from './VideoPreview.svelte';
+    
     
     export let ExitEditor = () => {};
+    export let selectedProject;
 </script>
 
-<main>
+<main in:fly|local={{x: 500, duration: 200, delay: 200}} out:fly|local={{x: 500, duration: 200}}>
     <main class='grid-container'>
         <section class='tabs'></section>
         <section class='save'>
@@ -17,13 +21,16 @@
             </div>
         </section>
         <section class='timeline'></section>
-        <section class='preview'></section>
+        <section class='preview'>
+            <div class='title'>{selectedProject.project_name}</div>
+            <VideoPreview project={selectedProject} />
+        </section>
     </main>
+    
+    <div class="close-container" on:click={ExitEditor}>
+        <Icon name="x_icon" />
+    </div>
 </main>
-
-<div class="close-container" on:click={ExitEditor}>
-    <Icon name="x_icon" />
-</div>
 
 <style>
     main {
@@ -88,6 +95,18 @@
     section.preview {
         grid-column: 2 / -1;
         grid-row: 1 / calc(var(--tabs-row-amount) + 1);
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: min-content 1fr;
+        padding: 10px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    
+    section.preview div.title {
+        color: var(--color-gray-300);
+        font-size: 22px;
+        cursor: default;
     }
     
     div.close-container {
