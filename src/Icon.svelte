@@ -11,6 +11,7 @@
     export let name;
     export let direction = 'n';
     export let stops = [];
+    export let OnClick = () => {};
     /**
      * stops = 
      * [
@@ -34,6 +35,7 @@
     fill-rule="evenodd"
     clip-rule="evenodd"
     style={`transform: rotate(${rotation}deg)`}
+    on:click={() => OnClick(name)}
 >
     {#if has_gradient}
         <!-- Has gradient -->

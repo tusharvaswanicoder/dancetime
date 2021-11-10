@@ -1,8 +1,7 @@
 <script>
     import Icon from '../Icon.svelte';
     import { fly } from 'svelte/transition'
-    import VideoPreview from './VideoPreview.svelte';
-    
+    import VideoPreviewAndNav from './VideoPreviewAndNav.svelte';
     
     export let ExitEditor = () => {};
     export let selectedProject;
@@ -22,8 +21,7 @@
         </section>
         <section class='timeline'></section>
         <section class='preview'>
-            <div class='title'>{selectedProject.project_name}</div>
-            <VideoPreview project={selectedProject} />
+            <VideoPreviewAndNav project={selectedProject} />
         </section>
     </main>
     
@@ -47,16 +45,18 @@
         grid-template-rows: repeat(14, 1fr);
         background-color: var(--color-gray-500);
         gap: 1px;
-        --tabs-row-amount: 10; /* Amount of rows that the tabs section should have */
+        --tabs-row-amount: 11; /* Amount of rows that the tabs section should have */
     }
     
     main.grid-container > section {
         background-color: var(--color-gray-900);
+        overflow: hidden;
     }
     
     section.tabs {
         grid-column: 1 / 2;
         grid-row: 1 / var(--tabs-row-amount);
+        overflow-y: auto;
     }
     
     section.save {
@@ -95,18 +95,6 @@
     section.preview {
         grid-column: 2 / -1;
         grid-row: 1 / calc(var(--tabs-row-amount) + 1);
-        display: grid;
-        grid-template-columns: 1fr;
-        grid-template-rows: min-content 1fr;
-        padding: 10px;
-        padding-left: 40px;
-        padding-right: 40px;
-    }
-    
-    section.preview div.title {
-        color: var(--color-gray-300);
-        font-size: 22px;
-        cursor: default;
     }
     
     div.close-container {

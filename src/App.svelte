@@ -3,8 +3,17 @@
     import MainContent from "./MainContent.svelte"
     import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
     import { onMount } from "svelte";
+    import { keyPress, keyDown } from "./stores";
     
     import {getUserInfo, USER} from "./Auth"
+    
+    const handleKeyPress = (e) => {
+        keyPress.set(e);
+    }
+    
+    const handleKeyDown = (e) => {
+        keyDown.set(e);
+    }
     
     let loaded = false;
     
@@ -16,6 +25,8 @@
     })
     
 </script>
+
+<svelte:window on:keypress={handleKeyPress} on:keydown={handleKeyDown}/>
 
 {#if loaded}
     <main>
