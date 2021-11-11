@@ -23,3 +23,5 @@ export const createVideo = writable();
 export const createAudio = writable();
 export const createVideoCurrentTime = writable();
 export const createVideoDuration = writable();
+export const createWaveSurfer = writable();
+export const createVideoFPS = writable(30);

@@ -1,6 +1,5 @@
 <script>
-    import { createVideo, createAudio, createVideoCurrentTime, createVideoDuration } from '../stores';
-    export let fps = 30;
+    import { createVideo, createAudio, createVideoCurrentTime, createVideoDuration, createVideoFPS } from '../stores';
     
     const ConvertDurationToNiceString = (duration) => {
         if (!duration) {
@@ -8,7 +7,7 @@
         }
         const minutes = Math.floor(duration / 60).toFixed(0).toString().padStart(2, '0');
         const seconds = Math.floor(duration % 60).toFixed(0).toString().padStart(2, '0');
-        const frames = Math.floor((duration % 60 % 1) * fps).toFixed(0).toString().padStart(2, '0');;
+        const frames = Math.floor((duration % 60 % 1) * $createVideoFPS).toFixed(0).toString().padStart(2, '0');;
          
         return `${minutes}:${seconds}:${frames}`;
     };

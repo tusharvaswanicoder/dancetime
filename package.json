@@ -39,6 +39,7 @@
     "nodemon": "^2.0.14",
     "sirv-cli": "^1.0.0",
     "url-join": "^4.0.1",
+    "wavesurfer.js": "^5.2.0",
     "youtube-dl-wrap": "^2.1.1"
   }
 }

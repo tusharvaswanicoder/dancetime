@@ -1,7 +1,8 @@
 <script>
     import Icon from '../Icon.svelte';
-    import { fly } from 'svelte/transition'
+    import { fly } from 'svelte/transition';
     import VideoPreviewAndNav from './VideoPreviewAndNav.svelte';
+    import VideoTimeline from "./VideoTimeline.svelte";
     
     export let ExitEditor = () => {};
     export let selectedProject;
@@ -19,7 +20,9 @@
                 ]} />
             </div>
         </section>
-        <section class='timeline'></section>
+        <section class='timeline'>
+            <VideoTimeline project={selectedProject} />
+        </section>
         <section class='preview'>
             <VideoPreviewAndNav project={selectedProject} />
         </section>

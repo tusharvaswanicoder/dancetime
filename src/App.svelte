@@ -52,6 +52,7 @@
         --color-gray-800: hsl(var(--gray) 12% 22%);
         --color-gray-850: hsl(var(--gray) 13% 17%);
         --color-gray-900: hsl(var(--gray) 15% 15%);
+        --color-gray-1000: hsl(var(--gray) 20% 10%);
 
         --primary: 245deg;
         --color-primary: hsl(var(--primary) 90% 50%);

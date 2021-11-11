@@ -3,10 +3,8 @@
     import VideoPreview from './VideoPreview.svelte'
     import { createCanvas, createVideo, createAudio } from '../stores';
     import { dlManager } from '../Downloads/DownloadManager';
-    import { keyPress, keyDown } from '../stores'
+    import { keyPress, keyDown, createVideoFPS } from '../stores'
     import VideoPreviewSeeker from './VideoPreviewSeeker.svelte'
-    
-    let fps = 30;
     
     const NavToBeginning = () => {
         $createVideo.currentTime = 0;
@@ -20,17 +18,18 @@
     
     const NavToPrevFrame = () => {
         $createVideo.pause();
-        $createVideo.currentTime -= 1 / fps;
+        $createVideo.currentTime -= 1 / $createVideoFPS;
         $createAudio.currentTime = $createVideo.currentTime;
     }
     
     const NavToNextFrame = () => {
         $createVideo.pause();
-        $createVideo.currentTime += 1 / fps;
+        $createVideo.currentTime += 1 / $createVideoFPS;
         $createAudio.currentTime = $createVideo.currentTime;
     }
     
     const PlayOrPause = () => {
+        $createAudio.currentTime = $createVideo.currentTime; 
         if ($createVideo.paused) {
             $createVideo.play();
         } else {
@@ -74,7 +73,7 @@
             return;
         }
         
-        fps = metadata.fps;
+        createVideoFPS.set(metadata.fps);
     }
     
     const onKeyPress = (e) => {
@@ -111,7 +110,7 @@
     <div class='title'>{project.project_name}</div>
     <VideoPreview {project} {onVideoPaused} {onVideoPlayed} />
     <div class='nav-and-seek'>
-        <VideoPreviewSeeker {fps} />
+        <VideoPreviewSeeker />
         <div class='video-nav'>
             <div class='nav-icons'>
                 {#each Object.entries(icons) as [icon_name, entry]}
