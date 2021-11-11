@@ -51,12 +51,12 @@
     }
     
     const icons = {
-        ['video_beginning_icon']:   {display: true, func: NavToBeginning},
-        ['video_prev_frame_icon']:  {display: true, func: NavToPrevFrame},
-        ['video_play_icon']:        {display: true, func: PlayOrPause},
-        ['video_pause_icon']:       {display: false,func: PlayOrPause},
-        ['video_next_frame_icon']:  {display: true, func: NavToNextFrame},
-        ['video_end_icon']:         {display: true, func: NavToEnd},
+        ['video_beginning_icon']:   {tooltip: 'Skip to Beginning', display: true, func: NavToBeginning},
+        ['video_prev_frame_icon']:  {tooltip: 'Previous Frame (Left Arrow)', display: true, func: NavToPrevFrame},
+        ['video_play_icon']:        {tooltip: 'Play (Space)', display: true, func: PlayOrPause},
+        ['video_pause_icon']:       {tooltip: 'Pause (Space)', display: false,func: PlayOrPause},
+        ['video_next_frame_icon']:  {tooltip: 'Next Frame (Right Arrow)', display: true, func: NavToNextFrame},
+        ['video_end_icon']:         {tooltip: 'Skip to End', display: true, func: NavToEnd},
         
     }
     
@@ -115,7 +115,7 @@
             <div class='nav-icons'>
                 {#each Object.entries(icons) as [icon_name, entry]}
                     {#if entry.display}
-                        <div class='icon-container'>
+                        <div class='icon-container' title={entry.tooltip}>
                             <Icon name={icon_name} OnClick={ClickNavIcon} />
                         </div>
                     {/if}

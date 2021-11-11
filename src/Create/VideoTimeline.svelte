@@ -4,6 +4,7 @@
     import { dlManager } from "../Downloads/DownloadManager"
     import { GetVideoBlobFromDB } from "../Downloads/VideoBlobManager"
     import { createWaveSurfer, createVideo, createAudio, createVideoCurrentTime, createVideoDuration, createVideoFPS } from '../stores';
+    import Icon from '../Icon.svelte';
     export let project;
     
     const ConvertDurationToNiceString = (duration) => {
@@ -64,7 +65,7 @@
     let width = 0;
     
     const onClickTimeline = (e) => {
-        const percentClick = e.layerX / width; 
+        const percentClick = e.layerX / (width - 20); // - 20 because there is 10px of padding on either side
         $createVideo.currentTime = percentClick * $createVideoDuration;
         $createAudio.currentTime = percentClick * $createVideoDuration;
         createVideoCurrentTime.set($createVideo.currentTime);
@@ -73,6 +74,12 @@
     $: {
         project,
         updateAudioBlob()
+    }
+    
+    let seekerProgressPercent = '0%';
+    
+    $: {
+        seekerProgressPercent = `${$createVideoCurrentTime / $createVideoDuration * 100}%`
     }
     
     $: {
@@ -95,10 +102,10 @@
         <div class='thumbnails'></div>
         <div class='keyframes'></div>
         <div class='waveform' id="waveform"></div>
-    </div>
-    <div class='seeker'>
-        <div class='head'></div>
-        <div class='tail'></div>
+        <div class='seeker' style={`left: ${seekerProgressPercent}`}>
+            <div class='head'><Icon name={'create_seeker_head'} /></div>
+            <div class='tail'></div>
+        </div>
     </div>
 </main>
 
@@ -109,7 +116,7 @@
         position: relative;
         display: grid;
         grid-template-columns: 1fr;
-        grid-template-rows: 25px 1fr;
+        grid-template-rows: 20px 1fr;
         padding: 10px;
     }
     
@@ -117,6 +124,7 @@
         grid-column: 1 / -1;
         grid-row: 2 / -1;
         display: grid;
+        position: relative;
         grid-template-columns: 1fr;
         grid-template-rows: 1fr 25px 50px;
         grid-template-areas:
@@ -140,7 +148,7 @@
         position: absolute;
         top: 0;
         font-size: 12px;
-        padding: 4px;
+        padding: 2px;
         color: var(--color-gray-500);
         cursor: default;
     }
@@ -185,5 +193,27 @@
     
     div.seeker {
         position: absolute;
+        --seeker-head-height: 20px;
+        height: calc(100% + var(--seeker-head-height));
+        top: calc(-1 * var(--seeker-head-height));
+        left: 0%;
+        --seeker-color: var(--color-yellow-light);
+        color: var(--seeker-color);
+        font-size: var(--seeker-head-height);
+        z-index: 5;
+        transform: translateX(-2px);
+    }
+    
+    div.seeker div.head {
+        position: absolute;
+        top: -2px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    div.seeker div.tail {
+        width: 2px;
+        height: 100%;
+        background-color: var(--seeker-color);
     }
 </style>
