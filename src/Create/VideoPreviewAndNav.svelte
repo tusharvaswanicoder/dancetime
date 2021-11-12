@@ -1,34 +1,58 @@
 <script>
     import Icon from '../Icon.svelte';
     import VideoPreview from './VideoPreview.svelte'
-    import { createCanvas, createVideo, createAudio } from '../stores';
+    import { createCanvas, createVideo, createAudio, createLoadingPercent } from '../stores';
     import { dlManager } from '../Downloads/DownloadManager';
     import { keyPress, keyDown, createVideoFPS } from '../stores'
     import VideoPreviewSeeker from './VideoPreviewSeeker.svelte'
     
+    const isLoadingFinished = () => {
+        return $createLoadingPercent >= 1;
+    }
+    
     const NavToBeginning = () => {
+        if (!$createVideo) {
+            return;
+        }
+        
         $createVideo.currentTime = 0;
         $createAudio.currentTime = 0;
     }
     
     const NavToEnd = () => {
+        if (!$createVideo) {
+            return;
+        }
+        
         $createVideo.currentTime = $createVideo.duration;
         $createAudio.currentTime = $createAudio.duration;
     }
     
     const NavToPrevFrame = () => {
+        if (!$createVideo) {
+            return;
+        }
+        
         $createVideo.pause();
         $createVideo.currentTime -= 1 / $createVideoFPS;
         $createAudio.currentTime = $createVideo.currentTime;
     }
     
     const NavToNextFrame = () => {
+        if (!$createVideo) {
+            return;
+        }
+        
         $createVideo.pause();
         $createVideo.currentTime += 1 / $createVideoFPS;
         $createAudio.currentTime = $createVideo.currentTime;
     }
     
     const PlayOrPause = () => {
+        if (!$createVideo) {
+            return;
+        }
+        
         $createAudio.currentTime = $createVideo.currentTime; 
         if ($createVideo.paused) {
             $createVideo.play();
@@ -81,12 +105,20 @@
     }
     
     const onKeyPress = (e) => {
+        if (!isLoadingFinished()) {
+            return;
+        }
+        
         if (e.key == " ") {
             PlayOrPause();
         }
     }
     
     const onKeyDown = (e) => {
+        if (!isLoadingFinished()) {
+            return;
+        }
+        
         if (e.key == "ArrowLeft") {
             NavToPrevFrame();
         } else if (e.key == "ArrowRight") {

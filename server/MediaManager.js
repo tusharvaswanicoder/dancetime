@@ -28,7 +28,7 @@ const MEDIA_TYPE = {
 // Minimum retention time of an entry in this.in_progress_media - longer if it is accessed frequently
 const MEMORY_RETENTION_TIME = 1000 * 60 * 15;
 
-const MAX_MEDIA_DURATION = 60 * 10; // 10 minutes max for videos
+const MAX_MEDIA_DURATION = 60 * 15; // 15 minutes max for videos
 
 // TODO: use uuids instead of youtube ids for filenames so they cannot be searched for.
 // Will require a separate lookup table though with more transactions
@@ -329,7 +329,6 @@ class MediaManager {
         const filepath = path.join(DOWNLOAD_DIR, filename);
 
         // File does not exist locally, so download it
-        console.log("START THUMBNAIL DONWLOAD")
         if (!fs.existsSync(filepath)) {
             try {
                 await this.downloadThumbnail(format.url, filepath);
@@ -339,7 +338,6 @@ class MediaManager {
             }
         }
 
-        console.log("START THUMBNAIL UPLOAD")
         await azBlobManager.uploadFile(
             CONTAINER_TYPE.THUMBNAILS,
             filename,

@@ -42,7 +42,7 @@
     };
 
     const updateAudioBlob = () => {
-        if (!project) {
+        if (!project || !$createWaveSurfer) {
             return;
         }
 
@@ -85,17 +85,15 @@
     }
 
     onMount(() => {
-        createWaveSurfer.set(
-            WaveSurfer.create({
-                container: '#waveform',
-                waveColor: 'rgb(38, 126, 97)',
-                progressColor: 'rgb(77, 189, 152)',
-                interact: false,
-                height: 50,
-                responsive: true,
-                hideScrollbar: true,
-            })
-        );
+        $createWaveSurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: 'rgb(38, 126, 97)',
+            progressColor: 'rgb(77, 189, 152)',
+            interact: false,
+            height: 50,
+            responsive: true,
+            hideScrollbar: true,
+        })
 
         $createWaveSurfer.setMute(true);
         GetThumbnails();
@@ -103,18 +101,6 @@
         updateAudioBlob();
     });
 
-    onDestroy(() => {
-        if (!$createWaveSurfer) {
-            return;
-        }
-        $createWaveSurfer.destroy();
-        createWaveSurfer.set(null);
-        
-        Object.values($createThumbnailURLs).forEach((url) => {
-            URL.revokeObjectURL(url);
-        });
-    });
-    
     const updateWaveSurferCurrentTime = (time) => {
         if (!$createWaveSurfer) {
             return;
@@ -127,6 +113,24 @@
     const thumbs_padding = 4;
     let imageRef = null;
     let timelineThumbnails = [];
+    
+    onDestroy(() => {
+        if (!$createWaveSurfer) {
+            return;
+        }
+        $createWaveSurfer.destroy();
+        $createWaveSurfer = null;
+        
+        Object.values($createThumbnailURLs).forEach((url) => {
+            URL.revokeObjectURL(url);
+        });
+        $createThumbnailURLs = {};
+        
+        Object.values(timelineThumbnails).forEach((url) => {
+            URL.revokeObjectURL(url);
+        });
+        timelineThumbnails = [];
+    });
     
     const getNumThumbnailsToDisplay = async () => {
         if (!imageRef || imageRef.width == 0) {
@@ -158,7 +162,7 @@
     };
 
     $: {
-        project, updateAudioBlob();
+        project, $createWaveSurfer, updateAudioBlob();
     }
     
     let seekerProgressPercent = '0%';
@@ -232,6 +236,7 @@
         grid-template-columns: 1fr;
         grid-template-rows: 20px 1fr;
         padding: var(--timeline-padding);
+        user-select: none;
     }
 
     div.timeline-click-container {

@@ -1,26 +1,57 @@
 <script>
     import CreateProjectPage from "./CreateProjectPage.svelte";
     import EditorPage from "./EditorPage.svelte";
-    import { CREATE_STATE, createStateStore } from "../stores"
+    import { onMount } from "svelte";
+    import {
+        createCanvas,
+        createVideo,
+        createAudio,
+        createVideoCurrentTime,
+        createVideoDuration,
+        createWaveSurfer,
+        createVideoFPS,
+        createLoadingPercent,
+        createThumbnailURLs
+    } from "../stores";
     
     let selectedProject;
     
+    const CREATE_STATE = {
+        PROJECTS_VIEW: 1,
+        EDITOR_VIEW: 2
+    }
+    
+    onMount(() => {
+        $createCanvas = null;
+        $createVideo = null;
+        $createAudio = null;
+        $createVideoCurrentTime = null;
+        $createVideoDuration = null;
+        $createWaveSurfer = null;
+        $createVideoFPS = 30;
+        $createLoadingPercent = 0;
+        $createThumbnailURLs = {};
+    })
+    
+    let createState = CREATE_STATE.PROJECTS_VIEW;
+
     const OpenProject = (project) => {
+        $createLoadingPercent = 0;
         selectedProject = project;
-        createStateStore.set(CREATE_STATE.EDITOR_VIEW);
+        createState = CREATE_STATE.EDITOR_VIEW;
     }
     
     const ExitEditor = () => {
         selectedProject = null;
-        createStateStore.set(CREATE_STATE.PROJECTS_VIEW);
+        createState = CREATE_STATE.PROJECTS_VIEW;
     }
     
 </script>
 
 <main>
-    {#if $createStateStore == CREATE_STATE.PROJECTS_VIEW}
+    {#if createState == CREATE_STATE.PROJECTS_VIEW}
         <CreateProjectPage OpenProject={OpenProject} />
-    {:else if $createStateStore == CREATE_STATE.EDITOR_VIEW}
+    {:else if createState == CREATE_STATE.EDITOR_VIEW}
         <EditorPage ExitEditor={ExitEditor} selectedProject={selectedProject} />
     {/if}
 </main>

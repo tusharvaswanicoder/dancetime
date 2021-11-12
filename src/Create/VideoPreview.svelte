@@ -10,8 +10,6 @@
     let ctx;
     let videoURL;
     let audioURL;
-    let firstFrameLoaded = false;
-    let lastFrameLoaded = false;
 
     /**
      * By Ken Fyrstenberg Nilsen

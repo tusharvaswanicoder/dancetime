@@ -74,8 +74,8 @@
     }
     
     $: {
-        $projectManager,
-        TestOpenFirstProject()
+        $projectManager
+        // TestOpenFirstProject()
     }
     
     const TestOpenFirstProject = () => {

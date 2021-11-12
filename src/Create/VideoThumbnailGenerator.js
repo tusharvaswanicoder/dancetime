@@ -18,8 +18,8 @@ export class Video {
         this.videoElement.crossOrigin = 'anonymous';
         this.option = {
             interval: 1,
-            scale: 0.4,
-            quality: 0.4,
+            scale: 0.25,
+            quality: 0.3,
             start: 1
         };
 
