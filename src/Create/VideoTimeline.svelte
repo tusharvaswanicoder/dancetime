@@ -19,6 +19,7 @@
     export let project;
     
     let timelineWidth = 0;
+    let timelineHeight = 0;
 
     const ConvertDurationToNiceString = (duration) => {
         if (!duration) {
@@ -145,7 +146,7 @@
     }
     
     $: {
-        timelineWidth, imageRef
+        timelineWidth, timelineHeight, imageRef
         getNumThumbnailsToDisplay()
     }
 
@@ -191,7 +192,7 @@
         </div>
     </div>
     <div class="timeline-container">
-        <div class="thumbnails" bind:clientWidth={timelineWidth} style={`--thumbs-padding: ${thumbs_padding}px`}>
+        <div class="thumbnails" bind:clientWidth={timelineWidth} bind:clientHeight={timelineHeight} style={`--thumbs-padding: ${thumbs_padding}px`}>
             {#if timelineThumbnails.length == 0}
                 {#each Object.entries($createThumbnailURLs) as [key, thumbnail_blob]}
                     <!-- svelte-ignore a11y-missing-attribute -->
