@@ -25,3 +25,5 @@ export const createVideoCurrentTime = writable();
 export const createVideoDuration = writable();
 export const createWaveSurfer = writable();
 export const createVideoFPS = writable(30);
+export const createLoadingPercent = writable(0);
+export const createThumbnailURLs = writable({});

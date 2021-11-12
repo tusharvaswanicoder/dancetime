@@ -16,3 +16,5 @@ export const DIFFICULTY = {
     HARD: "Hard",
     EXPERT: "Expert"
 }
+
+export const THUMBNAIL_INTERVAL = 3;

@@ -1,8 +1,28 @@
 <script>
     import Icon from '../Icon.svelte';
-    import { fly } from 'svelte/transition';
+    import { fly, fade } from 'svelte/transition';
     import VideoPreviewAndNav from './VideoPreviewAndNav.svelte';
     import VideoTimeline from "./VideoTimeline.svelte";
+    import ProgressCircle from '../ProgressCircle.svelte';
+    import { createLoadingPercent } from "../stores";
+    import { tweened } from 'svelte/motion';
+    import { cubicOut } from 'svelte/easing';
+    
+    const loadingScreenEnabled = true;
+    
+    const stops = [
+        { color: 'var(--color-yellow-dark)', offset: '0' },
+        { color: 'var(--color-yellow-light)', offset: '1' },
+    ];
+    
+    let load_progress = tweened(0, {
+        duration: 200,
+		easing: cubicOut
+	});
+    
+    $: {
+        load_progress.set($createLoadingPercent * 100)
+    }
     
     export let ExitEditor = () => {};
     export let selectedProject;
@@ -28,6 +48,18 @@
         </section>
     </main>
     
+    {#if $createLoadingPercent < 1 && loadingScreenEnabled}
+        <div class='loadscreen' out:fade|local>
+            <span>Loading your project...</span>
+            <div class="circle-container">
+                <ProgressCircle {stops} value={$load_progress}>
+                    <!-- +1 here so that it actually hits 100% at the end lol, just visually -->
+                    <span>{Math.ceil($load_progress + 1)}%</span> 
+                </ProgressCircle>
+            </div>
+        </div>
+    {/if}
+    
     <div class="close-container" on:click={ExitEditor}>
         <Icon name="x_icon" />
     </div>
@@ -38,6 +70,26 @@
         width: 100%;
         height: 100%;
         position: relative;
+    }
+    
+    div.loadscreen {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: var(--color-gray-900);
+        z-index: 9;
+        display: flex;
+        gap: 20px;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    div.loadscreen > span {
+        color: var(--color-gray-300);
+        cursor: default;
     }
     
     main.grid-container {
@@ -108,10 +160,33 @@
         margin: 10px;
         font-size: 1.25rem;
         cursor: pointer;
+        z-index: 10;
     }
     
     div.close-container:hover {
         color: white;
     }
     
+    div.circle-container {
+        width: 120px;
+        height: 120px;
+        --progress-trackcolor: var(--color-gray-700);
+        --progress-color: var(--color-blue-dark);
+    }
+
+    div.circle-container span {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: fit-content;
+        height: fit-content;
+        margin: auto;
+        font-weight: 700;
+        font-size: 20px;
+        cursor: default;
+        color: var(--color-yellow-light);
+    }
+
 </style>
