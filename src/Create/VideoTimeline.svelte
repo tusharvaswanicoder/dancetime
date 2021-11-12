@@ -1,5 +1,5 @@
 <script>
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, onMount, tick } from 'svelte';
     import WaveSurfer from 'wavesurfer.js';
     import { getThumbnails, getThumbnailsInParalell } from './VideoThumbnailGenerator';
     import { dlManager } from '../Downloads/DownloadManager';
@@ -109,7 +109,7 @@
         $createWaveSurfer.destroy();
         createWaveSurfer.set(null);
         
-        Object.values(thumbnails).forEach((url) => {
+        Object.values($createThumbnailURLs).forEach((url) => {
             URL.revokeObjectURL(url);
         });
     });
@@ -122,7 +122,32 @@
     };
 
     let width = 0;
-    const timeline_padding = 10;
+    const timeline_padding = 4;
+    const thumbs_padding = 4;
+    let imageRef = null;
+    let timelineThumbnails = [];
+    
+    const getNumThumbnailsToDisplay = async () => {
+        if (!imageRef || imageRef.width == 0) {
+            return;
+        }
+        
+        const num_thumbnails_to_display = Math.ceil(timelineWidth / (imageRef.clientWidth + thumbs_padding));
+        
+        timelineThumbnails = [];
+        for (let i = 0; i < num_thumbnails_to_display; i++) {
+            const timestamp = $createVideoDuration * (i / num_thumbnails_to_display)
+            const timestamp_interval = Math.ceil(timestamp / THUMBNAIL_INTERVAL);
+            timelineThumbnails.push($createThumbnailURLs[timestamp_interval]);
+        }
+        
+        timelineThumbnails = timelineThumbnails;
+    }
+    
+    $: {
+        timelineWidth, imageRef
+        getNumThumbnailsToDisplay()
+    }
 
     const onClickTimeline = (e) => {
         const percentClick = e.layerX / (width - timeline_padding * 2 - 2); // Account for padding + border width
@@ -166,11 +191,26 @@
         </div>
     </div>
     <div class="timeline-container">
-        <div class="thumbnails" bind:clientWidth={timelineWidth}>
-            {#each Object.entries($createThumbnailURLs) as [key, thumbnail_blob]}
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <img src={thumbnail_blob} />
-            {/each}
+        <div class="thumbnails" bind:clientWidth={timelineWidth} style={`--thumbs-padding: ${thumbs_padding}px`}>
+            {#if timelineThumbnails.length == 0}
+                {#each Object.entries($createThumbnailURLs) as [key, thumbnail_blob]}
+                    <!-- svelte-ignore a11y-missing-attribute -->
+                    {#if key == 0}
+                        <img src={thumbnail_blob} on:load={getNumThumbnailsToDisplay} bind:this={imageRef} />
+                    {:else}
+                        <img src={thumbnail_blob} />
+                    {/if}
+                {/each}
+            {:else}
+                {#each timelineThumbnails as thumbnail_blob, key}
+                    <!-- svelte-ignore a11y-missing-attribute -->
+                    {#if key == 0}
+                        <img src={thumbnail_blob} bind:this={imageRef} />
+                    {:else}
+                        <img src={thumbnail_blob} />
+                    {/if}
+                {/each}
+            {/if}
         </div>
         <div class="keyframes" />
         <div class="waveform" id="waveform" />
@@ -237,11 +277,11 @@
     }
 
     div.lines div.timestamp.left {
-        left: 0;
+        left: 4px;
     }
 
     div.lines div.timestamp.right {
-        right: 0;
+        right: 4px;
     }
 
     div.lines div.lines-container {
@@ -263,20 +303,20 @@
 
     div.thumbnails {
         grid-area: thumbnails;
-        --thumbs-padding: 4px;
         padding: var(--thumbs-padding);
-        display: flex;
-        flex-direction: row;
-        gap: var(--thumbs-padding);
         height: 100%;
         width: calc(100% - var(--thumbs-padding));
         overflow: hidden;
         min-height: 0;
+        gap: var(--thumbs-padding);
+        height: 100%;
+        display: flex;
     }
     
     div.thumbnails img {
         height: 100%;
         width: auto;
+        object-fit: cover;
     }
 
     div.keyframes {

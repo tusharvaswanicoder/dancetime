@@ -68,6 +68,10 @@
     }
     
     const RefreshFPS = (project) => {
+        if (!project) {
+            return;
+        }
+        
         const metadata = dlManager.metaData[project.media_id];
         if (!metadata) {
             return;
@@ -106,24 +110,26 @@
     export let project;
 </script>
 
-<main>
-    <div class='title'>{project.project_name}</div>
-    <VideoPreview {project} {onVideoPaused} {onVideoPlayed} />
-    <div class='nav-and-seek'>
-        <VideoPreviewSeeker />
-        <div class='video-nav'>
-            <div class='nav-icons'>
-                {#each Object.entries(icons) as [icon_name, entry]}
-                    {#if entry.display}
-                        <div class='icon-container' title={entry.tooltip}>
-                            <Icon name={icon_name} OnClick={ClickNavIcon} />
-                        </div>
-                    {/if}
-                {/each}
+{#if project}
+    <main>
+        <div class='title'>{project.project_name}</div>
+        <VideoPreview {project} {onVideoPaused} {onVideoPlayed} />
+        <div class='nav-and-seek'>
+            <VideoPreviewSeeker />
+            <div class='video-nav'>
+                <div class='nav-icons'>
+                    {#each Object.entries(icons) as [icon_name, entry]}
+                        {#if entry.display}
+                            <div class='icon-container' title={entry.tooltip}>
+                                <Icon name={icon_name} OnClick={ClickNavIcon} />
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
+{/if}
 
 <style>
     

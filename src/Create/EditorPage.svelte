@@ -8,7 +8,7 @@
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
     
-    const loadingScreenEnabled = true;
+    const loadingScreenEnabled = false;
     
     const stops = [
         { color: 'var(--color-yellow-dark)', offset: '0' },
@@ -49,7 +49,7 @@
     </main>
     
     {#if $createLoadingPercent < 1 && loadingScreenEnabled}
-        <div class='loadscreen' out:fade|local>
+        <div class='loadscreen' out:fade|local={{delay: 1000}}>
             <span>Loading your project...</span>
             <div class="circle-container">
                 <ProgressCircle {stops} value={$load_progress}>

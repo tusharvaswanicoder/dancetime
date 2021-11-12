@@ -96,7 +96,7 @@
             window.requestAnimationFrame(animationCallback);
         }
         
-        if ($createVideo.ended) {
+        if ($createVideo && $createVideo.ended) {
             $createVideo.currentTime = $createVideo.duration - 0.001;
             $createVideo.pause();
         }

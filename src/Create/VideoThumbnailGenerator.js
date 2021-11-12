@@ -18,8 +18,8 @@ export class Video {
         this.videoElement.crossOrigin = 'anonymous';
         this.option = {
             interval: 1,
-            scale: 0.5,
-            quality: 0.5,
+            scale: 0.4,
+            quality: 0.4,
             start: 1
         };
 
@@ -231,7 +231,7 @@ export class Video {
 }
 
 export async function getThumbnailsInParalell(blob, progress_cb) {
-    const num_parallel = 5;
+    const num_parallel = 3;
     const interval = THUMBNAIL_INTERVAL;
     let total_progress = 0;
     // TODO: transfer this work to WebWorkers in the background or something
@@ -245,13 +245,7 @@ export async function getThumbnailsInParalell(blob, progress_cb) {
             function thumbnailProgressCB (progress) {
                 total_progress += 1 / (video.videoElement.duration / interval);
                 if (progress_cb) {
-                    if (total_progress >= 1) {
-                        setTimeout(() => {
-                            progress_cb(Math.min(1, total_progress));
-                        }, 1000);
-                    } else {
-                        progress_cb(Math.min(1, total_progress));
-                    }
+                    progress_cb(Math.min(1, total_progress));
                 }
             }
             
