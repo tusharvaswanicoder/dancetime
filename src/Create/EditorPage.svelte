@@ -26,13 +26,12 @@
     }
     
     export let ExitEditor = () => {};
-    export let selectedProject;
 </script>
 
 <main in:fly|local={{x: 500, duration: 200, delay: 200}} out:fly|local={{x: 500, duration: 200}}>
     <main class='grid-container'>
         <section class='tabs'>
-            <EditorTabsSection project={selectedProject} />
+            <EditorTabsSection />
         </section>
         <section class='save'>
             Save
@@ -44,10 +43,10 @@
             </div>
         </section>
         <section class='timeline'>
-            <VideoTimeline project={selectedProject} />
+            <VideoTimeline />
         </section>
         <section class='preview'>
-            <VideoPreviewAndNav project={selectedProject} />
+            <VideoPreviewAndNav />
         </section>
     </main>
     

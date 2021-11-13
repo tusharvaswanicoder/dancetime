@@ -5,14 +5,9 @@
     import { tweened } from 'svelte/motion';
     import { quadOut } from 'svelte/easing';
     import { GetVideoBlobFromDB } from './VideoBlobManager';
+    import { ConvertDurationToNiceString } from "../utils";
 
     export let songData = {};
-
-    const ConvertDurationToNiceString = (duration) => {
-        return `${Math.floor(duration / 60)}:${(duration % 60)
-            .toString()
-            .padStart(2, '0')}`;
-    };
 
     const GetTotalMB = () => {
         return (

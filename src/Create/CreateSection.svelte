@@ -11,10 +11,9 @@
         createWaveSurfer,
         createVideoFPS,
         createLoadingPercent,
-        createThumbnailURLs
+        createThumbnailURLs,
+        createProject
     } from "../stores";
-    
-    let selectedProject;
     
     const CREATE_STATE = {
         PROJECTS_VIEW: 1,
@@ -37,12 +36,12 @@
 
     const OpenProject = (project) => {
         $createLoadingPercent = 0;
-        selectedProject = project;
+        $createProject = project;
         createState = CREATE_STATE.EDITOR_VIEW;
     }
     
     const ExitEditor = () => {
-        selectedProject = null;
+        $createProject = null;
         createState = CREATE_STATE.PROJECTS_VIEW;
     }
     
@@ -52,7 +51,7 @@
     {#if createState == CREATE_STATE.PROJECTS_VIEW}
         <CreateProjectPage OpenProject={OpenProject} />
     {:else if createState == CREATE_STATE.EDITOR_VIEW}
-        <EditorPage ExitEditor={ExitEditor} selectedProject={selectedProject} />
+        <EditorPage ExitEditor={ExitEditor} />
     {/if}
 </main>
 

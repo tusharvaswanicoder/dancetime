@@ -69,5 +69,6 @@
         height: 1em;
         fill: currentColor;
         overflow: visible;
+        transition: 0.2s ease-in-out transform;
     }
 </style>

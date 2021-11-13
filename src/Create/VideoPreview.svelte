@@ -2,11 +2,17 @@
     import { onMount, tick, onDestroy } from 'svelte';
     import { GetVideoBlobFromDB } from '../Downloads/VideoBlobManager';
     import { dlManager } from '../Downloads/DownloadManager';
-    import { createCanvas, createVideo, createAudio, createVideoCurrentTime, createVideoDuration } from '../stores';
-    export let project;
+    import {
+        createCanvas,
+        createVideo,
+        createAudio,
+        createVideoCurrentTime,
+        createVideoDuration,
+        createProject,
+    } from '../stores';
     export let onVideoPaused = () => {};
     export let onVideoPlayed = () => {};
-    
+
     let ctx;
     let videoURL;
     let audioURL;
@@ -70,9 +76,8 @@
     }
 
     const animationCallback = () => {
-        
         // if (!$createVideo) {return false;}
-        
+
         // if ($createVideo.paused) {
         //     if ($createVideo.currentTime == $createVideo.duration && lastFrameLoaded) {
         //         return false;
@@ -80,10 +85,10 @@
         //         return false;
         //     }
         // }
-        
+
         // ctx.drawImage(video, 0, 0, video.videoWidth,    video.videoHeight,     // source rectangle
         //                    0, 0, ctx.canvas.width, ctx.canvas.height); // destination rectangle
-        
+
         // Wait until it has rendered a frame so it displays the first frame
         // if (!firstFrameLoaded && $createVideo.currentTime > 0) {
         //     firstFrameLoaded = true;
@@ -93,7 +98,7 @@
             drawImageProp(ctx, $createVideo);
             window.requestAnimationFrame(animationCallback);
         }
-        
+
         if ($createVideo && $createVideo.ended) {
             $createVideo.currentTime = $createVideo.duration - 0.001;
             $createVideo.pause();
@@ -101,34 +106,34 @@
     };
 
     const updateVideoBlobURL = () => {
-        if (!project) {
+        if (!$createProject) {
             return;
         }
 
         const blob_name =
-            dlManager.metaData[project.media_id]['indexedMediaBlob-v'];
-        
+            dlManager.metaData[$createProject.media_id]['indexedMediaBlob-v'];
+
         if (!blob_name) {
             return;
         }
-        
+
         GetVideoBlobFromDB(blob_name, (blob) => {
             videoURL = URL.createObjectURL(blob);
         });
     };
 
     const updateAudioBlobURL = () => {
-        if (!project) {
+        if (!$createProject) {
             return;
         }
 
         const blob_name =
-            dlManager.metaData[project.media_id]['indexedMediaBlob-a'];
-            
+            dlManager.metaData[$createProject.media_id]['indexedMediaBlob-a'];
+
         if (!blob_name) {
             return;
-        }    
-        
+        }
+
         GetVideoBlobFromDB(blob_name, (blob) => {
             audioURL = URL.createObjectURL(blob);
         });
@@ -151,31 +156,29 @@
     };
 
     $: {
-        project, updateVideoBlobURL(), updateAudioBlobURL();
+        $createProject, updateVideoBlobURL(), updateAudioBlobURL();
     }
-    
+
     const refreshCTX = (canvas) => {
         if (!canvas) {
             return;
         }
-        
+
         ctx = canvas.getContext('2d');
-    }
-    
+    };
+
     $: {
-        refreshCTX($createCanvas)
+        refreshCTX($createCanvas);
     }
 
     onMount(() => {
-        refreshCTX($createCanvas),
-        animationCallback();
+        refreshCTX($createCanvas), animationCallback();
     });
-    
+
     onDestroy(() => {
         URL.revokeObjectURL(videoURL);
         URL.revokeObjectURL(audioURL);
-    })
-    
+    });
 </script>
 
 <main>
@@ -200,7 +203,12 @@
         on:contextmenu|preventDefault
         controls
     />
-    <canvas width={1920} height={1080} bind:this={$createCanvas} on:contextmenu|preventDefault />
+    <canvas
+        width={1920}
+        height={1080}
+        bind:this={$createCanvas}
+        on:contextmenu|preventDefault
+    />
 </main>
 
 <style>

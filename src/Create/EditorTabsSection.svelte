@@ -1,8 +1,8 @@
 <script>
-    export let project = {};
     import EditTab from './EditTab.svelte';
     import ReviewTab from './ReviewTab.svelte';
     import PublishTab from './PublishTab.svelte';
+    import { createProject } from '../stores';
     
     const TAB_STATE = {
         EDIT: 1,
@@ -30,12 +30,15 @@
         {/each}
     </section>
     <section class='tab-content'>
-        <svelte:component {project} this={tabs[tab_state]}/>
+        <svelte:component this={tabs[tab_state]}/>
     </section>
 </main>
 
 <style>
     main {
+        position: relative;
+        width: 100%;
+        height: 100%;
         display: grid;
         grid-template-columns: 1fr;
         grid-template-rows: min-content 1fr;
@@ -72,5 +75,12 @@
         font-weight: 700;
         color: var(--color-yellow-light);
         background-color: transparent;
+    }
+    
+    section.tab-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
     }
 </style>

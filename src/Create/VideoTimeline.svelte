@@ -13,35 +13,16 @@
         createVideoDuration,
         createVideoFPS,
         createLoadingPercent,
-        createThumbnailURLs
+        createThumbnailURLs,
+        createProject
     } from '../stores';
+    import { ConvertDurationToNiceStringWithFPS } from '../utils';
     import Icon from '../Icon.svelte';
-    export let project;
     
     let timelineWidth = 0;
     let timelineHeight = 0;
 
-    const ConvertDurationToNiceString = (duration) => {
-        if (!duration) {
-            return '00:00:00';
-        }
-        const minutes = Math.floor(duration / 60)
-            .toFixed(0)
-            .toString()
-            .padStart(2, '0');
-        const seconds = Math.floor(duration % 60)
-            .toFixed(0)
-            .toString()
-            .padStart(2, '0');
-        const frames = Math.floor(((duration % 60) % 1) * $createVideoFPS)
-            .toFixed(0)
-            .toString()
-            .padStart(2, '0');
-
-        return `${minutes}:${seconds}:${frames}`;
-    };
-
-    const updateAudioBlob = () => {
+    const updateAudioBlob = (project) => {
         if (!project || !$createWaveSurfer) {
             return;
         }
@@ -58,7 +39,7 @@
         });
     };
 
-    function GetThumbnails() {
+    function GetThumbnails(project) {
         if (!project) {
             return;
         }
@@ -96,9 +77,9 @@
         })
 
         $createWaveSurfer.setMute(true);
-        GetThumbnails();
+        GetThumbnails($createProject);
 
-        updateAudioBlob();
+        updateAudioBlob($createProject);
     });
 
     const updateWaveSurferCurrentTime = (time) => {
@@ -162,7 +143,7 @@
     };
 
     $: {
-        project, $createWaveSurfer, updateAudioBlob();
+        $createWaveSurfer, updateAudioBlob($createProject);
     }
     
     let seekerProgressPercent = '0%';
@@ -189,10 +170,10 @@
             {/each}
         </div>
         <div class="timestamp left">
-            {ConvertDurationToNiceString($createVideoCurrentTime)}
+            {ConvertDurationToNiceStringWithFPS($createVideoCurrentTime, $createVideoFPS)}
         </div>
         <div class="timestamp right">
-            {ConvertDurationToNiceString($createVideoDuration)}
+            {ConvertDurationToNiceStringWithFPS($createVideoDuration, $createVideoFPS)}
         </div>
     </div>
     <div class="timeline-container">

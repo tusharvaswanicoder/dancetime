@@ -1,25 +1,10 @@
 <script>
     import Icon from '../Icon.svelte';
     import { dlManager, MEDIA_STATUS } from '../Downloads/DownloadManager';
+    import { ConvertDurationToNiceString, GetFormattedDate } from '../utils';
     export let card_data = {
         title: 'Create New Project',
         new_project: true,
-    };
-    
-    const ConvertDurationToNiceString = (duration) => {
-        if (!duration) {
-            return '--';
-        }
-        return `${Math.floor(duration / 60)}:${(duration % 60)
-            .toString()
-            .padStart(2, '0')}`;
-    };
-
-    const GetFormattedDate = (_date) => {
-        const date = new Date(_date);
-        return `${date.toLocaleString('default', {
-            month: 'short',
-        })} ${date.getDate()}, ${date.getFullYear()}`;
     };
     
     let isDownloadedOrDownloading = false;
@@ -148,7 +133,7 @@
         margin: 6px;
         padding: 12px;
         border-radius: 14px;
-        color: white;
+        color: var(--color-gray-100);
         transition: 0.2s linear background-color;
         cursor: default;
     }
