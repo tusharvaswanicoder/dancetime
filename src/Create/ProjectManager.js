@@ -29,6 +29,11 @@ class ProjectManager {
         this.projectsStore.set(this.projects);
     }
     
+    saveProject(project) {
+        this.projects[project.uuid] = project;
+        this.updateProjectsInLocalStorage();
+    }
+    
     projectExists (uuid) {
         return typeof this.projects[uuid] != 'undefined'; 
     }
@@ -66,7 +71,8 @@ class ProjectManager {
             video_link: media_id,
             length: 0,
             download: 0,
-            visibility: VISIBILITY.DRAFT
+            visibility: VISIBILITY.DRAFT,
+            tags: []
         }
     }
     

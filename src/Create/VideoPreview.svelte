@@ -155,10 +155,6 @@
         onVideoPlayed();
     };
 
-    $: {
-        $createProject, updateVideoBlobURL(), updateAudioBlobURL();
-    }
-
     const refreshCTX = (canvas) => {
         if (!canvas) {
             return;
@@ -167,12 +163,9 @@
         ctx = canvas.getContext('2d');
     };
 
-    $: {
-        refreshCTX($createCanvas);
-    }
-
     onMount(() => {
         refreshCTX($createCanvas), animationCallback();
+        updateVideoBlobURL(), updateAudioBlobURL();
     });
 
     onDestroy(() => {

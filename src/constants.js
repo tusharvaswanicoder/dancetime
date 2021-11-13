@@ -18,3 +18,4 @@ export const DIFFICULTY = {
 }
 
 export const THUMBNAIL_INTERVAL = 10;
+export const MAX_PROJECT_TAGS = 5;

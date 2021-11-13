@@ -23,3 +23,4 @@ export const createVideoFPS = writable(30);
 export const createLoadingPercent = writable(0);
 export const createThumbnailURLs = writable({});
 export const createProject = writable();
+export const createProjectUnsaved = writable(false);

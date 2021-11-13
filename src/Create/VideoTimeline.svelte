@@ -23,7 +23,7 @@
     let timelineHeight = 0;
 
     const updateAudioBlob = (project) => {
-        if (!project || !$createWaveSurfer) {
+        if (!project || !$createWaveSurfer || !dlManager.metaData[project.media_id]) {
             return;
         }
 
@@ -40,7 +40,7 @@
     };
 
     function GetThumbnails(project) {
-        if (!project) {
+        if (!project || !dlManager.metaData[project.media_id]) {
             return;
         }
 
@@ -142,9 +142,9 @@
         createVideoCurrentTime.set($createVideo.currentTime);
     };
 
-    $: {
-        $createWaveSurfer, updateAudioBlob($createProject);
-    }
+    // $: {
+    //     $createWaveSurfer, updateAudioBlob($createProject);
+    // }
     
     let seekerProgressPercent = '0%';
 

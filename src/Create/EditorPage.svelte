@@ -5,11 +5,22 @@
     import VideoTimeline from "./VideoTimeline.svelte";
     import EditorTabsSection from './EditorTabsSection.svelte';
     import ProgressCircle from '../ProgressCircle.svelte';
-    import { createLoadingPercent } from "../stores";
+    import { createLoadingPercent, createProjectUnsaved, createProject } from "../stores";
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
+    import projectManager from "./ProjectManager"
+    import { onDestroy } from 'svelte';
     
     const loadingScreenEnabled = false;
+    
+    const saveProject = () => {
+        if (!$createProjectUnsaved) {
+            return;
+        }
+        
+        projectManager.saveProject($createProject);
+        $createProjectUnsaved = false;
+    }
     
     const stops = [
         { color: 'var(--color-yellow-dark)', offset: '0' },
@@ -33,14 +44,18 @@
         <section class='tabs'>
             <EditorTabsSection />
         </section>
-        <section class='save'>
-            Save
-            <div class="icon-container">
-                <Icon name="save_icon" stops={[
-                    { color: 'var(--color-yellow-dark)', offset: '0' },
-                    { color: 'var(--color-yellow-light)', offset: '1' },
-                ]} />
-            </div>
+        <section class='save' class:saved={!$createProjectUnsaved} on:click={saveProject}>
+            {#if $createProjectUnsaved}
+                Save
+                <div class="icon-container">
+                    <Icon name="save_icon" stops={[
+                        { color: 'var(--color-yellow-dark)', offset: '0' },
+                        { color: 'var(--color-yellow-light)', offset: '1' },
+                    ]} />
+                </div>
+            {:else}
+                All Changes Saved
+            {/if}
         </section>
         <section class='timeline'>
             <VideoTimeline />
@@ -130,12 +145,17 @@
         user-select: none;
     }
     
-    section.save:hover {
+    section.save:not(.saved):hover {
         background-color: var(--color-gray-850);
     }
     
-    section.save:active {
+    section.save:not(.saved):active {
         background-color: var(--color-gray-800);
+    }
+    
+    section.save.saved {
+        color: var(--color-gray-500);
+        cursor: default;
     }
     
     section.save div.icon-container {

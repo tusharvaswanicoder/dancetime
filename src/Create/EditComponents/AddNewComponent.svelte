@@ -1,7 +1,9 @@
 <script>
     import BasicComponent from "./BasicComponent.svelte";
     import { createProject } from "../../stores";
-    import { ConvertDurationToNiceString } from "../../utils";
+    import Drowndown from "../../Dropdown.svelte";
+    
+    const componentOptions = ['Video In/Out Points', 'Scoring Areas'];
     
     const OnClick = () => {
         
@@ -11,7 +13,7 @@
 <BasicComponent {OnClick} title='Add New Component'>
     <div class='content-container'>
         <h2>Select Component</h2>
-        <input bind:value={$createProject.project_name} placeholder={"Project Name"} />
+        <Drowndown options={componentOptions} />
         <button>Add Component</button>
     </div>
 </BasicComponent>
