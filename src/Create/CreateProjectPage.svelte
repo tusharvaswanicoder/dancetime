@@ -75,12 +75,14 @@
     
     $: {
         $projectManager
-        // TestOpenFirstProject()
+        TestOpenFirstProject()
     }
     
     const TestOpenFirstProject = () => {
         if (Object.keys(projectManager.projects).length > 0) {
-            OnClickProjectOpen(Object.values(projectManager.projects)[0]);
+            setTimeout(() => {
+                OnClickProjectOpen(Object.values(projectManager.projects)[0]);
+            }, 1000);
         }
     }
     

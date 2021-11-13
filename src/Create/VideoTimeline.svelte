@@ -255,7 +255,7 @@
         display: grid;
         position: relative;
         grid-template-columns: 1fr;
-        grid-template-rows: 1fr 40px 50px;
+        grid-template-rows: min(74px, 7vh) 1fr 50px;
         grid-template-areas:
             'thumbnails'
             'keyframes'

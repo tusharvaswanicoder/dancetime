@@ -3,12 +3,13 @@
     import { fly, fade } from 'svelte/transition';
     import VideoPreviewAndNav from './VideoPreviewAndNav.svelte';
     import VideoTimeline from "./VideoTimeline.svelte";
+    import EditorTabsSection from './EditorTabsSection.svelte';
     import ProgressCircle from '../ProgressCircle.svelte';
     import { createLoadingPercent } from "../stores";
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
     
-    const loadingScreenEnabled = true;
+    const loadingScreenEnabled = false;
     
     const stops = [
         { color: 'var(--color-yellow-dark)', offset: '0' },
@@ -30,7 +31,9 @@
 
 <main in:fly|local={{x: 500, duration: 200, delay: 200}} out:fly|local={{x: 500, duration: 200}}>
     <main class='grid-container'>
-        <section class='tabs'></section>
+        <section class='tabs'>
+            <EditorTabsSection project={selectedProject} />
+        </section>
         <section class='save'>
             Save
             <div class="icon-container">

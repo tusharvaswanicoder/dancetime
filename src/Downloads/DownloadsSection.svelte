@@ -17,13 +17,6 @@
     let numSongs = 0;
     let totalSize = 0;
     
-    function ClickTest() {
-        dlManager.startMediaDownload('pdsGv5B9OSQ')
-        // dlManager.startMediaDownload('YV2yS3iCWDA')
-        // dlManager.startMediaDownload('WfwV8vkIXvI')
-        // dlManager.startMediaDownload('sbMzyR9YLLg')
-    }
-    
     $: {
         $dlManager,
         totalSize = GetTotalSizeInMB(),
@@ -44,19 +37,10 @@
         </div>
     </header>
     <section class='downloads-container'>
-        <button on:click={() => ClickTest()}>Test download</button>
         {#each Object.values($dlManager) as metaDataEntry}
             <DownloadedSongCard songData={metaDataEntry} />
         {/each}
     </section>
-</main>
-
-<main>
-    <h1>Downloads</h1>
-    <button on:click={() => ClickTest()}>Test download</button>
-    {#each Object.values($dlManager) as metaDataEntry}
-        <p>{metaDataEntry.title}</p>
-    {/each}
 </main>
 
 <style>

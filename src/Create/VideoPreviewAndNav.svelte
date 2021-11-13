@@ -75,13 +75,12 @@
     }
     
     const icons = {
-        ['video_beginning_icon']:   {tooltip: 'Skip to Beginning', display: true, func: NavToBeginning},
+        ['video_beginning_icon']:   {tooltip: 'Skip to Beginning (Left Bracket)', display: true, func: NavToBeginning},
         ['video_prev_frame_icon']:  {tooltip: 'Previous Frame (Left Arrow)', display: true, func: NavToPrevFrame},
         ['video_play_icon']:        {tooltip: 'Play (Space)', display: true, func: PlayOrPause},
         ['video_pause_icon']:       {tooltip: 'Pause (Space)', display: false,func: PlayOrPause},
         ['video_next_frame_icon']:  {tooltip: 'Next Frame (Right Arrow)', display: true, func: NavToNextFrame},
-        ['video_end_icon']:         {tooltip: 'Skip to End', display: true, func: NavToEnd},
-        
+        ['video_end_icon']:         {tooltip: 'Skip to End (Right Bracket)', display: true, func: NavToEnd},
     }
     
     const ClickNavIcon = (icon_name) => {
@@ -123,6 +122,10 @@
             NavToPrevFrame();
         } else if (e.key == "ArrowRight") {
             NavToNextFrame();
+        } else if (e.key == "[") {
+            NavToBeginning();
+        }else if (e.key == "]") {
+            NavToEnd();
         }
     }
     

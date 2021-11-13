@@ -153,9 +153,21 @@
     $: {
         project, updateVideoBlobURL(), updateAudioBlobURL();
     }
+    
+    const refreshCTX = (canvas) => {
+        if (!canvas) {
+            return;
+        }
+        
+        ctx = canvas.getContext('2d');
+    }
+    
+    $: {
+        refreshCTX($createCanvas)
+    }
 
     onMount(() => {
-        ctx = $createCanvas.getContext('2d');
+        refreshCTX($createCanvas),
         animationCallback();
     });
     

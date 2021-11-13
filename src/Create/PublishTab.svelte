@@ -1,0 +1,3 @@
+<main>
+    Publish tab
+</main>

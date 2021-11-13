@@ -58,7 +58,7 @@
         gap: 10px;
         color: var(--color-gray-300);
         font-size: 1rem;
-        margin: 6px;
+        margin-bottom: 6px;
         margin-top: 12px;
         cursor: default;
     }
