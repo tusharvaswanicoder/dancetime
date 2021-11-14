@@ -2,10 +2,9 @@
     import Icon from '../../Icon.svelte';
     import { slide } from 'svelte/transition'
     import { cubicOut } from 'svelte/easing';
-import { tick } from 'svelte';
     export let title = '';
     
-    let selected = false;
+    export let selected = false;
     let contentElement;
     
     const OnClickTitleBar = () => {
@@ -28,7 +27,7 @@ import { tick } from 'svelte';
             </div>
         </div>
         {#if selected}
-            <div class='slot' transition:slide|local={{duration: 200, easing: cubicOut}}>
+            <div class='slot' transition:slide|local={{duration: contentElement.clientHeight, easing: cubicOut}}>
                 <slot></slot>
             </div>
         {/if}

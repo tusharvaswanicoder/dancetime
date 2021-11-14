@@ -106,7 +106,7 @@
     };
 
     const updateVideoBlobURL = () => {
-        if (!$createProject) {
+        if (!$createProject || !$createProject.media_id) {
             return;
         }
 
@@ -123,7 +123,7 @@
     };
 
     const updateAudioBlobURL = () => {
-        if (!$createProject) {
+        if (!$createProject || !$createProject.media_id) {
             return;
         }
 

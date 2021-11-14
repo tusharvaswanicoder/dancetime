@@ -72,7 +72,8 @@ class ProjectManager {
             length: 0,
             download: 0,
             visibility: VISIBILITY.DRAFT,
-            tags: []
+            tags: [],
+            components: []
         }
     }
     

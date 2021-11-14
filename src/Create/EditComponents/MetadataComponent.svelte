@@ -2,15 +2,11 @@
     import BasicComponent from "./BasicComponent.svelte";
     import Dropdown from "../../Dropdown.svelte";
     import Icon from "../../Icon.svelte";
-    import { createProject, createProjectUnsaved } from "../../stores";
-    import { ConvertDurationToNiceString } from "../../utils";
-    import { DIFFICULTY, MAX_PROJECT_TAGS } from "../../constants";
+    import { createProject, createProjectUnsaved, createVideoFPS, createVideoDuration } from "../../stores";
+    import { ConvertDurationToNiceStringWithFPS } from "../../utils";
+    import { DIFFICULTY, MAX_PROJECT_TAGS, COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
     
-    let newTagValue = '';
-    
-    const OnClick = () => {
-        
-    }
+    const type = COMPONENT_TYPE.METADATA;
     
     const onDifficultyChanged = (difficulty, old_difficulty) => {
         $createProject.difficulty = difficulty;
@@ -22,7 +18,7 @@
     }
 </script>
 
-<BasicComponent {OnClick} title='Metadata'>
+<BasicComponent title={COMPONENT_DATA[type].name}>
     <div class='content-container'>
         <h2>Project Name</h2>
         <input bind:value={$createProject.project_name} on:input={metadataChanged} placeholder={"Project Name"} />
@@ -33,7 +29,7 @@
             <h3>--</h3>
         {/if}
         <h2>Length</h2>
-        <h3>{$createProject.length == 0 ? '--' : ConvertDurationToNiceString($createProject.length)}</h3>
+        <h3>{ConvertDurationToNiceStringWithFPS($createVideoDuration, $createVideoFPS)}</h3>
         <div class='hr' />
         <h2>Chart Title</h2>
         <input bind:value={$createProject.title} on:input={metadataChanged} placeholder={"Chart Title"} />
