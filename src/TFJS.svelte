@@ -286,11 +286,3 @@
         src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@0.0.6/dist/pose-detection.min.js"
         on:load={loadTFJS}></script>
 </svelte:head>
-
-<button on:click={() => (movenetStarted = !movenetStarted)}>
-    {#if movenetStarted}
-        Stop MoveNet
-    {:else}
-        Start MoveNet
-    {/if}
-</button>

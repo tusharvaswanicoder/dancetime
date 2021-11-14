@@ -7,6 +7,7 @@
         createAudio,
         createLoadingPercent,
         createProject,
+        createEditorDisabled
     } from '../stores';
     import { dlManager } from '../Downloads/DownloadManager';
     import { keyPress, keyDown, createVideoFPS } from '../stores';
@@ -20,6 +21,10 @@
         if (!$createVideo) {
             return;
         }
+        
+        if ($createEditorDisabled) {
+            return;
+        }
 
         $createVideo.currentTime = 0;
         $createAudio.currentTime = 0;
@@ -30,12 +35,20 @@
             return;
         }
 
+        if ($createEditorDisabled) {
+            return;
+        }
+
         $createVideo.currentTime = $createVideo.duration;
         $createAudio.currentTime = $createAudio.duration;
     };
 
     const NavToPrevFrame = () => {
         if (!$createVideo) {
+            return;
+        }
+
+        if ($createEditorDisabled) {
             return;
         }
 
@@ -49,6 +62,10 @@
             return;
         }
 
+        if ($createEditorDisabled) {
+            return;
+        }
+
         $createVideo.pause();
         $createVideo.currentTime += 1 / $createVideoFPS;
         $createAudio.currentTime = $createVideo.currentTime;
@@ -56,6 +73,10 @@
 
     const PlayOrPause = () => {
         if (!$createVideo) {
+            return;
+        }
+
+        if ($createEditorDisabled) {
             return;
         }
 
@@ -191,6 +212,9 @@
             </div>
         </div>
     </main>
+    {#if $createEditorDisabled}
+        <div class='disable-overlay'></div>
+    {/if}
 {/if}
 
 <style>
@@ -204,6 +228,23 @@
         padding-right: 40px;
         text-align: center;
         height: 100%;
+    }
+    
+    div.disable-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.4;
+        background: repeating-linear-gradient( -45deg, var(--color-blue-dark), var(--color-blue-dark) 5px, black 5px, black 25px );
+        animation: disable-anim 1s linear infinite;
+        animation-delay: 0.15s;
+    }
+    
+    @keyframes disable-anim {
+        0% {transform: scale(1.5) translateX(-35px);}
+        100% {transform: scale(1.5) translateX(0%);}
     }
 
     main div.title {

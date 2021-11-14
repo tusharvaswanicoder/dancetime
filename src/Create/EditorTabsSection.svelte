@@ -9,7 +9,7 @@
         REVIEW: 2,
         PUBLISH: 3
     }
-    let tab_state = TAB_STATE.EDIT;
+    let tab_state = TAB_STATE.REVIEW;
     
     const tabs = {
         [TAB_STATE.EDIT]: EditTab,

@@ -24,3 +24,5 @@ export const createLoadingPercent = writable(0);
 export const createThumbnailURLs = writable({});
 export const createProject = writable();
 export const createProjectUnsaved = writable(false);
+export const createAAInProgress = writable(false);
+export const createEditorDisabled = writable(false);

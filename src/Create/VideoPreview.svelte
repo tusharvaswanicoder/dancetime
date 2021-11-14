@@ -9,6 +9,8 @@
         createVideoCurrentTime,
         createVideoDuration,
         createProject,
+        createEditorDisabled,
+        createAAInProgress
     } from '../stores';
     export let onVideoPaused = () => {};
     export let onVideoPlayed = () => {};
@@ -162,7 +164,12 @@
 
         ctx = canvas.getContext('2d');
     };
-
+    
+    // This is where all conditions for the editor being disabled should go. Puts the blue lines over the controls and timeline.
+    $: {
+        $createEditorDisabled = $createAAInProgress
+    }
+    
     onMount(() => {
         refreshCTX($createCanvas), animationCallback();
         updateVideoBlobURL(), updateAudioBlobURL();

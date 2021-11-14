@@ -14,7 +14,8 @@
         createVideoFPS,
         createLoadingPercent,
         createThumbnailURLs,
-        createProject
+        createProject,
+        createEditorDisabled
     } from '../stores';
     import { ConvertDurationToNiceStringWithFPS } from '../utils';
     import Icon from '../Icon.svelte';
@@ -206,6 +207,9 @@
         </div>
     </div>
     <div on:click={onClickTimeline} class="timeline-click-container" />
+    {#if $createEditorDisabled}
+        <div class='disable-overlay'></div>
+    {/if}
 </main>
 
 <style>
@@ -218,6 +222,23 @@
         grid-template-rows: 20px 1fr;
         padding: var(--timeline-padding);
         user-select: none;
+    }
+
+    div.disable-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.4;
+        background: repeating-linear-gradient( -45deg, var(--color-blue-dark), var(--color-blue-dark) 5px, black 5px, black 25px );
+        animation: disable-anim 1s linear infinite;
+        z-index: 30;
+    }
+    
+    @keyframes disable-anim {
+        0% {transform: scale(1.5) translateX(-35px);}
+        100% {transform: scale(1.5) translateX(0%);}
     }
 
     div.timeline-click-container {

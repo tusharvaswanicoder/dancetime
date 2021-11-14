@@ -1,9 +1,7 @@
 <script>
     import BasicComponent from "./BasicComponent.svelte";
-    import Dropdown from "../../Dropdown.svelte";
-    import Icon from "../../Icon.svelte";
     import DeleteRow from './DeleteRow.svelte';
-    import { createProject, createProjectUnsaved, createVideoFPS, createVideoCurrentTime } from "../../stores";
+    import { createProjectUnsaved, createVideoFPS, createVideoCurrentTime } from "../../stores";
     import { ConvertDurationToNiceStringWithFPS } from "../../utils";
     import { COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
     

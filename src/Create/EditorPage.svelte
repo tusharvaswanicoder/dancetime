@@ -120,6 +120,7 @@
     }
     
     main.grid-container > section {
+        position: relative;
         background-color: var(--color-gray-900);
         overflow: hidden;
     }
