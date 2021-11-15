@@ -213,6 +213,9 @@ class DownloadManager {
             if (entry['indexedMediaBlob-a']) {
                 DeleteVideoBlobInDB(entry['indexedMediaBlob-a']);
             }
+            if (entry['indexedMediaBlob-t']) {
+                DeleteVideoBlobInDB(entry['indexedMediaBlob-t']);
+            }
         }
     }
     

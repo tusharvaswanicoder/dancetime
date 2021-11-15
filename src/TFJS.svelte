@@ -9,7 +9,7 @@
     const dispatch = createEventDispatcher();
     const loaded = () => dispatch('tfjs-loaded');
 
-    import { SplitPoseByGroupXY } from './PoseCompare.js';
+    import { SplitPoseByGroupXY } from './tensorflow/KeypointGroupSplits.js';
     import { shapeSimilarity } from 'curve-matcher';
 
     let mounted = false;

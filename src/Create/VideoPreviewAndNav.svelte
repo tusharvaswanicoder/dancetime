@@ -7,85 +7,21 @@
         createAudio,
         createLoadingPercent,
         createProject,
-        createEditorDisabled
+        createEditorDisabled,
     } from '../stores';
     import { dlManager } from '../Downloads/DownloadManager';
     import { keyPress, keyDown, createVideoFPS } from '../stores';
     import VideoPreviewSeeker from './VideoPreviewSeeker.svelte';
+    import {
+        CreateNavToBeginning,
+        CreateNavToEnd,
+        CreateNavToNextFrame,
+        CreateNavToPrevFrame,
+        CreatePlayOrPause,
+    } from '../utils';
 
     const isLoadingFinished = () => {
         return $createLoadingPercent >= 1;
-    };
-
-    const NavToBeginning = () => {
-        if (!$createVideo) {
-            return;
-        }
-        
-        if ($createEditorDisabled) {
-            return;
-        }
-
-        $createVideo.currentTime = 0;
-        $createAudio.currentTime = 0;
-    };
-
-    const NavToEnd = () => {
-        if (!$createVideo) {
-            return;
-        }
-
-        if ($createEditorDisabled) {
-            return;
-        }
-
-        $createVideo.currentTime = $createVideo.duration;
-        $createAudio.currentTime = $createAudio.duration;
-    };
-
-    const NavToPrevFrame = () => {
-        if (!$createVideo) {
-            return;
-        }
-
-        if ($createEditorDisabled) {
-            return;
-        }
-
-        $createVideo.pause();
-        $createVideo.currentTime -= 1 / $createVideoFPS;
-        $createAudio.currentTime = $createVideo.currentTime;
-    };
-
-    const NavToNextFrame = () => {
-        if (!$createVideo) {
-            return;
-        }
-
-        if ($createEditorDisabled) {
-            return;
-        }
-
-        $createVideo.pause();
-        $createVideo.currentTime += 1 / $createVideoFPS;
-        $createAudio.currentTime = $createVideo.currentTime;
-    };
-
-    const PlayOrPause = () => {
-        if (!$createVideo) {
-            return;
-        }
-
-        if ($createEditorDisabled) {
-            return;
-        }
-
-        $createAudio.currentTime = $createVideo.currentTime;
-        if ($createVideo.paused) {
-            $createVideo.play();
-        } else {
-            $createVideo.pause();
-        }
     };
 
     const updatePausePlayIcons = () => {
@@ -105,39 +41,39 @@
         ['video_beginning_icon']: {
             tooltip: 'Skip to Beginning (Left Bracket)',
             display: true,
-            func: NavToBeginning,
+            func: CreateNavToBeginning,
         },
         ['video_prev_frame_icon']: {
             tooltip: 'Previous Frame (Left Arrow)',
             display: true,
-            func: NavToPrevFrame,
+            func: CreateNavToPrevFrame,
         },
         ['video_play_icon']: {
             tooltip: 'Play (Space)',
             display: true,
-            func: PlayOrPause,
+            func: CreatePlayOrPause,
         },
         ['video_pause_icon']: {
             tooltip: 'Pause (Space)',
             display: false,
-            func: PlayOrPause,
+            func: CreatePlayOrPause,
         },
         ['video_next_frame_icon']: {
             tooltip: 'Next Frame (Right Arrow)',
             display: true,
-            func: NavToNextFrame,
+            func: CreateNavToNextFrame,
         },
         ['video_end_icon']: {
             tooltip: 'Skip to End (Right Bracket)',
             display: true,
-            func: NavToEnd,
+            func: CreateNavToEnd,
         },
     };
 
     const ClickNavIcon = (icon_name) => {
         const icon = icons[icon_name];
         if (icon) {
-            icon.func(icon_name);
+            icon.func($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
         }
     };
 
@@ -160,7 +96,7 @@
         }
 
         if (e.key == ' ') {
-            PlayOrPause();
+            CreatePlayOrPause($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
         }
     };
 
@@ -170,13 +106,13 @@
         }
 
         if (e.key == 'ArrowLeft') {
-            NavToPrevFrame();
+            CreateNavToPrevFrame($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
         } else if (e.key == 'ArrowRight') {
-            NavToNextFrame();
+            CreateNavToNextFrame($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
         } else if (e.key == '[') {
-            NavToBeginning();
+            CreateNavToBeginning($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
         } else if (e.key == ']') {
-            NavToEnd();
+            CreateNavToEnd($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
         }
     };
 
@@ -213,7 +149,7 @@
         </div>
     </main>
     {#if $createEditorDisabled}
-        <div class='disable-overlay'></div>
+        <div class="disable-overlay" />
     {/if}
 {/if}
 
@@ -229,7 +165,7 @@
         text-align: center;
         height: 100%;
     }
-    
+
     div.disable-overlay {
         position: absolute;
         top: 0;
@@ -237,14 +173,24 @@
         width: 100%;
         height: 100%;
         opacity: 0.4;
-        background: repeating-linear-gradient( -45deg, var(--color-blue-dark), var(--color-blue-dark) 5px, black 5px, black 25px );
+        background: repeating-linear-gradient(
+            -45deg,
+            var(--color-blue-dark),
+            var(--color-blue-dark) 5px,
+            black 5px,
+            black 25px
+        );
         animation: disable-anim 1s linear infinite;
         animation-delay: 0.15s;
     }
-    
+
     @keyframes disable-anim {
-        0% {transform: scale(1.5) translateX(-35px);}
-        100% {transform: scale(1.5) translateX(0%);}
+        0% {
+            transform: scale(1.5) translateX(-35px);
+        }
+        100% {
+            transform: scale(1.5) translateX(0%);
+        }
     }
 
     main div.title {

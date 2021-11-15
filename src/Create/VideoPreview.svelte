@@ -4,6 +4,7 @@
     import { dlManager } from '../Downloads/DownloadManager';
     import {
         createCanvas,
+        createCTX,
         createVideo,
         createAudio,
         createVideoCurrentTime,
@@ -15,7 +16,6 @@
     export let onVideoPaused = () => {};
     export let onVideoPlayed = () => {};
 
-    let ctx;
     let videoURL;
     let audioURL;
 
@@ -97,7 +97,7 @@
         //     $createVideo.currentTime = 0;
         // }
         if ($createVideo) {
-            drawImageProp(ctx, $createVideo);
+            drawImageProp($createCTX, $createVideo);
             window.requestAnimationFrame(animationCallback);
         }
 
@@ -162,7 +162,7 @@
             return;
         }
 
-        ctx = canvas.getContext('2d');
+        $createCTX = canvas.getContext('2d');
     };
     
     // This is where all conditions for the editor being disabled should go. Puts the blue lines over the controls and timeline.
