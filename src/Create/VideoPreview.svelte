@@ -1,6 +1,6 @@
 <script>
     import { onMount, tick, onDestroy } from 'svelte';
-    import { GetVideoBlobFromDB } from '../Downloads/VideoBlobManager';
+    import { GetMediaBlobFromDB } from '../Downloads/VideoBlobManager';
     import { dlManager } from '../Downloads/DownloadManager';
     import {
         createCanvas,
@@ -13,6 +13,7 @@
         createEditorDisabled,
         createAAInProgress
     } from '../stores';
+    import projectManager from "./ProjectManager"
     export let onVideoPaused = () => {};
     export let onVideoPlayed = () => {};
 
@@ -119,7 +120,7 @@
             return;
         }
 
-        GetVideoBlobFromDB(blob_name, (blob) => {
+        GetMediaBlobFromDB(blob_name, (blob) => {
             videoURL = URL.createObjectURL(blob);
         });
     };
@@ -136,7 +137,7 @@
             return;
         }
 
-        GetVideoBlobFromDB(blob_name, (blob) => {
+        GetMediaBlobFromDB(blob_name, (blob) => {
             audioURL = URL.createObjectURL(blob);
         });
     };

@@ -1,9 +1,9 @@
 import { writable } from "svelte/store";
 
 import {
-    GetVideoBlobFromURL,
-    StoreVideoBlob,
-    DeleteVideoBlobInDB,
+    GetMediaBlobFromURL,
+    StoreMediaBlob,
+    DeleteMediaBlobInDB,
 } from "./VideoBlobManager";
 
 const DOWNLOADED_MEDIA_LOCALSTORE_NAME = 'downloadedMedia';
@@ -208,13 +208,13 @@ class DownloadManager {
             this.updateMetadataInLocalStorage();
             
             if (entry['indexedMediaBlob-v']) {
-                DeleteVideoBlobInDB(entry['indexedMediaBlob-v']);
+                DeleteMediaBlobInDB(entry['indexedMediaBlob-v']);
             }
             if (entry['indexedMediaBlob-a']) {
-                DeleteVideoBlobInDB(entry['indexedMediaBlob-a']);
+                DeleteMediaBlobInDB(entry['indexedMediaBlob-a']);
             }
             if (entry['indexedMediaBlob-t']) {
-                DeleteVideoBlobInDB(entry['indexedMediaBlob-t']);
+                DeleteMediaBlobInDB(entry['indexedMediaBlob-t']);
             }
         }
     }
@@ -319,7 +319,7 @@ class DownloadManager {
     
     downloadAndStoreBlobFromURL (metadata_entry, url, media_type) {
         return new Promise((resolve, reject) => {
-            GetVideoBlobFromURL(url, (data) => 
+            GetMediaBlobFromURL(url, (data) => 
             {
                 if (data.xhr && !this.xhrs[metadata_entry.media_id]) {
                     this.xhrs[metadata_entry.media_id] = data.xhr;
@@ -332,7 +332,7 @@ class DownloadManager {
                     delete this.xhrs[metadata_entry.media_id];
                     console.log({size: data.blob.size})
                     const blobName = `${metadata_entry.media_id}-${media_type}`;
-                    StoreVideoBlob(data.blob, blobName, () => 
+                    StoreMediaBlob(data.blob, blobName, () => 
                     {
                         metadata_entry[`indexedMediaBlob-${media_type}`] = blobName;
                         this.updateMetadataStoreEntry(metadata_entry);

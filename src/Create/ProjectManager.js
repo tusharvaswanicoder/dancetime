@@ -2,6 +2,7 @@ import { dlManager, MEDIA_STATUS } from '../Downloads/DownloadManager';
 import { writable } from "svelte/store";
 import { DIFFICULTY, VISIBILITY } from '../constants';
 import { v1 } from 'uuid';
+import { DB_TABLES, StoreObject } from '../ChartAndKeypointDBManager';
 
 const PROJECTS_LOCALSTORE_NAME = 'projects';
 
@@ -25,13 +26,24 @@ class ProjectManager {
      * Updates this.projects in the localStorage and in the projectsStore
      */
      updateProjectsInLocalStorage () {
-        localStorage.setItem(PROJECTS_LOCALSTORE_NAME, JSON.stringify(this.projects));
+        // Clear keypoints before updating localStorage
+        const projects_to_add = {};
+        Object.keys(this.projects).forEach((key) => {
+            projects_to_add[key] = JSON.parse(JSON.stringify(this.projects[key]));
+            projects_to_add[key].keypoints = {};
+        })
+        
+        localStorage.setItem(PROJECTS_LOCALSTORE_NAME, JSON.stringify(projects_to_add));
         this.projectsStore.set(this.projects);
     }
     
     saveProject(project) {
         this.projects[project.uuid] = project;
         this.updateProjectsInLocalStorage();
+        
+        StoreObject(JSON.stringify(project.keypoints), project.uuid, DB_TABLES.LOCAL_KEYPOINTS, () => {
+            console.log('Stored keypoints')
+        })
     }
     
     projectExists (uuid) {
@@ -46,7 +58,8 @@ class ProjectManager {
             metadata.choreography = metadata_entry.channel;
             metadata.video_link = metadata_entry.url;
             metadata.media_id = metadata_entry.media_id;
-            metadata.length = metadata_entry.duration;
+            metadata.duration = metadata_entry.duration;
+            metadata.fps = metadata_entry.fps;
             this.updateProjectsInLocalStorage();
         });
     }
@@ -69,12 +82,12 @@ class ProjectManager {
             last_edited: (new Date()).toISOString(),
             video_source: 'youtube',
             video_link: media_id,
-            length: 0,
+            duration: 0,
             download: 0,
             visibility: VISIBILITY.DRAFT,
             tags: [],
             components: [],
-            keypoints: {}
+            keypoints: {} // Keypoints are only stored in memory here
         }
     }
     

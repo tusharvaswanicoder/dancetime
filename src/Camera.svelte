@@ -3,9 +3,9 @@
     import { cameraStore, cameraCanvasStore, cameraStoreVideo, cameraCanvasStoreVideo } from "./stores.js";
     export let width, height;
     import {
-        GetVideoBlobFromURL,
-        StoreVideoBlob,
-        GetVideoBlobFromDB,
+        GetMediaBlobFromURL,
+        StoreMediaBlob,
+        GetMediaBlobFromDB,
     } from "./Downloads/VideoBlobManager";
 
     let enableWebcam = true;
@@ -79,20 +79,20 @@
     // https://dl.dancetime.io/video/lipa.mp4
 
     function GetVideoStuff() {
-        // GetVideoBlobFromDB("testblob", (blob) => {
+        // GetMediaBlobFromDB("testblob", (blob) => {
         //     if (blob) {
         //         const url = URL.createObjectURL(blob);
         //         $cameraStore.src = url;
         //     }
         // });
         
-        // GetVideoBlobFromURL,
-        // StoreVideoBlob,
-        // GetVideoBlobFromURL("https://dl.dancetime.io/video/test.mp4", (data) => 
+        // GetMediaBlobFromURL,
+        // StoreMediaBlob,
+        // GetMediaBlobFromURL("https://dl.dancetime.io/video/test.mp4", (data) => 
         // {
         //     if (data.event == "load")
         //     {
-        //         StoreVideoBlob(data.blob, "testcam", () => 
+        //         StoreMediaBlob(data.blob, "testcam", () => 
         //         {
         //             console.log("Stored!")
         //         })
@@ -108,7 +108,7 @@
         RefreshWebcamStream();
         
         // testcam, testblob
-        GetVideoBlobFromDB("testcam", (blob) => {
+        GetMediaBlobFromDB("testcam", (blob) => {
             if (blob) {
                 const url = URL.createObjectURL(blob);
                 $cameraStoreVideo.src = url;

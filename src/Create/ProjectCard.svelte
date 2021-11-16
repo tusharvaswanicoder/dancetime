@@ -77,7 +77,7 @@
                     <h3>--</h3>
                 {/if}
                 <h2>Length</h2>
-                <h3>{card_data.length == 0 ? '--' : ConvertDurationToNiceString(card_data.length)}</h3>
+                <h3>{card_data.duration == 0 ? '--' : ConvertDurationToNiceString(card_data.duration)}</h3>
                 <div class='hr' />
                 <h2>Download</h2>
                 {#if isDownloadedOrDownloading}

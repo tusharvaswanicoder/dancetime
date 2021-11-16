@@ -26,6 +26,21 @@
         return ($createVideoCurrentTime / $createVideoDuration) * 100;
     };
 
+    let mouseDownOnSeeker = false;
+    const onMouseDownSeeker = (e) => {
+        mouseDownOnSeeker = true;
+    };
+    
+    const mouseMoveOnSeeker = (e) => {
+        if (mouseDownOnSeeker) {
+            onClickProgressBar(e);
+        }
+    }
+
+    const mouseOffSeeker = () => {
+        mouseDownOnSeeker = false;
+    };
+
     $: {
         $createVideo,
             $createVideoCurrentTime,
@@ -40,6 +55,12 @@
             bind:clientWidth={width}
             class="progress"
             on:click={onClickProgressBar}
+            on:mousedown={onMouseDownSeeker}
+            on:mouseup={mouseOffSeeker}
+            on:mouseleave={mouseOffSeeker}
+            on:mouseout={mouseOffSeeker}
+            on:blur={mouseOffSeeker}
+            on:mousemove={mouseMoveOnSeeker}
         >
             <div style={`width: ${progressBarPercent}%`} />
         </div>

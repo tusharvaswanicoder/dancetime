@@ -2,6 +2,7 @@
     import { slide } from 'svelte/transition';
     import RangeSlider from 'svelte-range-slider-pips';
     import tfjs from '../tensorflow/TFJS';
+    import { fly } from 'svelte/transition';
     import {
         createCanvas,
         createVideo,
@@ -16,6 +17,8 @@
         createProject,
     } from '../stores';
     import { GetFrameNumberFromTime, CreateNavToBeginning } from '../utils';
+    import { GetAnalysisSummary, SEVERITY } from './AnalysisSummary';
+    import ProblemComponent from './ReviewComponents/ProblemComponent.svelte'
 
     let keypointScoreThreshold = [0.3];
     let videoPlaybackRate = [1.0];
@@ -121,6 +124,26 @@
                 ? Object.keys($createProject.keypoints).length > 0
                 : analysisCompletion;
     }
+    
+    const GetProblemsWithSeverity = (AAsummary) => {
+        return AAsummary.filter((problem) => problem.severity != SEVERITY.NONE);
+    }
+    
+    const GetProblemsText = (AAsummary) => {
+        const real_problems = GetProblemsWithSeverity(AAsummary);
+        
+        if (real_problems.length == 0) {
+            return `No Problems Detected. Looking good!`
+        } else {
+            return `${real_problems.length} Problem${real_problems.length == 1 ? '' : 's'} Detected`;
+        }
+    }
+    
+    let AAsummary = [];
+    $: {
+        AAsummary = GetAnalysisSummary($createProject, $createProject.keypoints, $createVideoDuration)
+        console.log(AAsummary);
+    }
 
     $: {
         if ($createAAInProgress) {
@@ -129,7 +152,7 @@
     }
 </script>
 
-<main>
+<main in:fly|local={{duration: 200, x: 200, delay: 200}} out:fly|local={{duration: 200, x: -200}}>
     <section>
         <h1>Analyze Video</h1>
         <div class="aa-grid">
@@ -149,7 +172,7 @@
                     disabled={$createAAInProgress}
                 />
             </div>
-            <h2>
+            <h2 title="Rate at which the video is played when analyzing. Lower value: more accurate scoring, takes more time to analyze.&#10;Higher value: less accurate scoring, takes less time to analyze.">
                 Video Playback Rate: {videoPlaybackRate[0] % 1 == 0
                     ? `${videoPlaybackRate[0]}.0`
                     : videoPlaybackRate[0].toString().padEnd(3, '0')}
@@ -184,8 +207,8 @@
                     ).toFixed(0)}% Complete
                 </h3>
                 {#if !$createAAInProgress && Object.keys($createProject.keypoints).length > 0}
-                    <h3 transition:slide|local={{ duration: 400 }}>
-                        {Object.keys($createProject.keypoints).length} Keypoints
+                    <h3 transition:slide|local={{ duration: 400 }} title="Amount of frames that have keypoint data. More = more accurate scoring.">
+                        {Object.keys($createProject.keypoints).length} Keypoint Frames
                     </h3>
                 {/if}
             </div>
@@ -194,6 +217,16 @@
 
     <section>
         <h1>Analysis Summary</h1>
+        {#if AAsummary.length > 0 && !$createAAInProgress}
+            <h2 class='problems' class:none={GetProblemsWithSeverity(AAsummary).length == 0} transition:slide|local>{GetProblemsText(AAsummary)}</h2>
+            <div class='problems-container' transition:slide|local>
+                {#each AAsummary as problem}
+                    <ProblemComponent {problem} />
+                {/each}
+            </div>
+        {:else}
+            <h2>Analyze the video to display a summary.</h2>
+        {/if}
     </section>
 
     <section>
@@ -216,6 +249,7 @@
         grid-template-columns: 1fr;
         grid-template-rows: repeat(3, 1fr);
         gap: 20px;
+        overflow-y: auto;
     }
 
     h1 {
@@ -268,7 +302,21 @@
     div.button:active {
         background-color: var(--color-gray-800);
     }
-
+    
+    div.problems-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    h2.problems {
+        margin-bottom: 20px;
+    }
+    
+    h2.problems:not(.none) {
+        color: var(--color-red-light);
+    }
+    
     div.slider-container {
         --range-slider: var(
             --color-gray-500

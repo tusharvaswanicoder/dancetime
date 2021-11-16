@@ -4,7 +4,7 @@
     import { dlManager, MEDIA_STATUS } from './DownloadManager';
     import { tweened } from 'svelte/motion';
     import { quadOut } from 'svelte/easing';
-    import { GetVideoBlobFromDB } from './VideoBlobManager';
+    import { GetMediaBlobFromDB } from './VideoBlobManager';
     import { ConvertDurationToNiceString } from "../utils";
 
     export let songData = {};
@@ -68,7 +68,7 @@
 
     const GetThumbnailBlobUrl = () => {
         if (songData['indexedMediaBlob-t']) {
-            GetVideoBlobFromDB(songData['indexedMediaBlob-t'], (blob) => {
+            GetMediaBlobFromDB(songData['indexedMediaBlob-t'], (blob) => {
                 thumbnailBlobUrl = URL.createObjectURL(blob);
             });
         }

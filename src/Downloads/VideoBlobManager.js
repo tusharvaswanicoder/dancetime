@@ -1,9 +1,9 @@
 import Dexie from 'dexie';
 
 const DB_VERSION = 1.0;
-const DB_NAME = "VideoBlobs_Database";
+const DB_NAME = "MediaBlobs_Database";
 const DB_SCHEMA = {
-    videoblobs: "&name" // Do not index the video blob, as it is too large
+    blobs: "&name" // Do not index the media blob, as it is too large
 }
 
 function GetDB()
@@ -19,15 +19,15 @@ function GetDB()
  * @param {*} name Name to store to blob under. Should probably be the youtube video id
  * @param {*} cb Callback function to be called after the blob is stored
  */
-export function StoreVideoBlob(blob, name, cb) 
+export function StoreMediaBlob(blob, name, cb) 
 {
     const db = GetDB();
 
-    // But DO store the video blob
-    db.videoblobs.put({name: name, blob: blob}).then(() => {
+    // But DO store the media blob
+    db.blobs.put({name: name, blob: blob}).then(() => {
         cb()
     }).catch(function(error) {
-       console.error(`StoreVideoBlob error: ${error}`)
+       console.error(`StoreMediaBlob error: ${error}`)
     });
 }
 
@@ -37,14 +37,14 @@ export function StoreVideoBlob(blob, name, cb)
  * @param {*} cb Callback function to be called after the blob is stored.
  * Contains the blob containing the video, or null if no video is stored under that id.
  */
-export function GetVideoBlobFromDB(name, cb)
+export function GetMediaBlobFromDB(name, cb)
 {
     const db = GetDB();
 
-    db.videoblobs.get({name: name}).then((blob_data) => {
+    db.blobs.get({name: name}).then((blob_data) => {
         cb(blob_data ? blob_data.blob : null)
     }).catch(function(error) {
-       console.error(`GetVideoBlobFromDB error: ${error}`)
+       console.error(`GetMediaBlobFromDB error: ${error}`)
     });
 }
 
@@ -53,16 +53,16 @@ export function GetVideoBlobFromDB(name, cb)
  * @param {string} name 
  * @param {*} cb Callback function to be called after the blob is deleted. (optional)
  */
- export function DeleteVideoBlobInDB(name, cb)
+ export function DeleteMediaBlobInDB(name, cb)
  {
      const db = GetDB();
  
-     db.videoblobs.where({name: name}).delete().then(() => {
+     db.blobs.where({name: name}).delete().then(() => {
         if (cb) {
             cb();
         }
      }).catch(function(error) {
-        console.error(`DeleteVideoBlobInDB error: ${error}`)
+        console.error(`DeleteMediaBlobInDB error: ${error}`)
      });
  }
 
@@ -76,7 +76,7 @@ export function GetVideoBlobFromDB(name, cb)
  *  - blob: The blob object. (only for the 'load' event)
  *  - progress: The progress of the download. (only for 'progress' event)
  */
-export function GetVideoBlobFromURL(url, cb) {
+export function GetMediaBlobFromURL(url, cb) {
     // Create XHR
     const xhr = new XMLHttpRequest();
 

@@ -1,10 +1,13 @@
 <script>
     import { onDestroy, onMount, tick } from 'svelte';
     import WaveSurfer from 'wavesurfer.js';
-    import { getThumbnails, getThumbnailsInParalell } from './VideoThumbnailGenerator';
+    import {
+        getThumbnails,
+        getThumbnailsInParalell,
+    } from './VideoThumbnailGenerator';
     import { dlManager } from '../Downloads/DownloadManager';
     import { THUMBNAIL_INTERVAL } from '../constants';
-    import { GetVideoBlobFromDB } from '../Downloads/VideoBlobManager';
+    import { GetMediaBlobFromDB } from '../Downloads/VideoBlobManager';
     import {
         createWaveSurfer,
         createVideo,
@@ -15,16 +18,20 @@
         createLoadingPercent,
         createThumbnailURLs,
         createProject,
-        createEditorDisabled
+        createEditorDisabled,
     } from '../stores';
     import { ConvertDurationToNiceStringWithFPS } from '../utils';
     import Icon from '../Icon.svelte';
-    
+
     let timelineWidth = 0;
     let timelineHeight = 0;
 
     const updateAudioBlob = (project) => {
-        if (!project || !$createWaveSurfer || !dlManager.metaData[project.media_id]) {
+        if (
+            !project ||
+            !$createWaveSurfer ||
+            !dlManager.metaData[project.media_id]
+        ) {
             return;
         }
 
@@ -35,7 +42,7 @@
             return;
         }
 
-        GetVideoBlobFromDB(blob_name, (blob) => {
+        GetMediaBlobFromDB(blob_name, (blob) => {
             $createWaveSurfer.loadBlob(blob);
         });
     };
@@ -51,17 +58,22 @@
         if (!blob_name) {
             return;
         }
-        
-        GetVideoBlobFromDB(blob_name, async (blob) => {
-            const thumbnail_blobs = await getThumbnailsInParalell(blob, (progress) => {
-                $createLoadingPercent = progress;
-            })
-            
+
+        GetMediaBlobFromDB(blob_name, async (blob) => {
+            const thumbnail_blobs = await getThumbnailsInParalell(
+                blob,
+                (progress) => {
+                    $createLoadingPercent = progress;
+                }
+            );
+
             $createThumbnailURLs = {};
-            
+
             Object.keys(thumbnail_blobs).forEach((key) => {
                 const new_key = (key / THUMBNAIL_INTERVAL).toFixed(0);
-                $createThumbnailURLs[new_key] = URL.createObjectURL(thumbnail_blobs[key]);
+                $createThumbnailURLs[new_key] = URL.createObjectURL(
+                    thumbnail_blobs[key]
+                );
             });
         });
     }
@@ -75,7 +87,7 @@
             height: 50,
             responsive: true,
             hideScrollbar: true,
-        })
+        });
 
         $createWaveSurfer.setMute(true);
         GetThumbnails($createProject);
@@ -95,45 +107,50 @@
     const thumbs_padding = 4;
     let imageRef = null;
     let timelineThumbnails = [];
-    
+
     onDestroy(() => {
         if (!$createWaveSurfer) {
             return;
         }
         $createWaveSurfer.destroy();
         $createWaveSurfer = null;
-        
+
         Object.values($createThumbnailURLs).forEach((url) => {
             URL.revokeObjectURL(url);
         });
         $createThumbnailURLs = {};
-        
+
         Object.values(timelineThumbnails).forEach((url) => {
             URL.revokeObjectURL(url);
         });
         timelineThumbnails = [];
     });
-    
+
     const getNumThumbnailsToDisplay = async () => {
         if (!imageRef || imageRef.width == 0) {
             return;
         }
-        
-        const num_thumbnails_to_display = Math.ceil(timelineWidth / (imageRef.clientWidth + thumbs_padding));
-        
+
+        const num_thumbnails_to_display = Math.ceil(
+            timelineWidth / (imageRef.clientWidth + thumbs_padding)
+        );
+
         timelineThumbnails = [];
         for (let i = 0; i < num_thumbnails_to_display; i++) {
-            const timestamp = $createVideoDuration * (i / num_thumbnails_to_display)
-            const timestamp_interval = Math.ceil(timestamp / THUMBNAIL_INTERVAL);
+            const timestamp =
+                $createVideoDuration * (i / num_thumbnails_to_display);
+            const timestamp_interval = Math.ceil(
+                timestamp / THUMBNAIL_INTERVAL
+            );
             timelineThumbnails.push($createThumbnailURLs[timestamp_interval]);
         }
-        
+
         timelineThumbnails = timelineThumbnails;
-    }
-    
+    };
+
     $: {
-        timelineWidth, timelineHeight, imageRef
-        getNumThumbnailsToDisplay()
+        timelineWidth, timelineHeight, imageRef;
+        getNumThumbnailsToDisplay();
     }
 
     const onClickTimeline = (e) => {
@@ -143,10 +160,21 @@
         createVideoCurrentTime.set($createVideo.currentTime);
     };
 
-    // $: {
-    //     $createWaveSurfer, updateAudioBlob($createProject);
-    // }
+    let mouseDownOnTimeline = false;
+    const onMouseDownTimeline = (e) => {
+        mouseDownOnTimeline = true;
+    };
     
+    const mouseMoveOnTimeline = (e) => {
+        if (mouseDownOnTimeline) {
+            onClickTimeline(e);
+        }
+    }
+
+    const mouseOffTimeline = () => {
+        mouseDownOnTimeline = false;
+    };
+
     let seekerProgressPercent = '0%';
 
     $: {
@@ -171,19 +199,34 @@
             {/each}
         </div>
         <div class="timestamp left">
-            {ConvertDurationToNiceStringWithFPS($createVideoCurrentTime, $createVideoFPS)}
+            {ConvertDurationToNiceStringWithFPS(
+                $createVideoCurrentTime,
+                $createVideoFPS
+            )}
         </div>
         <div class="timestamp right">
-            {ConvertDurationToNiceStringWithFPS($createVideoDuration, $createVideoFPS)}
+            {ConvertDurationToNiceStringWithFPS(
+                $createVideoDuration,
+                $createVideoFPS
+            )}
         </div>
     </div>
     <div class="timeline-container">
-        <div class="thumbnails" bind:clientWidth={timelineWidth} bind:clientHeight={timelineHeight} style={`--thumbs-padding: ${thumbs_padding}px`}>
+        <div
+            class="thumbnails"
+            bind:clientWidth={timelineWidth}
+            bind:clientHeight={timelineHeight}
+            style={`--thumbs-padding: ${thumbs_padding}px`}
+        >
             {#if timelineThumbnails.length == 0}
                 {#each Object.entries($createThumbnailURLs) as [key, thumbnail_blob]}
                     <!-- svelte-ignore a11y-missing-attribute -->
                     {#if key == 0}
-                        <img src={thumbnail_blob} on:load={getNumThumbnailsToDisplay} bind:this={imageRef} />
+                        <img
+                            src={thumbnail_blob}
+                            on:load={getNumThumbnailsToDisplay}
+                            bind:this={imageRef}
+                        />
                     {:else}
                         <img src={thumbnail_blob} />
                     {/if}
@@ -206,9 +249,18 @@
             <div class="tail" />
         </div>
     </div>
-    <div on:click={onClickTimeline} class="timeline-click-container" />
+    <div
+        on:click={onClickTimeline}
+        on:mousedown={onMouseDownTimeline}
+        on:mouseup={mouseOffTimeline}
+        on:mouseleave={mouseOffTimeline}
+        on:mouseout={mouseOffTimeline}
+        on:blur={mouseOffTimeline}
+        on:mousemove={mouseMoveOnTimeline}
+        class="timeline-click-container"
+    />
     {#if $createEditorDisabled}
-        <div class='disable-overlay'></div>
+        <div class="disable-overlay" />
     {/if}
 </main>
 
@@ -231,14 +283,25 @@
         width: 100%;
         height: 100%;
         opacity: 0.4;
-        background: repeating-linear-gradient( -45deg, var(--color-blue-dark), var(--color-blue-dark) 5px, black 5px, black 25px );
+        background: repeating-linear-gradient(
+            -45deg,
+            var(--color-blue-dark),
+            var(--color-blue-dark) 5px,
+            black 5px,
+            black 25px
+        );
         animation: disable-anim 1s linear infinite;
         z-index: 30;
+        cursor: wait;
     }
-    
+
     @keyframes disable-anim {
-        0% {transform: scale(1.5) translateX(-35px);}
-        100% {transform: scale(1.5) translateX(0%);}
+        0% {
+            transform: scale(1.5) translateX(-35px);
+        }
+        100% {
+            transform: scale(1.5) translateX(0%);
+        }
     }
 
     div.timeline-click-container {
@@ -320,7 +383,7 @@
         height: 100%;
         display: flex;
     }
-    
+
     div.thumbnails img {
         height: 100%;
         width: auto;

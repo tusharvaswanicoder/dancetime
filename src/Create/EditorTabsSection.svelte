@@ -2,7 +2,7 @@
     import EditTab from './EditTab.svelte';
     import ReviewTab from './ReviewTab.svelte';
     import PublishTab from './PublishTab.svelte';
-    import { createProject } from '../stores';
+    import { createAAInProgress } from '../stores';
     
     const TAB_STATE = {
         EDIT: 1,
@@ -18,6 +18,10 @@
     }
     
     const clickTab = (tab_name) => {
+        if ($createAAInProgress) {
+            return;
+        }
+        
         tab_state = TAB_STATE[tab_name];
     }
     
@@ -26,10 +30,10 @@
 <main>
     <section class='tab-controls'>
         {#each Object.entries(TAB_STATE) as [tab_name, tab_value]}
-            <div class='tab' on:click={() => clickTab(tab_name)} class:selected={tab_state == tab_value}>{tab_name}</div>
+            <div class='tab' class:disabled={$createAAInProgress} on:click={() => clickTab(tab_name)} class:selected={tab_state == tab_value}>{tab_name}</div>
         {/each}
     </section>
-    <section class='tab-content'>
+    <section class='tab-content' >
         <svelte:component this={tabs[tab_state]}/>
     </section>
 </main>
@@ -75,6 +79,11 @@
         font-weight: 700;
         color: var(--color-yellow-light);
         background-color: transparent;
+        cursor: default;
+    }
+    
+    section.tab-controls div.tab.disabled:not(.selected) {
+        cursor: not-allowed;
     }
     
     section.tab-content {

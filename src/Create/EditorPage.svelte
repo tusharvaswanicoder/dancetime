@@ -5,11 +5,12 @@
     import VideoTimeline from "./VideoTimeline.svelte";
     import EditorTabsSection from './EditorTabsSection.svelte';
     import ProgressCircle from '../ProgressCircle.svelte';
-    import { createLoadingPercent, createProjectUnsaved, createProject } from "../stores";
+    import { createLoadingPercent, createProjectUnsaved, createProject, createVideoDuration } from "../stores";
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
     import projectManager from "./ProjectManager"
-    import { onDestroy } from 'svelte';
+    import { onMount } from 'svelte';
+    import { DB_TABLES, GetObjectFromDB } from '../ChartAndKeypointDBManager';
     
     const loadingScreenEnabled = false;
     
@@ -35,6 +36,18 @@
     $: {
         load_progress.set($createLoadingPercent * 100)
     }
+    
+    onMount(() => {
+        // Load keypoints from IndexedDB
+        if ($createProject) {
+            GetObjectFromDB($createProject.uuid, DB_TABLES.LOCAL_KEYPOINTS, (object) => {
+                if (object) {
+                    $createProject.keypoints = JSON.parse(object);
+                    $createProject = $createProject;
+                }
+            })
+        }
+    })
     
     export let ExitEditor = () => {};
 </script>

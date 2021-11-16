@@ -182,6 +182,7 @@
         );
         animation: disable-anim 1s linear infinite;
         animation-delay: 0.15s;
+        cursor: wait;
     }
 
     @keyframes disable-anim {

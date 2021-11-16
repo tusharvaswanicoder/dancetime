@@ -3,7 +3,7 @@
     import AddNewComponent from './EditComponents/AddNewComponent.svelte';
     import VideoInOutPointsComponent from './EditComponents/VideoInOutPointsComponent.svelte';
     import { COMPONENT_TYPE } from '../constants';
-    import Icon from "../Icon.svelte";
+    import { fly } from 'svelte/transition';
     import { createProject } from "../stores";
     
     const COMPONENT_TYPE_MAP = {
@@ -12,7 +12,7 @@
     
 </script>
 
-<main class='restricted'>
+<main class='restricted' in:fly|local={{duration: 200, x: 200, delay: 200}} out:fly|local={{duration: 200, x: -200}}>
     <main class='overflow-container'>
         <MetadataComponent />
         {#each $createProject.components as component, componentIndex}
