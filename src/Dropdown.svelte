@@ -64,6 +64,7 @@
         --dropdown-width: 100%;
         width: var(--dropdown-width, var(--dropdown-width-fallback));
         z-index: 10;
+        user-select: none;
     }
 
     div.option {
