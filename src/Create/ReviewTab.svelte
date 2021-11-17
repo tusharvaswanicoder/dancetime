@@ -1,6 +1,7 @@
 <script>
     import { slide } from 'svelte/transition';
     import RangeSlider from 'svelte-range-slider-pips';
+    import Icon from '../Icon.svelte';
     import tfjs from '../tensorflow/TFJS';
     import { fly } from 'svelte/transition';
     import {
@@ -20,12 +21,18 @@
     import { GetAnalysisSummary, SEVERITY } from './AnalysisSummary';
     import ProblemComponent from './ReviewComponents/ProblemComponent.svelte'
 
-    let keypointScoreThreshold = [0.3];
+    const publishTotalProblemLimit = 10;
+    let keypointScoreThreshold = [0.5];
     let videoPlaybackRate = [1.0];
     let raf;
     let analysisCompletion;
     let firstFrameAnalyzed = false;
 
+    const playtest_icon_stops = [
+        { color: 'var(--color-pink-dark)', offset: '0' },
+        { color: 'var(--color-pink-light)', offset: '1' },
+    ];
+    
     const clickStopAnalyzeButton = () => {
         StopAA();
     };
@@ -63,8 +70,6 @@
 
         $createProject.keypoints = $createFramesAnalyzed;
         $createProject = $createProject;
-
-        console.log(`Length: ${Object.keys($createFramesAnalyzed).length}`);
     };
 
     const clickAnalyzeButton = async () => {
@@ -94,8 +99,6 @@
 
         const poses = await tfjs.detectFrame($createCanvas);
         $createFramesAnalyzed[frame] = poses || {};
-
-        console.log({ frame });
 
         raf = requestAnimationFrame(analyzeOnFrame);
 
@@ -141,8 +144,7 @@
     
     let AAsummary = [];
     $: {
-        AAsummary = GetAnalysisSummary($createProject, $createProject.keypoints, $createVideoDuration)
-        console.log(AAsummary);
+        AAsummary = GetAnalysisSummary($createProject, keypointScoreThreshold[0])
     }
 
     $: {
@@ -217,12 +219,21 @@
 
     <section>
         <h1>Analysis Summary</h1>
-        {#if AAsummary.length > 0 && !$createAAInProgress}
+        {#if AAsummary.length > 0 && !$createAAInProgress && Object.keys($createProject.keypoints).length > 0}
             <h2 class='problems' class:none={GetProblemsWithSeverity(AAsummary).length == 0} transition:slide|local>{GetProblemsText(AAsummary)}</h2>
             <div class='problems-container' transition:slide|local>
                 {#each AAsummary as problem}
                     <ProblemComponent {problem} />
                 {/each}
+                {#if GetProblemsWithSeverity(AAsummary).length > publishTotalProblemLimit}
+                    <ProblemComponent problem={{
+                        title: 'Too Many Problems',
+                        message: `You have ${GetProblemsWithSeverity(AAsummary).length} problems, which is over the publish limit of ${publishTotalProblemLimit}.`,
+                        severity: SEVERITY.HIGH,
+                        impact: `Having this many problems with your chart means that you will not be able to publish your chart.`,
+                        resolution: `Expand the other problem cards to view impact and potential fixes. This card will disappear when you have resolved more problems.`,
+                    }} />
+                {/if}
             </div>
         {:else}
             <h2>Analyze the video to display a summary.</h2>
@@ -230,7 +241,10 @@
     </section>
 
     <section>
-        <h1>Playtest</h1>
+        <h1 class='playtest-title'>Playtest
+        <span class='playtest-icon'>
+            <Icon name='video_play_icon' stops={playtest_icon_stops} />
+        </span></h1>
         <h2>
             Play your chart to test it out! This is required to publish your
             chart.
@@ -249,7 +263,7 @@
         grid-template-columns: 1fr;
         grid-template-rows: repeat(3, 1fr);
         gap: 20px;
-        overflow-y: auto;
+        overflow-y: scroll;
     }
 
     h1 {
@@ -315,6 +329,24 @@
     
     h2.problems:not(.none) {
         color: var(--color-red-light);
+    }
+    
+    h1.playtest-title {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    span.playtest-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        background-color: var(--color-gray-100);
+        border-radius: 50px;
+        cursor: pointer;
     }
     
     div.slider-container {

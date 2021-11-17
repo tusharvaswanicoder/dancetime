@@ -31,6 +31,10 @@ export const GetFrameNumberFromTime = (time, fps) => {
     return Math.floor(time * fps);
 }
 
+export const GetTimeFromFrameNumber = (frame, fps) => {
+    return frame / fps;
+}
+
 export const GetFormattedDate = (_date) => {
     const date = new Date(_date);
     return `${date.toLocaleString('default', {

@@ -159,10 +159,30 @@
 
 <style>
     main {
+        --shadow-color: 0deg 0% 62%;
+        --shadow-elevation-low:
+            0.4px 0.4px 0.7px hsl(var(--shadow-color) / 0.22),
+            0.7px 0.6px 1.2px -0.8px hsl(var(--shadow-color) / 0.31),
+            1.5px 1.5px 2.7px -1.6px hsl(var(--shadow-color) / 0.39);
+        --shadow-elevation-medium:
+            0.4px 0.4px 0.7px hsl(var(--shadow-color) / 0.23),
+            1.4px 1.4px 2.5px -0.5px hsl(var(--shadow-color) / 0.3),
+            3.3px 3.2px 5.8px -1.1px hsl(var(--shadow-color) / 0.36),
+            7.4px 7.4px 13.2px -1.6px hsl(var(--shadow-color) / 0.43);
+        --shadow-elevation-high:
+            0.4px 0.4px 0.7px hsl(var(--shadow-color) / 0.22),
+            2.8px 2.8px 5px -0.2px hsl(var(--shadow-color) / 0.25),
+            5.1px 5px 9px -0.5px hsl(var(--shadow-color) / 0.28),
+            7.9px 7.8px 14px -0.7px hsl(var(--shadow-color) / 0.31),
+            11.9px 11.8px 21.1px -0.9px hsl(var(--shadow-color) / 0.34),
+            17.7px 17.5px 31.4px -1.1px hsl(var(--shadow-color) / 0.37),
+            25.9px 25.7px 46px -1.4px hsl(var(--shadow-color) / 0.4),
+            37.3px 37px 66.2px -1.6px hsl(var(--shadow-color) / 0.43);
+        
         background-color: var(--color-gray-100);
         padding: 20px;
         border-radius: 10px;
-        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.25);
+        box-shadow: var(--shadow-elevation-medium);
         display: grid;
         grid-template-columns: min-content 1fr min-content;
         gap: 26px;

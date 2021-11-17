@@ -1,7 +1,17 @@
 <script>
     import BasicComponent from "./BasicComponent.svelte";
-    import { SEVERITY } from "../AnalysisSummary";
+    import { SEVERITY, PROBLEM_TYPE } from "../AnalysisSummary";
     export let problem = {};
+    
+    const shouldDisplay = (problem) => {
+        if (problem.title == PROBLEM_TYPE.KEYPOINT_SCORE_THRESHOLD) {
+            if (problem.severity == SEVERITY.NONE) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
     
     const borderColors = {
         [SEVERITY.NONE]: 'var(--color-green-dark)',
@@ -11,6 +21,7 @@
     }
 </script>
 
+{#if shouldDisplay(problem)}
 <BasicComponent title={problem.title} borderColor={borderColors[problem.severity]}>
     <div class='content-container' style={`--sev-color: ${borderColors[problem.severity]}`}>
         <h2 class='message'>{problem.message}</h2>
@@ -32,6 +43,7 @@
         {/if}
     </div>
 </BasicComponent>
+{/if}
 
 <style>
     div.content-container {

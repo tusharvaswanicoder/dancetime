@@ -58,7 +58,23 @@
         flex-direction: row;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0px 4px 8px 0px hsla(0, 0%, 0%, 0.25);
+        --shadow-color: 0deg 0% 57%;
+        --shadow-elevation-low:
+            0px 0.5px 0.5px hsl(var(--shadow-color) / 0.69),
+            0px 2.1px 2.2px -3px hsl(var(--shadow-color) / 0.57);
+        --shadow-elevation-medium:
+            0px 0.5px 0.5px hsl(var(--shadow-color) / 0.64),
+            0px 2.5px 2.6px -1.5px hsl(var(--shadow-color) / 0.57),
+            0px 10.4px 10.9px -3px hsl(var(--shadow-color) / 0.5);
+        --shadow-elevation-high:
+            0px 0.5px 0.5px hsl(var(--shadow-color) / 0.6),
+            0px 3.5px 3.7px -0.6px hsl(var(--shadow-color) / 0.56),
+            0px 7.8px 8.2px -1.2px hsl(var(--shadow-color) / 0.53),
+            0px 16px 16.8px -1.8px hsl(var(--shadow-color) / 0.5),
+            0.1px 30.7px 32.2px -2.4px hsl(var(--shadow-color) / 0.46),
+            0.1px 54.5px 57.2px -3px hsl(var(--shadow-color) / 0.43);
+        
+        box-shadow: var(--shadow-elevation-medium);
         cursor: default;
         z-index: 1;
     }

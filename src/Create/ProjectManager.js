@@ -2,7 +2,7 @@ import { dlManager, MEDIA_STATUS } from '../Downloads/DownloadManager';
 import { writable } from "svelte/store";
 import { DIFFICULTY, VISIBILITY } from '../constants';
 import { v1 } from 'uuid';
-import { DB_TABLES, StoreObject } from '../ChartAndKeypointDBManager';
+import { DB_TABLES, StoreObject, DeleteObjectInDB } from '../ChartAndKeypointDBManager';
 
 const PROJECTS_LOCALSTORE_NAME = 'projects';
 
@@ -42,7 +42,7 @@ class ProjectManager {
         this.updateProjectsInLocalStorage();
         
         StoreObject(JSON.stringify(project.keypoints), project.uuid, DB_TABLES.LOCAL_KEYPOINTS, () => {
-            console.log('Stored keypoints')
+            
         })
     }
     
@@ -66,8 +66,10 @@ class ProjectManager {
     
     deleteProject (project) {
         if (this.projects[project.uuid]) {
-            delete this.projects[project.uuid];
-            this.updateProjectsInLocalStorage();
+            DeleteObjectInDB(project.uuid, DB_TABLES.LOCAL_KEYPOINTS, () => {
+                delete this.projects[project.uuid];
+                this.updateProjectsInLocalStorage();
+            })
         }
     }
     

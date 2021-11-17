@@ -62,13 +62,13 @@
 <style>
     main {
         background: var(--color-gray-100);
-        box-shadow: 4px 0px 8px 0px hsla(0, 0%, 0%, 0.25);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: space-evenly;
         grid-area: 'sidebar';
         z-index: 1;
+        box-shadow: 4px 0px 8px 0px hsla(0, 0%, 0%, 0.25);
     }
 
     button.nav-item {
