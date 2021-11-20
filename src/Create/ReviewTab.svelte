@@ -349,6 +349,11 @@
         cursor: pointer;
     }
     
+    
+    span.playtest-icon:active {
+        transform: scale(1.1);
+    }
+    
     div.slider-container {
         --range-slider: var(
             --color-gray-500

@@ -75,7 +75,7 @@
     
     $: {
         $projectManager
-        TestOpenFirstProject()
+        // TestOpenFirstProject()
     }
     
     const TestOpenFirstProject = () => {
@@ -93,6 +93,11 @@
     const OnClickProjectDelete = (project) => {
         projectManager.deleteProject(project);
     };
+    
+    let projectNameElement;
+    $: {
+        projectNameElement?.focus();
+    }
 </script>
 
 {#if current_state == STATE.CREATE_NEW}
@@ -103,7 +108,7 @@
                 <h1>Create New Project</h1>
                 <div class='details-container'>
                     <h2>Project Name</h2>
-                    <input bind:value={create_new_title} placeholder="My First Project" />
+                    <input bind:this={projectNameElement} bind:value={create_new_title} placeholder="My First Project" />
                     <!-- <h2>Video Source</h2>
                     <h3>YouTube</h3> -->
                     <h2>Video Link</h2>

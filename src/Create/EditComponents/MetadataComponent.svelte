@@ -14,6 +14,7 @@
     }
     
     const metadataChanged = () => {
+        // TODO: add length limits to all inputs
         $createProjectUnsaved = true;
     }
 </script>

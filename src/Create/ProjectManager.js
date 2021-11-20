@@ -10,6 +10,11 @@ class ProjectManager {
     constructor () {
         this.ensureProjectsInLocalStorage();
         this.projects = JSON.parse(localStorage.getItem(PROJECTS_LOCALSTORE_NAME));
+        
+        Object.entries(this.projects).forEach(([uuid, project]) => {
+            this.projects[uuid] = {...this.getNewProjectMetadata(), ...project}; // Ensure that any new metadata is added
+        })
+        
         this.projectsStore = writable(this.projects);
     }
     
@@ -38,6 +43,7 @@ class ProjectManager {
     }
     
     saveProject(project) {
+        project.last_edited = (new Date()).toISOString();
         this.projects[project.uuid] = project;
         this.updateProjectsInLocalStorage();
         
@@ -87,6 +93,7 @@ class ProjectManager {
             duration: 0,
             download: 0,
             visibility: VISIBILITY.DRAFT,
+            version: 1,
             tags: [],
             components: [],
             keypoints: {} // Keypoints are only stored in memory here
