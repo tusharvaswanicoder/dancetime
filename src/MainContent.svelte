@@ -1,7 +1,7 @@
 <script>
     import { NAV_IDS } from './constants';
     import { SelectedNavIdStore } from './stores';
-    import PlaySection from './PlaySection.svelte';
+    import PlaySection from './Play/PlaySection.svelte';
     import CreateSection from './Create/CreateSection.svelte';
     import DownloadsSection from './Downloads/DownloadsSection.svelte';
 </script>

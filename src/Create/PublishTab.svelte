@@ -66,6 +66,7 @@
         cursor: default;
         display: grid;
         grid-template-rows: min-content 1fr 1fr;
+        overflow-y: auto;
     }
     
     div.info {
@@ -101,6 +102,8 @@
         align-items: center;
         transition: 0.2s ease-in-out filter;
         user-select: none;
+        margin-top: 20px;
+        padding-bottom: 20px;
     }
     
     h2 {

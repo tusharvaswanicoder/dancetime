@@ -2,8 +2,9 @@
     import Sidebar from "./Sidebar.svelte"
     import MainContent from "./MainContent.svelte"
     import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
+    import SettingsScreen from "./SettingsScreen.svelte";
     import { onMount } from "svelte";
-    import { keyPress, keyDown } from "./stores";
+    import { keyPress, keyDown, settingsOpen } from "./stores";
     
     import {getUserInfo, USER} from "./Auth"
     
@@ -33,6 +34,9 @@
         {#if $USER.loggedIn}
             <Sidebar />
             <MainContent />
+            {#if $settingsOpen}
+                <SettingsScreen />
+            {/if}
         {:else}
             <NotLoggedInLanding />
         {/if}

@@ -4,6 +4,16 @@ export const NAV_IDS = {
     DOWNLOADS: 3
 }
 
+export const GAMESTATE = {
+    NOT_INGAME: 1,
+    INGAME: 2
+}
+
+export const INGAME_STATE = {
+    LOADING: 1,
+    SETTINGS: 2,
+}
+
 export const VISIBILITY = {
     DRAFT: "Draft",
     UNLISTED: "Unlisted",

@@ -12,7 +12,7 @@
     import { onMount } from 'svelte';
     import { DB_TABLES, GetObjectFromDB } from '../ChartAndKeypointDBManager';
     
-    const loadingScreenEnabled = true;
+    const loadingScreenEnabled = false;
     
     const saveProject = () => {
         if (!$createProjectUnsaved) {

@@ -13,6 +13,12 @@ export const SelectedNavIdStore = writable(NAV_IDS.CREATE);
 export const keyPress = writable({});
 export const keyDown = writable({});
 
+export const gameState = writable();
+
+
+export const settingsOpen = writable(true); // Single flag for settings so it can display whenever
+
+
 export const createCanvas = writable();
 export const createCTX = writable();
 export const createVideo = writable();

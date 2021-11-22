@@ -140,3 +140,45 @@ const typeSizes = {
 };
 
 export const sizeOf = (value) => typeSizes[typeof value](value);
+
+export const HasCameraAccess = async () => {
+    return new Promise(async (resolve, reject) => {
+        const devices = await GetAllVideoDevices();
+        resolve(devices.filter((e) => e.label && e.label.length > 0).length > 0);
+    })
+}
+
+export const RequestCameraAccess = async (device_id) => {
+    return new Promise(async (resolve, reject) => {
+        navigator.mediaDevices
+            .getUserMedia({
+                audio: false,
+                video: { 
+                    deviceId: device_id,
+                    width: { min: 1024, ideal: 1280, max: 1920 },
+                    height: { min: 576, ideal: 720, max: 1080 }
+                }
+            })
+            .then(function (stream) {
+                resolve(stream);
+            })
+            .catch(function (error) {
+                console.log(`Failed to get webcam: ${error}`);
+                reject();
+            });
+    })
+}
+
+export const GetAllVideoDevices = async () => {
+    return new Promise(async (resolve, reject) => {
+        // TIP: once access has been allowed to video devices, all labels are shown :)
+        navigator.mediaDevices
+        .enumerateDevices()
+        .then(function (devices) {
+            resolve(devices.filter((e) => e.kind == 'videoinput'));
+        })
+        .catch(function (err) {
+            console.log(err.name + ": " + err.message);
+        });
+    })
+}
