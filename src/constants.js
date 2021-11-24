@@ -27,6 +27,8 @@ export const DIFFICULTY = {
     EXPERT: "Expert"
 }
 
+export const LOCALSTORE_CAMERAPREF_NAME = "cameraPref"
+
 export const THUMBNAIL_INTERVAL = 10;
 export const MAX_PROJECT_TAGS = 5;
 

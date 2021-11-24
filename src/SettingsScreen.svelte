@@ -3,6 +3,7 @@
     import Checkbox from './Checkbox.svelte';
     import RangeSlider from 'svelte-range-slider-pips';
     import Icon from './Icon.svelte';
+    import { LOCALSTORE_CAMERAPREF_NAME } from './constants';
     import { GetAllVideoDevices, HasCameraAccess, RequestCameraAccess } from './utils';
     import { onMount } from 'svelte';
     import { cubicOut } from 'svelte/easing';
@@ -24,7 +25,7 @@
     }
 
     let cameraDevices = [];
-    let selectedCameraId = localStorage.getItem('cameraPref');
+    let selectedCameraId = localStorage.getItem(LOCALSTORE_CAMERAPREF_NAME);
     let selectedCamera;
     let cameraPreview;
     let cameraPreviewEnabled = false;
@@ -39,7 +40,7 @@
     const onCameraOptionChanged = async (value, old_value) => {
         const device = (await GetAllVideoDevices()).find((e) => e.label == value);
         if (!device) { return; }
-        localStorage.setItem('cameraPref', device.deviceId);
+        localStorage.setItem(LOCALSTORE_CAMERAPREF_NAME, device.deviceId);
         selectedCameraId = device.deviceId;
         cameraPreview.srcObject = await RequestCameraAccess(selectedCameraId);
     }
@@ -57,7 +58,7 @@
         cameraDevices = devices.map((c) => {return c.label});
 
         if (cameraDevices.length > 0 && !selectedCamera) {
-            const localStoreCamId = localStorage.getItem('cameraPref');
+            const localStoreCamId = localStorage.getItem(LOCALSTORE_CAMERAPREF_NAME);
             const selectedCam = devices.find((e) => e.deviceId == localStoreCamId);
             selectedCamera = selectedCam ? selectedCam.label : cameraDevices[0];
         }

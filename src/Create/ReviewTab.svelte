@@ -19,7 +19,8 @@
     } from '../stores';
     import { GetFrameNumberFromTime, CreateNavToBeginning } from '../utils';
     import { GetAnalysisSummary, SEVERITY } from './AnalysisSummary';
-    import ProblemComponent from './ReviewComponents/ProblemComponent.svelte'
+    import ProblemComponent from './ReviewComponents/ProblemComponent.svelte';
+    import { PlayChart } from '../Ingame/PlayChart';
 
     const publishTotalProblemLimit = 10;
     let keypointScoreThreshold = [0.5];
@@ -27,6 +28,10 @@
     let raf;
     let analysisCompletion;
     let firstFrameAnalyzed = false;
+
+    const clickPlaytestIcon = () => {
+        PlayChart($createProject, $createProject.keypoints);
+    }
 
     const playtest_icon_stops = [
         { color: 'var(--color-pink-dark)', offset: '0' },
@@ -242,7 +247,7 @@
 
     <section>
         <h1 class='playtest-title'>Playtest
-        <span class='playtest-icon'>
+        <span class='playtest-icon' on:click={clickPlaytestIcon}>
             <Icon name='video_play_icon' stops={playtest_icon_stops} />
         </span></h1>
         <h2>

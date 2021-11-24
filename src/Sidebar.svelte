@@ -95,15 +95,15 @@
     }
 
     button.nav-item.play div.title {
-        margin-top: -1.25rem;
+        margin-top: -0.25rem;
     }
 
     button.nav-item.create div.title {
-        margin-top: -1rem;
+        margin-top: -0rem;
     }
 
     button.nav-item.downloads div.title {
-        margin-top: -2.25rem;
+        margin-top: -1.25rem;
     }
 
     button.nav-item div.background {

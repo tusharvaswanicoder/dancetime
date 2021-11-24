@@ -1,10 +1,9 @@
 <script>
-    import Sidebar from "./Sidebar.svelte"
-    import MainContent from "./MainContent.svelte"
+    import LandingContent from "./LandingContent.svelte"
     import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
-    import SettingsScreen from "./SettingsScreen.svelte";
     import { onMount } from "svelte";
-    import { keyPress, keyDown, settingsOpen } from "./stores";
+    import { GAMESTATE } from "./constants";
+    import { keyPress, keyDown, settingsOpen, gameState } from "./stores";
     
     import {getUserInfo, USER} from "./Auth"
     
@@ -31,12 +30,9 @@
 
 {#if loaded}
     <main>
+        <!-- TODO: reorganize these components into another one -->
         {#if $USER.loggedIn}
-            <Sidebar />
-            <MainContent />
-            {#if $settingsOpen}
-                <SettingsScreen />
-            {/if}
+            <LandingContent />
         {:else}
             <NotLoggedInLanding />
         {/if}
@@ -88,12 +84,8 @@
     
     main {
         position: relative;
-        display: grid;
         height: 100%;
         width: 100%;
-        grid-template-columns: 250px 1fr;
-        grid-template-areas: 
-            'sidebar main';
         overflow: hidden;
     }
 </style>

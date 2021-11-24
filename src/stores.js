@@ -13,10 +13,14 @@ export const SelectedNavIdStore = writable(NAV_IDS.CREATE);
 export const keyPress = writable({});
 export const keyDown = writable({});
 
-export const gameState = writable();
+import { GAMESTATE } from './constants';
+export const gameState = writable(GAMESTATE.NOT_INGAME);
+export const playGameMetadata = writable({});
+export const playGameKeypoints = writable({});
+export const playGameCameraStream = writable();
 
 
-export const settingsOpen = writable(true); // Single flag for settings so it can display whenever
+export const settingsOpen = writable(false); // Single flag for settings so it can display whenever
 
 
 export const createCanvas = writable();
