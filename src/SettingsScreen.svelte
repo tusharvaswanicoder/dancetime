@@ -30,6 +30,7 @@
     let cameraPreview;
     let cameraPreviewEnabled = false;
 
+    let tempVolumeSetting = [0.5];
     let volumeSettings = {
         master: 0.5,
         music: 0.5,
@@ -109,7 +110,7 @@
                     <div class='grid-2-col'>
                         <h1>Master Volume</h1>
                         <RangeSlider
-                            bind:values={volumeSettings.master}
+                            bind:values={tempVolumeSetting}
                             springValues={{ stiffness: 1, damping: 1 }}
                             min={0}
                             max={1}
@@ -118,7 +119,7 @@
                         />
                         <h1>Music Volume</h1>
                         <RangeSlider
-                            bind:values={volumeSettings.music}
+                            bind:values={tempVolumeSetting}
                             springValues={{ stiffness: 1, damping: 1 }}
                             min={0}
                             max={1}
@@ -127,7 +128,7 @@
                         />
                         <h1>Sound Effects Volume</h1>
                         <RangeSlider
-                            bind:values={volumeSettings.sfx}
+                            bind:values={tempVolumeSetting}
                             springValues={{ stiffness: 1, damping: 1 }}
                             min={0}
                             max={1}
@@ -136,7 +137,7 @@
                         />
                         <h1>Announcer Volume</h1>
                         <RangeSlider
-                            bind:values={volumeSettings.announcer}
+                            bind:values={tempVolumeSetting}
                             springValues={{ stiffness: 1, damping: 1 }}
                             min={0}
                             max={1}

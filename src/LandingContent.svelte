@@ -2,7 +2,7 @@
     import Sidebar from "./Sidebar.svelte"
     import MainContent from "./MainContent.svelte"
     import SettingsScreen from "./SettingsScreen.svelte";
-    import IngameLoadingScreen from "./Ingame/IngameLoadingScreen.svelte";
+    import IngameContent from "./Ingame/IngameContent.svelte";
     import { GAMESTATE } from "./constants";
     import { settingsOpen, gameState } from "./stores";
 
@@ -15,7 +15,7 @@
             <MainContent />
         </section>
     {:else if $gameState == GAMESTATE.INGAME}
-        <IngameLoadingScreen />
+        <IngameContent />
     {/if}
     {#if $settingsOpen}
         <SettingsScreen />

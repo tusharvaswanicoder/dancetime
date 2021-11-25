@@ -9,7 +9,15 @@
         keyDown,
         playGameMetadata,
         playGameKeypoints,
-        playGameCameraStream
+        playGameCameraStream,
+        ingameVideo,
+        ingameVideoURL,
+        ingameAudio,
+        ingameAudioURL,
+        ingameCanvas,
+        ingameScreenShouldShow,
+        ingameErrorMessage,
+        ingameIsLoading
     } from "../stores";
     import { HasCameraAccess, RequestCameraAccess } from "../utils";
 
@@ -31,24 +39,30 @@
 
     const PerformPlayChecks = async () => {
         // Check camera, setup TFJS, and check stores to make sure everything is in place
+        $ingameErrorMessage = null;
 
         // No camera access
         if (!(await HasCameraAccess())) {
+            $ingameErrorMessage = 'No camera detected.';
             return;
         }
 
         // No chart metadata
         if (Object.keys($playGameMetadata).length == 0) {
+            $ingameErrorMessage = 'No chart metadata.';
             return;
         }
         
         // No chart keypoints
         if (Object.keys($playGameKeypoints).length == 0) {
+            $ingameErrorMessage = 'No chart keypoints.';
             return;
         }
         
+        // Unable to get camera access
         const stream = await RequestCameraAccess(localStorage.getItem(LOCALSTORE_CAMERAPREF_NAME));
         if (!stream) {
+            $ingameErrorMessage = 'Unable access camera.';
             return;
         }
 
@@ -57,6 +71,9 @@
         // Allow the ingame screen to load under this one now and start TFJS
         // Once TFJS is going and can see all 17 keypoints on the camera, allow entering gameplay
         
+        // Trigger ingame screen
+        $ingameScreenShouldShow = true;
+
         canEnterGameplay = true;
     };
 
@@ -64,18 +81,19 @@
         if (canEnterGameplay && initialDelayElapsed) {
             console.log("enter gameplay");
             // Enter gameplay woo
+            $ingameIsLoading = false;
         }
     }
 
+    // When settings menu closes, perform checks again to see if we can enter gameplay
     let hasOpenedSettingsOnce = false;
-
-    $: {
-        $settingsOpen,
-        hasOpenedSettingsOnce = $settingsOpen || hasOpenedSettingsOnce;
-        if (hasOpenedSettingsOnce) {
+    settingsOpen.subscribe((isOpen) => {
+        hasOpenedSettingsOnce = isOpen || hasOpenedSettingsOnce;
+        
+        if (hasOpenedSettingsOnce && !isOpen) {
             PerformPlayChecks();
         }
-    }
+    })
 
     let initialDelayElapsed = false;
 
@@ -122,6 +140,9 @@
             Press Enter to adjust settings.
         </h3>
     </div>
+    {#if $ingameErrorMessage}
+        <h2 in:fly={{ duration: 1200, y: 50 }} class='error-msg'>{$ingameErrorMessage}</h2>
+    {/if}
 </main>
 
 <style>
@@ -176,6 +197,19 @@
         width: 0%;
         animation: var(--loadbar-duration, 3s) linear forwards loading-anim;
         animation-delay: var(--loadbar-delay, 2200ms);
+    }
+
+    h2.error-msg {
+        position: absolute;
+        bottom: 15%;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        font-weight: 200;
+        font-style: italic;
+        font-size: 1.5rem;
+        width: fit-content;
     }
 
     @keyframes loading-anim {
