@@ -9,13 +9,17 @@
         ingameVideoURL,
         ingameAudio,
         ingameAudioURL,
-        playGameMetadata
+        playGameMetadata,
+        ingameTime
     } from '../stores';
-    import { drawImageProp } from '../utils';
-
+    import { drawImageProp, GetKeypointsForFrame, GetFrameNumberFromTime } from '../utils';
+    
     const animationCallback = () => {
         if ($ingameVideo) {
             drawImageProp($ingameCTX, $ingameVideo);
+            
+            const keypoints = GetKeypointsForFrame($playGameMetadata.keypoints, GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps));
+            
             window.requestAnimationFrame(animationCallback);
         }
 
@@ -95,6 +99,7 @@
     <video
         preload="metadata"
         bind:this={$ingameVideo}
+        bind:currentTime={$ingameTime}
         on:play={onVideoPlay}
         on:pause={onVideoPause}
         on:contextmenu|preventDefault

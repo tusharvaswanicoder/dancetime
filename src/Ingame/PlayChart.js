@@ -10,7 +10,8 @@ import {
     ingameScreenShouldShow,
     ingameIsLoading,
     ingameErrorMessage,
-    ingameCTX
+    ingameCTX,
+    TFJSReady
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -24,6 +25,7 @@ export const PlayChart = (metadata, keypoints) => {
     ingameAudioURL.set(null);
     ingameCanvas.set(null);
     ingameCTX.set(null);
+    TFJSReady.set(false);
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

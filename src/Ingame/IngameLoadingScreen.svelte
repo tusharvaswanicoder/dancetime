@@ -17,9 +17,10 @@
         ingameCanvas,
         ingameScreenShouldShow,
         ingameErrorMessage,
-        ingameIsLoading
+        ingameIsLoading,
+        TFJSReady
     } from "../stores";
-    import { HasCameraAccess, RequestCameraAccess } from "../utils";
+    import { HasCameraAccess, RequestCameraAccess, sleep } from "../utils";
 
     let preLoadbarTime = 2200;
     let loadbarTime = 3000;
@@ -68,20 +69,25 @@
 
         $playGameCameraStream = stream;
 
-        // Allow the ingame screen to load under this one now and start TFJS
-        // Once TFJS is going and can see all 17 keypoints on the camera, allow entering gameplay
-        
         // Trigger ingame screen
         $ingameScreenShouldShow = true;
 
+        // Allow the ingame screen to load under this one now and start TFJS
+        // Once TFJS is going and can see all 17 keypoints on the camera, allow entering gameplay
+        while (!$TFJSReady) {
+            await sleep(1000);
+        }
+        
         canEnterGameplay = true;
     };
 
-    const enterGameplay = () => {
+    const enterGameplay = async () => {
         if (canEnterGameplay && initialDelayElapsed) {
+            
             console.log("enter gameplay");
             // Enter gameplay woo
             $ingameIsLoading = false;
+            $ingameVideo.play();
         }
     }
 
@@ -112,12 +118,6 @@
             enterGameplay();
         }, preLoadbarTime + loadbarTime);
     });
-
-    onDestroy(() => {
-        $playGameCameraStream = null;
-        $playGameMetadata = {};
-        $playGameKeypoints = {};
-    })
 
     $: {
         onkeyDown($keyDown);

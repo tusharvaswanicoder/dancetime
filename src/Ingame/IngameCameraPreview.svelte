@@ -1,18 +1,16 @@
 <script>
     import { onMount } from "svelte";
+    import { playGameCameraStream, ingameCamera } from "../stores";
 
-    import { playGameCameraStream } from "../stores";
-
-    let camera;
 
     onMount(() => {
-        camera.srcObject = $playGameCameraStream;
+        $ingameCamera.srcObject = $playGameCameraStream;
     });
 </script>
 
 <main>
     <video
-        bind:this={camera}
+        bind:this={$ingameCamera}
         on:contextmenu|preventDefault
         autoplay
         muted

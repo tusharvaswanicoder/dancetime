@@ -28,6 +28,11 @@ export const ingameCTX = writable();
 export const ingameIsLoading = writable(true);
 export const ingameScreenShouldShow = writable(false);
 export const ingameErrorMessage = writable();
+export const ingameTime = writable(0);
+export const ingameCamera = writable();
+export const TFJSReady = writable(false);
+
+export const testIngameScores = writable('');
 
 export const settingsOpen = writable(false); // Single flag for settings so it can display whenever
 

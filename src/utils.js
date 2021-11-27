@@ -42,13 +42,87 @@ export const GetFormattedDate = (_date) => {
     })} ${date.getDate()}, ${date.getFullYear()}`;
 };
 
+const interp = (a, b, t) => {
+    return (a - b) * t + a;
+}
+
 /**
  * Returns the keypoints for a specific frame, or an interpolated keyframe set between the closest frames
  * @param {*} keypoints 
  * @param {*} frame 
  */
 export const GetKeypointsForFrame = (keypoints, frame) => {
-
+    
+    if (!frame || isNaN(frame)) {
+        return;
+    }
+    
+    // If there is a matching frame, return it
+    if (keypoints[frame]) {
+        return keypoints[frame];
+    }
+    
+    const close_keypoint_threshold = 3; // If a keypoint is found within this many frames, just use that
+    const keypoints_values = Object.values(keypoints);
+    const search_amount = 10; // Look this many frames forwards and backwards for a frame with keypoint data
+    let start_keypoints, end_keypoints;
+    
+    // Get closest starting keypoint within range
+    let start_frame = frame;
+    for (start_frame; start_frame > frame - search_amount; start_frame--) {
+        if (keypoints[start_frame]) {
+            start_keypoints = keypoints[start_frame];
+            break;
+        }
+    }
+    
+    if (!start_keypoints) {
+        console.warn(`No start keypoint found within range for frame ${frame}`);
+        start_keypoints = keypoints_values[0];
+    }
+    
+    if (frame - start_frame <= close_keypoint_threshold) {
+        return start_keypoints;
+    }
+    
+    // Get closest ending keypoint within range
+    let end_frame = frame;
+    for (end_frame; end_frame < frame + search_amount; end_frame++) {
+        if (keypoints[end_frame]) {
+            end_keypoints = keypoints[end_frame];
+            break;
+        }
+    }
+    
+    if (!end_keypoints) {
+        console.warn(`No end keypoint found within range for frame ${frame}`);
+        end_keypoints = keypoints_values[keypoints_values.length - 1];
+    }
+    
+    if (end_frame - frame <= close_keypoint_threshold) {
+        return end_keypoints;
+    }
+    
+    // Percentage of interpolation between the two frames we found
+    const t = (frame - start_frame) / (end_frame - start_frame);
+        
+    // Interpolate between keypoints
+    return start_keypoints.keypoints.map((keypoint) => {
+        const matching_end_keypoint = end_keypoints.find((_keypoint) => keypoint.name == _keypoint.name);
+        
+        if (!matching_end_keypoint) {
+            console.error(`Failed to find matching keypoint for name ${keypoint.name}`);
+            return;
+        }
+        
+        // Interpolate x, y, and score values for each keypoint 
+        return {
+            x: interp(keypoint.x, matching_end_keypoint.x, t),
+            y: interp(keypoint.y, matching_end_keypoint.y, t),
+            score: interp(keypoint.score, matching_end_keypoint.score, t),
+            name: keypoint.name
+        }
+    })
 }
 
 // Navigation
@@ -240,4 +314,10 @@ export function drawImageProp (ctx, img, x, y, w, h, offsetX, offsetY) {
 
     // fill image in dest. rectangle
     ctx.drawImage(img, cx, cy, cw, ch, x, y, w, h);
+}
+
+export const sleep = (ms) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
