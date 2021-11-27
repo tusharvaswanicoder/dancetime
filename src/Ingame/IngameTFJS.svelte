@@ -4,12 +4,14 @@
     import {
         testIngameScores,
         ingameCamera,
+        ingameCameraCanvas,
         TFJSReady,
         playGameMetadata,
         ingameTime
     } from '../stores';
     import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits.js';
     import { GetFrameNumberFromTime, GetKeypointsForFrame, sleep } from '../utils';
+    import { GetScoreFromGroups, DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring';
     import { shapeSimilarity } from 'curve-matcher';
     
     let raf;
@@ -18,13 +20,24 @@
     const analyzePose = async (pose, frame) => {
         // Detect if there is a person in the frame by checking all keypoints scores to see if all points are good
         if (!personDetected) {
-            const keypointsUnderThreshold = pose.keypoints.filter((keypoint) => keypoint.score < 0.5);
+            const keypointsUnderThreshold = pose.keypoints.filter((keypoint) => keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD);
             personDetected = keypointsUnderThreshold.length == 0;
+        }
+        
+        if (pose.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
+            $testIngameScores = `0.00`;
+            return;
         }
         
         const videoFrameKeypoints = GetKeypointsForFrame($playGameMetadata.keypoints, frame);
         if (!videoFrameKeypoints) {
             // Set scores to 0?
+            $testIngameScores = `0.00`;
+            return;
+        }
+        
+        if (!pose.keypoints || !videoFrameKeypoints.keypoints) {
+            $testIngameScores = `0.00`;
             return;
         }
         
@@ -32,6 +45,7 @@
         const model_groups = SplitPoseByGroupXY(videoFrameKeypoints.keypoints);
         
         let scoresString = '';
+        const group_scores = {};
         for (const group_name in groups) {
             const similarity = shapeSimilarity(
                 model_groups[group_name],
@@ -43,14 +57,21 @@
                 }
             );
             
-            scoresString += `${group_name}: ${similarity.toFixed(2)}   `
+            group_scores[group_name] = similarity;
+        }
+        
+        const score = GetScoreFromGroups(group_scores);
+        scoresString = `${score.overall.toFixed(3)}`;
+        
+        for (const group_name in groups) {
+            scoresString += `   ${group_name}: ${score.groups[group_name].toFixed(2)}`;
         }
         
         $testIngameScores = scoresString;
     }
     
     const onFrame = async () => {
-        const pose = await tfjs.detectFrame($ingameCamera);
+        const pose = await tfjs.detectFrame($ingameCameraCanvas);
         
         if (pose) {
             analyzePose(pose, GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps));
@@ -62,7 +83,7 @@
     }
     
     const startTFJS = async () => {
-        while (!$ingameCamera || $ingameCamera.readyState != 4) {
+        while (!$ingameCamera || $ingameCamera.readyState != 4 || !$ingameCameraCanvas) {
             await sleep(500);
         }
         

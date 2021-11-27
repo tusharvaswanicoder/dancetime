@@ -1,4 +1,4 @@
-const GROUP_TYPE = 
+export const GROUP_TYPE = 
 {
     Head: "HEAD",
     Torso: "TORSO",

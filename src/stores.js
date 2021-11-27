@@ -30,7 +30,13 @@ export const ingameScreenShouldShow = writable(false);
 export const ingameErrorMessage = writable();
 export const ingameTime = writable(0);
 export const ingameCamera = writable();
+export const ingameCameraCanvas = writable();
 export const TFJSReady = writable(false);
+
+// All ingame scores per frame (only frames that were used though, some may be skipped)
+export const ingameRawScores = writable({});
+// Score on the current frame
+export const currentFrameRawScores = writable(0);
 
 export const testIngameScores = writable('');
 
