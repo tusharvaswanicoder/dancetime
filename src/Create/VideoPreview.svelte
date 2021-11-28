@@ -23,13 +23,24 @@
 
     let videoURL;
     let audioURL;
+    let seeking = false;
+    
+    // onSeeked fires twice when seeking - once when dragging there, and another when mouse off
+    // FUTURE TODO: fix this so that there aren't a bunch of skeletons drawn when scrubbing the timeline
+    const onSeeked = (e) => {
+        seeking = false;
+    }
+    
+    const onSeeking = () => {
+        seeking = true;
+    }
     
     const animationCallback = () => {
         if ($createVideo) {
             drawImageProp($createCTX, $createVideo);
             
-            if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress) {
-                const currentFrame = GetFrameNumberFromTime($createVideoCurrentTime, $createProject.fps);
+            if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress && !seeking) {
+                const currentFrame = GetFrameNumberFromTime($createVideo.currentTime, $createProject.fps);
                 const keypoints_obj = GetKeypointsForFrame($createProject.keypoints, currentFrame);
                 
                 if (keypoints_obj && keypoints_obj.keypoints) {
@@ -129,6 +140,8 @@
         on:pause={onVideoPause}
         on:seeked={onVideoSeeked}
         on:contextmenu|preventDefault
+        on:seeked={onSeeked}
+        on:seeking={onSeeking}
         bind:currentTime={$createVideoCurrentTime}
         bind:duration={$createVideoDuration}
         src={videoURL}
