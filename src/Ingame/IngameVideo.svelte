@@ -95,6 +95,7 @@
 </script>
 
 <main>
+    <!-- TODO: currently you can right click and download the video... -->
     <!-- svelte-ignore a11y-media-has-caption -->
     <video
         preload="metadata"
@@ -102,17 +103,18 @@
         bind:currentTime={$ingameTime}
         on:play={onVideoPlay}
         on:pause={onVideoPause}
-        on:contextmenu|preventDefault
+        on:contextmenu|preventDefault|stopPropagation
+        on:click|preventDefault|stopPropagation
         src={$ingameVideoURL}
-        controls
-        muted
+        controls={false}
+        muted={true}
         disablePictureInPicture
     />
     <audio
         bind:this={$ingameAudio}
         src={$ingameAudioURL}
         on:contextmenu|preventDefault
-        controls
+        controls={false}
     />
     <canvas
         width={1920}
@@ -124,6 +126,7 @@
 
 <style>
     main {
+        position: relative;
         display: grid;
         place-items: center;
         background-color: black;
@@ -131,12 +134,21 @@
         width: 100%;
     }
 
-    video,
+    /* video,
     audio {
         display: none;
     }
 
     canvas {
+        max-width: 100%;
+        max-height: 100%;
+    } */
+    
+    canvas, audio {
+        display: none;
+    }
+    
+    video {
         max-width: 100%;
         max-height: 100%;
     }

@@ -10,7 +10,6 @@
 </script>
 
 <main>
-    <h1>{($testIngameScores)}</h1>
     <IngameVideo />
     <IngameCameraPreview />
     <IngameLookahead />
@@ -24,15 +23,5 @@
         width: 100%;
         height: 100%;
         /* cursor: none; */
-    }
-    
-    h1 {
-        color: yellow;
-        font-weight: bold;
-        font-size: 3rem;
-        position: absolute;
-        top: 0;
-        left: 0;
-        margin: 10px;
     }
 </style>

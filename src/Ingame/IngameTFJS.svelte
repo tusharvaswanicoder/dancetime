@@ -7,11 +7,14 @@
         ingameCameraCanvas,
         TFJSReady,
         playGameMetadata,
-        ingameTime
+        ingameTime,
+        currentFrameRawScores,
+        ingameRawScores,
+        currentAverageScore
     } from '../stores';
     import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits.js';
     import { GetFrameNumberFromTime, GetKeypointsForFrame, sleep } from '../utils';
-    import { GetScoreFromGroups, DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring';
+    import { GetScoreFromGroups, DEFAULT_ACCURACY_SCORE_THRESHOLD, GetCurrentAvgScore } from './Scoring';
     import { shapeSimilarity } from 'curve-matcher';
     
     let raf;
@@ -61,7 +64,12 @@
         }
         
         const score = GetScoreFromGroups(group_scores);
-        scoresString = `${score.overall.toFixed(3)}`;
+        $currentFrameRawScores = score;
+        $ingameRawScores[frame] = score;
+        
+        $currentAverageScore = GetCurrentAvgScore($ingameRawScores, frame, $playGameMetadata.fps);
+        
+        scoresString = `${$currentAverageScore.toFixed(3)}`;
         
         for (const group_name in groups) {
             scoresString += `   ${group_name}: ${score.groups[group_name].toFixed(2)}`;
@@ -108,3 +116,18 @@
         }
     })
 </script>
+
+<h1>{($testIngameScores)}</h1>
+
+<style>
+    h1 {
+        color: yellow;
+        font-weight: bold;
+        font-size: 3rem;
+        position: absolute;
+        top: 0;
+        left: 0;
+        margin: 10px;
+        z-index: 50;
+    }
+</style>

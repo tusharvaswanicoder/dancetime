@@ -11,7 +11,10 @@ import {
     ingameIsLoading,
     ingameErrorMessage,
     ingameCTX,
-    TFJSReady
+    TFJSReady,
+    ingameRawScores,
+    currentFrameRawScores,
+    currentAverageScore
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -26,6 +29,9 @@ export const PlayChart = (metadata, keypoints) => {
     ingameCanvas.set(null);
     ingameCTX.set(null);
     TFJSReady.set(false);
+    ingameRawScores.set({});
+    currentFrameRawScores.set(0);
+    currentAverageScore.set(0);
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

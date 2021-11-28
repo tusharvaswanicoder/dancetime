@@ -165,5 +165,7 @@
         width: min(100%, 105vh);
         height: auto;
         border-radius: 20px;
+        margin-left: auto;
+        margin-right: auto;
     }
 </style>

@@ -75,7 +75,11 @@
         // Allow the ingame screen to load under this one now and start TFJS
         // Once TFJS is going and can see all 17 keypoints on the camera, allow entering gameplay
         while (!$TFJSReady) {
-            await sleep(1000);
+            await sleep(100);
+        }
+        
+        while ($settingsOpen) {
+            await sleep(100);
         }
         
         canEnterGameplay = true;
@@ -87,7 +91,11 @@
             console.log("enter gameplay");
             // Enter gameplay woo
             $ingameIsLoading = false;
-            $ingameVideo.play();
+            
+            setTimeout(() => {
+                $ingameVideo.play();
+                $ingameAudio.play();
+            }, 1000);
         }
     }
 

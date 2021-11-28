@@ -77,7 +77,7 @@
             });
         });
     }
-
+    
     onMount(() => {
         $createWaveSurfer = WaveSurfer.create({
             container: '#waveform',

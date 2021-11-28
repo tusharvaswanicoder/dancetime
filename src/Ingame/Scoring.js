@@ -3,6 +3,11 @@ import { GROUP_TYPE } from '../tensorflow/KeypointGroupSplits';
 // Accuracy scores must be above this to even be scored
 export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.5;
 
+// Amount of frames to lookback and average scores over to the the "current" frame's score
+export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = (fps) => {
+    return fps;
+}
+
 // Default weighting for each group. Scores are averaged based on these weights - should add to 1
 export const DEFAULT_GROUP_WEIGHTS = {
     [GROUP_TYPE.Head]: 0.1,
@@ -73,4 +78,24 @@ export const GetScoreFromGroups = (score_groups, group_weights) => {
         overall: overall_score,
         groups: adjusted_score_groups
     }
+}
+
+// Returns the current score averaged over the past X frames (instead of instantaneous on each frame)
+export const GetCurrentAvgScore = (all_scores, current_frame, fps) => {
+    let score_total = 0;
+    let num_scores = 0;
+    
+    const num_frames_to_lookback = DEFAULT_SCORE_AVG_FRAME_LOOKBACK(fps);
+    
+    // TODO: optimize with a stack
+    for (let frame = current_frame; frame > current_frame - num_frames_to_lookback && frame > 0; frame--) {
+        const frame_score = all_scores[frame];
+        
+        if (frame_score) {
+            score_total += frame_score.overall;
+            num_scores++;
+        }
+    }
+    
+    return score_total / num_scores;
 }
