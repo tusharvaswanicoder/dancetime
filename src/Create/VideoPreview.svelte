@@ -1,5 +1,5 @@
 <script>
-    import { onMount, tick, onDestroy } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { GetMediaBlobFromDB } from '../Downloads/VideoBlobManager';
     import { dlManager } from '../Downloads/DownloadManager';
     import {
@@ -11,37 +11,32 @@
         createVideoDuration,
         createProject,
         createEditorDisabled,
-        createAAInProgress
+        createAAInProgress,
+        createTabState
     } from '../stores';
+    import { EDITOR_TAB_STATE } from '../constants';
     import { drawImageProp } from '../utils';
-    import projectManager from "./ProjectManager"
+    import { drawKeypointsAndSkeleton } from './DrawKeypoints';
+    import { GetKeypointsForFrame, GetFrameNumberFromTime } from '../utils';
     export let onVideoPaused = () => {};
     export let onVideoPlayed = () => {};
 
     let videoURL;
     let audioURL;
-
+    
     const animationCallback = () => {
-        // if (!$createVideo) {return false;}
-
-        // if ($createVideo.paused) {
-        //     if ($createVideo.currentTime == $createVideo.duration && lastFrameLoaded) {
-        //         return false;
-        //     } else if ($createVideo.paused && firstFrameLoaded) {
-        //         return false;
-        //     }
-        // }
-
-        // ctx.drawImage(video, 0, 0, video.videoWidth,    video.videoHeight,     // source rectangle
-        //                    0, 0, ctx.canvas.width, ctx.canvas.height); // destination rectangle
-
-        // Wait until it has rendered a frame so it displays the first frame
-        // if (!firstFrameLoaded && $createVideo.currentTime > 0) {
-        //     firstFrameLoaded = true;
-        //     $createVideo.currentTime = 0;
-        // }
         if ($createVideo) {
             drawImageProp($createCTX, $createVideo);
+            
+            if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress) {
+                const currentFrame = GetFrameNumberFromTime($createVideoCurrentTime, $createProject.fps);
+                const keypoints_obj = GetKeypointsForFrame($createProject.keypoints, currentFrame);
+                
+                if (keypoints_obj && keypoints_obj.keypoints) {
+                    drawKeypointsAndSkeleton($createCTX, keypoints_obj.keypoints);
+                }
+            }
+            
             window.requestAnimationFrame(animationCallback);
         }
 

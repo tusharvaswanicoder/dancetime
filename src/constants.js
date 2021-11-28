@@ -14,6 +14,12 @@ export const INGAME_STATE = {
     SETTINGS: 2,
 }
 
+export const EDITOR_TAB_STATE = {
+    EDIT: 1,
+    REVIEW: 2,
+    PUBLISH: 3
+}
+
 export const VISIBILITY = {
     DRAFT: "Draft",
     UNLISTED: "Unlisted",

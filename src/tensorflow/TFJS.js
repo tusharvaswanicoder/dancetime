@@ -8,6 +8,7 @@ import '@tensorflow/tfjs-backend-webgl';
 class TFJS {
     constructor () {
         this.initialized = false;
+        this.poseDetection = poseDetection;
         this.initialize();
     }
     

@@ -60,3 +60,4 @@ export const createProjectUnsaved = writable(false);
 export const createAAInProgress = writable(false);
 export const createEditorDisabled = writable(false);
 export const createFramesAnalyzed = writable({});
+export const createTabState = writable();

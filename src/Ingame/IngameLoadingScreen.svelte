@@ -78,8 +78,9 @@
             await sleep(100);
         }
         
+        // Do not enter gameplay while settings are open
         while ($settingsOpen) {
-            await sleep(100);
+            await sleep(500);
         }
         
         canEnterGameplay = true;

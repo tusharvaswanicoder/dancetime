@@ -19,9 +19,9 @@ export const DEFAULT_GROUP_WEIGHTS = {
 // Anything below the minimum will result in a 0 and scales up to max from there.
 // Anything above max is a perfect score (100)
 export const DEFAULT_GROUP_SCORE_THRESHOLDS = {
-    [GROUP_TYPE.Head]: {min: 0.5, max: 0.95},
-    [GROUP_TYPE.Torso]: {min: 0.6, max: 0.95},
-    [GROUP_TYPE.Legs]: {min: 0.6, max: 0.95}
+    [GROUP_TYPE.Head]: {min: 0.6, max: 0.97},
+    [GROUP_TYPE.Torso]: {min: 0.7, max: 0.97},
+    [GROUP_TYPE.Legs]: {min: 0.7, max: 0.97}
 }
 
 // Default score scaling function - linear, cubic, etc. Scales differently between the min and max values
@@ -43,7 +43,7 @@ const DEFAULT_SCORE_SCALING_FUNCTION = (_value, _min, _max) => {
     
     const score_percentage = value / max;
     
-    return Math.pow(score_percentage, 0.4);
+    return Math.pow(score_percentage, 1);
 }
 
 /**
@@ -80,6 +80,27 @@ export const GetScoreFromGroups = (score_groups, group_weights) => {
     }
 }
 
+// Returns the current score averaged over the past X frames, only taking the avg of top 5 scores in that group
+const NUM_TOP_SCORES = 5;
+export const GetCurrentTopXLastScores = (all_scores, current_frame, fps, num_scores) => {
+    const num_scores_to_lookat = num_scores || NUM_TOP_SCORES;
+    const num_frames_to_lookback = DEFAULT_SCORE_AVG_FRAME_LOOKBACK(fps);
+    
+    const last_scores = [];
+    // TODO: optimize with a stack
+    for (let frame = current_frame; frame > current_frame - num_frames_to_lookback && frame > 0; frame--) {
+        const frame_score = all_scores[frame];
+        
+        if (frame_score) {
+            last_scores.push(frame_score.overall);
+        }
+    }
+    
+    // Get average of top X scores in the last X frames
+    const top_5_scores = last_scores.sort((a,b) => b - a).slice(0, num_scores_to_lookat);
+    return top_5_scores.reduce((a, b) => a + b) / top_5_scores.length;
+}
+
 // Returns the current score averaged over the past X frames (instead of instantaneous on each frame)
 export const GetCurrentAvgScore = (all_scores, current_frame, fps) => {
     let score_total = 0;
@@ -98,4 +119,63 @@ export const GetCurrentAvgScore = (all_scores, current_frame, fps) => {
     }
     
     return score_total / num_scores;
+}
+
+export const JUDGEMENTS = {
+    PERFECT: 1,
+    BEAUTIFUL: 2,
+    MARVELOUS: 3,
+    AWESOME: 4,
+    EXCELLENT: 5,
+    SUPER: 6,
+    GREAT: 7,
+    GOOD: 8,
+    OK: 9,
+    ALMOST: 10,
+    WAY_OFF: 11,
+    BOO: 12,
+    MISS: 13
+}
+
+export const JUDGEMENT_VISUALS = {
+    [JUDGEMENTS.PERFECT]:       {name: 'Perfect',   color: 'hsla(61, 100%, 50%, 1)'},
+    [JUDGEMENTS.BEAUTIFUL]:     {name: 'Beautiful', color: 'hsla(94, 100%, 55%, 1)'},
+    [JUDGEMENTS.MARVELOUS]:     {name: 'Marvelous', color: 'hsla(135, 100%, 62%, 1)'},
+    [JUDGEMENTS.AWESOME]:       {name: 'Awesome',   color: 'hsla(166, 100%, 58%, 1)'},
+    [JUDGEMENTS.EXCELLENT]:     {name: 'Excellent', color: 'hsla(164, 79%, 58%, 1)'},
+    [JUDGEMENTS.SUPER]:         {name: 'Super',     color: 'hsla(180, 62%, 59%, 1)'},
+    [JUDGEMENTS.GREAT]:         {name: 'Great',     color: 'hsla(207, 80%, 63%, 1)'},
+    [JUDGEMENTS.GOOD]:          {name: 'Good',      color: 'hsla(236, 98%, 61%, 1)'},
+    [JUDGEMENTS.OK]:            {name: 'Ok',        color: 'hsla(269, 78%, 56%, 1)'},
+    [JUDGEMENTS.ALMOST]:        {name: 'Almost',    color: 'hsla(303, 71%, 53%, 1)'},
+    [JUDGEMENTS.WAY_OFF]:       {name: 'Way Off',   color: 'hsla(325, 95%, 56%, 1)'},
+    [JUDGEMENTS.BOO]:           {name: 'Boo',       color: 'hsla(342, 97%, 55%, 1)'},
+    [JUDGEMENTS.MISS]:          {name: 'Miss',      color: 'hsla(360, 100%, 58%, 1)'}
+}
+
+// Score must be greater than or equal to these values to get the judgement
+export const JUDGEMENT_VALUES = {
+    [JUDGEMENTS.PERFECT]:       0.95,
+    [JUDGEMENTS.BEAUTIFUL]:     0.93,
+    [JUDGEMENTS.MARVELOUS]:     0.90,
+    [JUDGEMENTS.AWESOME]:       0.88,
+    [JUDGEMENTS.EXCELLENT]:     0.85,
+    [JUDGEMENTS.SUPER]:         0.83,
+    [JUDGEMENTS.GREAT]:         0.80,
+    [JUDGEMENTS.GOOD]:          0.75,
+    [JUDGEMENTS.OK]:            0.70,
+    [JUDGEMENTS.ALMOST]:        0.65,
+    [JUDGEMENTS.WAY_OFF]:       0.60,
+    [JUDGEMENTS.BOO]:           0.50,
+    [JUDGEMENTS.MISS]:          0.00
+}
+
+export const GetJudgementFromScore = (score) => {
+    for (const [judgement, cutoff_score] of Object.entries(JUDGEMENT_VALUES)) {
+        if (score >= cutoff_score) {
+            return judgement;
+        }
+    }
+    
+    return JUDGEMENTS.MISS;
 }

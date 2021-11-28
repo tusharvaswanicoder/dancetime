@@ -2,19 +2,15 @@
     import EditTab from './EditTab.svelte';
     import ReviewTab from './ReviewTab.svelte';
     import PublishTab from './PublishTab.svelte';
-    import { createAAInProgress } from '../stores';
+    import { EDITOR_TAB_STATE } from '../constants';
+    import { createAAInProgress, createTabState } from '../stores';
     
-    const TAB_STATE = {
-        EDIT: 1,
-        REVIEW: 2,
-        PUBLISH: 3
-    }
-    let tab_state = TAB_STATE.REVIEW;
+    let tab_state = EDITOR_TAB_STATE.REVIEW;
     
     const tabs = {
-        [TAB_STATE.EDIT]: EditTab,
-        [TAB_STATE.REVIEW]: ReviewTab,
-        [TAB_STATE.PUBLISH]: PublishTab
+        [EDITOR_TAB_STATE.EDIT]: EditTab,
+        [EDITOR_TAB_STATE.REVIEW]: ReviewTab,
+        [EDITOR_TAB_STATE.PUBLISH]: PublishTab
     }
     
     const clickTab = (tab_name) => {
@@ -22,19 +18,23 @@
             return;
         }
         
-        tab_state = TAB_STATE[tab_name];
+        tab_state = EDITOR_TAB_STATE[tab_name];
+    }
+    
+    $: {
+        $createTabState = tab_state;
     }
     
 </script>
 
 <main>
     <section class='tab-controls'>
-        {#each Object.entries(TAB_STATE) as [tab_name, tab_value]}
+        {#each Object.entries(EDITOR_TAB_STATE) as [tab_name, tab_value]}
             <div class='tab' class:disabled={$createAAInProgress} on:click={() => clickTab(tab_name)} class:selected={tab_state == tab_value}>{tab_name}</div>
         {/each}
     </section>
     <section class='tab-content' >
-        <svelte:component this={tabs[tab_state]}/>
+        <svelte:component this={tabs[tab_state]} {tab_state}/>
     </section>
 </main>
 

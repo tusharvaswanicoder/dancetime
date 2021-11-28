@@ -27,11 +27,9 @@
         if (card_data.new_project)
         {
             // Start creating a new project
+            create_new_title = '';
+            create_new_link = '';
             current_state = STATE.CREATE_NEW;
-        }
-        else
-        {
-            // Open existing project
         }
     }
     
@@ -75,7 +73,7 @@
     
     $: {
         $projectManager
-        // TestOpenFirstProject()
+        TestOpenFirstProject()
     }
     
     const TestOpenFirstProject = () => {
