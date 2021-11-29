@@ -33,6 +33,10 @@
     let personDetected = false;
 
     const analyzePose = async (pose, frame) => {
+        if (!pose) {
+            return;
+        }
+        
         // Detect if there is a person in the frame by checking all keypoints scores to see if all points are good
         if (!personDetected) {
             const keypointsUnderThreshold = pose.keypoints.filter(
@@ -63,6 +67,10 @@
 
         const groups = SplitPoseByGroupXY(pose.keypoints);
         const model_groups = SplitPoseByGroupXY(videoFrameKeypoints.keypoints);
+        
+        if (!groups || !model_groups) {
+            return;
+        }
 
         let scoresString = '';
         const group_scores = {};
