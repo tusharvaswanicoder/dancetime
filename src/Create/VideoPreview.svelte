@@ -41,11 +41,15 @@
             
             if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress && !seeking) {
                 const currentFrame = GetFrameNumberFromTime($createVideo.currentTime, $createProject.fps);
-                const keypoints_obj = GetKeypointsForFrame($createProject.keypoints, currentFrame);
                 
-                if (keypoints_obj && keypoints_obj.keypoints) {
-                    drawKeypointsAndSkeleton($createCTX, keypoints_obj.keypoints);
+                if (Object.keys($createProject.keypoints).length > 0) {
+                    const keypoints_obj = GetKeypointsForFrame($createProject.keypoints, currentFrame);
+                    
+                    if (keypoints_obj && keypoints_obj.keypoints) {
+                        drawKeypointsAndSkeleton($createCTX, keypoints_obj.keypoints);
+                    }
                 }
+                
             }
             
             window.requestAnimationFrame(animationCallback);

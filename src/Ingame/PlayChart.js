@@ -14,7 +14,8 @@ import {
     TFJSReady,
     ingameRawScores,
     currentFrameRawScores,
-    currentAverageScore
+    currentAverageScore,
+    ingameCurrentJudgement
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -32,6 +33,7 @@ export const PlayChart = (metadata, keypoints) => {
     ingameRawScores.set({});
     currentFrameRawScores.set(0);
     currentAverageScore.set(0);
+    ingameCurrentJudgement.set(null);
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

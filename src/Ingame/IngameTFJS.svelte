@@ -11,6 +11,7 @@
         currentFrameRawScores,
         ingameRawScores,
         currentAverageScore,
+        ingameCurrentJudgement
     } from '../stores';
     import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits.js';
     import {
@@ -104,6 +105,7 @@
 
         const judgement = GetJudgementFromScore(currentAvg5Score);
         scoresString += ` -- ${JUDGEMENT_VISUALS[judgement].name}`;
+        $ingameCurrentJudgement = judgement;
 
         $testIngameScores = scoresString;
     };

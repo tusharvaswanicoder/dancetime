@@ -34,7 +34,7 @@
         {/each}
     </section>
     <section class='tab-content' >
-        <svelte:component this={tabs[tab_state]} {tab_state}/>
+        <svelte:component this={tabs[tab_state]} />
     </section>
 </main>
 

@@ -80,6 +80,8 @@ export const GetScoreFromGroups = (score_groups, group_weights) => {
     }
 }
 
+// TODO: try only filtering out outliers based on the average of last X scores in case there was an analysis error
+
 // Returns the current score averaged over the past X frames, only taking the avg of top 5 scores in that group
 const NUM_TOP_SCORES = 5;
 export const GetCurrentTopXLastScores = (all_scores, current_frame, fps, num_scores) => {
@@ -137,6 +139,10 @@ export const JUDGEMENTS = {
     MISS: 13
 }
 
+// Frequency at which judgements are shown
+export const JUDGEMENT_VISUAL_FREQUENCY = 0.5;
+
+// Visual data for judgements
 export const JUDGEMENT_VISUALS = {
     [JUDGEMENTS.PERFECT]:       {name: 'Perfect',   color: 'hsla(61, 100%, 50%, 1)'},
     [JUDGEMENTS.BEAUTIFUL]:     {name: 'Beautiful', color: 'hsla(94, 100%, 55%, 1)'},

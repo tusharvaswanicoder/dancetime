@@ -88,8 +88,6 @@
 
     const enterGameplay = async () => {
         if (canEnterGameplay && initialDelayElapsed) {
-            
-            console.log("enter gameplay");
             // Enter gameplay woo
             $ingameIsLoading = false;
             

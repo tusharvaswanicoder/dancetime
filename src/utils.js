@@ -43,7 +43,7 @@ export const GetFormattedDate = (_date) => {
 };
 
 const interp = (a, b, t) => {
-    return (a - b) * t + a;
+    return (b - a) * t + a;
 }
 
 /**
@@ -62,7 +62,7 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
         return keypoints[frame];
     }
     
-    const close_keypoint_threshold = 3; // If a keypoint is found within this many frames, just use that
+    const close_keypoint_threshold = 1; // If a keypoint is found within this many frames, just use that
     const keypoints_values = Object.values(keypoints);
     const search_amount = 10; // Look this many frames forwards and backwards for a frame with keypoint data
     let start_keypoints, end_keypoints;
@@ -105,10 +105,10 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
     
     // Percentage of interpolation between the two frames we found
     const t = (frame - start_frame) / (end_frame - start_frame);
-        
+    
     // Interpolate between keypoints
-    return start_keypoints.keypoints.map((keypoint) => {
-        const matching_end_keypoint = end_keypoints.find((_keypoint) => keypoint.name == _keypoint.name);
+    return {keypoints: start_keypoints.keypoints.map((keypoint) => {
+        const matching_end_keypoint = end_keypoints.keypoints.find((_keypoint) => keypoint.name == _keypoint.name);
         
         if (!matching_end_keypoint) {
             console.error(`Failed to find matching keypoint for name ${keypoint.name}`);
@@ -122,7 +122,7 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
             score: interp(keypoint.score, matching_end_keypoint.score, t),
             name: keypoint.name
         }
-    })
+    })}
 }
 
 // Navigation
