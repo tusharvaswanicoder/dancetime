@@ -27,23 +27,6 @@ const KP_NAME_TO_GROUP_TYPE =
     "right_ankle": GROUP_TYPE.Legs,
 }
 
-function SplitPoseByGroup(pose)
-{
-    const split_groups = {};
-    for (let i = 0; i < pose.length; i++)
-    {
-        const keypoint = pose[i];
-        const group = KP_NAME_TO_GROUP_TYPE[keypoint.name];
-        if (!split_groups[group])
-        {
-            split_groups[group] = [];
-        }
-        split_groups[group].push([keypoint.x, keypoint.y]);
-    }
-    
-    return split_groups;
-}
-
 export function SplitPoseByGroupXY(pose)
 {
     const split_groups = {};
