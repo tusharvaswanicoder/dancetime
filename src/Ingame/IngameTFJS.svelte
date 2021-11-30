@@ -68,10 +68,6 @@
         const groups = SplitPoseByGroupXY(pose.keypoints);
         const model_groups = SplitPoseByGroupXY(videoFrameKeypoints.keypoints);
         
-        if (!groups || !model_groups) {
-            return;
-        }
-
         let scoresString = '';
         const group_scores = {};
         for (const group_name in groups) {

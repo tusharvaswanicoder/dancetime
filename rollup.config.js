@@ -19,7 +19,7 @@ function serve() {
             if (server) return;
             server = require('child_process').spawn(
                 'npm',
-                ['run', 'start', '--', '--dev'],
+                ['run', 'server-dev'],
                 {
                     stdio: ['ignore', 'inherit', 'inherit'],
                     shell: true,
@@ -49,9 +49,9 @@ export default {
         }),
 		// Use postcss + autoprefixer to add vendor prefixes
         postcss({
-            sourceMap: true,
+            sourceMap: !production,
             ...(production && {
-                minimize: true,
+                minimize: !production,
                 // see plugin docs for all available options:
                 // https://github.com/egoist/rollup-plugin-postcss
             }),
@@ -78,11 +78,9 @@ export default {
             browser: true,
             dedupe: ['svelte'],
         }),
-        commonjs(),
-
-        // In dev mode, call `npm run start` once
-        // the bundle has been generated
-        !production && serve(),
+        commonjs({
+            sourceMap: !production
+        }),
 
         // Watch the `public` directory and refresh the
         // browser on changes when not in production

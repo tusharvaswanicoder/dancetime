@@ -1,6 +1,7 @@
-import * as poseDetection from '@tensorflow-models/pose-detection';
 import * as tfc from '@tensorflow/tfjs-core';
-import * as backend from '@tensorflow/tfjs-backend-webgl';
+import '@tensorflow/tfjs-converter';
+import '@tensorflow/tfjs-backend-webgl';
+import * as poseDetection from '@tensorflow-models/pose-detection';
 
 // 2.7s hot reload time with TFJS installed. Can be potentially minifier further with: 
 // https://www.tensorflow.org/js/tutorials/deployment/size_optimized_bundles

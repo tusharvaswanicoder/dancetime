@@ -152,7 +152,7 @@
         AAsummary = GetAnalysisSummary($createProject, keypointScoreThreshold[0]);
 
         setTimeout(() => {
-            clickPlaytestIcon() // JUST FOR TESTING
+            // clickPlaytestIcon() // JUST FOR TESTING
         }, 3000);
     }
 

@@ -29,10 +29,6 @@ const KP_NAME_TO_GROUP_TYPE =
 
 export function SplitPoseByGroupXY(pose)
 {
-    if (!pose) {
-        return;
-    }
-    
     const split_groups = {};
     for (let i = 0; i < pose.length; i++)
     {
