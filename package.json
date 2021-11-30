@@ -7,7 +7,7 @@
     "dev": "cross-env NODE_ENV=development rollup -c -w",
     "server": "cross-env NODE_ENV=production node server/index.js",
     "server-dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server",
-    "start-prod": "npm-run-all build server",
+    "start": "npm-run-all build server",
     "start-dev": "npm-run-all -r -p dev server-dev"
   },
   "devDependencies": {
