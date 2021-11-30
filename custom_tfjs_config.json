@@ -1,0 +1,37 @@
+{
+    "kernels": [
+        "FromPixels",
+        "ExpandDims",
+        "CropAndResize",
+        "Cast",
+        "Unpack",
+        "Reshape",
+        "Sub",
+        "Multiply",
+        "FusedConv2D",
+        "fusedConv2d__op",
+        "FusedDepthwiseConv2D",
+        "fusedDepthwiseConv2d__op",
+        "Add",
+        "ResizeBilinear",
+        "DepthwiseConv2dNative",
+        "Sigmoid",
+        "ArgMax",
+        "FloorDiv",
+        "Pack",
+        "GatherNd",
+        "SquaredDifference",
+        "Sqrt",
+        "RealDiv",
+        "Concat",
+        "Identity"
+    ],
+    "backends": [
+        "webgl"
+    ],
+    "models": [
+        "./tf-models/singlepose-lightning/model.json"
+    ],
+    "outputPath": "./custom_tfjs",
+    "forwardModeOnly": true
+}

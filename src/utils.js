@@ -77,7 +77,7 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
     }
     
     if (!start_keypoints) {
-        console.warn(`No start keypoint found within range for frame ${frame}`);
+        // console.warn(`No start keypoint found within range for frame ${frame}`);
         start_keypoints = keypoints_values[0];
     }
     
@@ -95,7 +95,7 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
     }
     
     if (!end_keypoints) {
-        console.warn(`No end keypoint found within range for frame ${frame}`);
+        // console.warn(`No end keypoint found within range for frame ${frame}`);
         end_keypoints = keypoints_values[keypoints_values.length - 1];
     }
     
@@ -105,6 +105,10 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
     
     // Percentage of interpolation between the two frames we found
     const t = (frame - start_frame) / (end_frame - start_frame);
+    
+    if (!start_keypoints.keypoints || !end_keypoints.keypoints) {
+        return;
+    }
     
     // Interpolate between keypoints
     return {keypoints: start_keypoints.keypoints.map((keypoint) => {

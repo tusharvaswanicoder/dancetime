@@ -4,33 +4,10 @@ import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import postcss from 'rollup-plugin-postcss';
+import alias from '@rollup/plugin-alias';
+const path = require('path');
 
 const production = !process.env.ROLLUP_WATCH;
-
-function serve() {
-    let server;
-
-    function toExit() {
-        if (server) server.kill(0);
-    }
-
-    return {
-        writeBundle() {
-            if (server) return;
-            server = require('child_process').spawn(
-                'npm',
-                ['run', 'server-dev'],
-                {
-                    stdio: ['ignore', 'inherit', 'inherit'],
-                    shell: true,
-                }
-            );
-
-            process.on('SIGTERM', toExit);
-            process.on('exit', toExit);
-        },
-    };
-}
 
 export default {
     input: 'src/main.js',
@@ -41,13 +18,32 @@ export default {
         file: 'public/build/bundle.js',
     },
     plugins: [
+        // TODO: file bug reports to get this working
+        // alias({
+        //     entries: [
+        //         {
+        //             find: /@tensorflow\/tfjs-core$/,
+        //             replacement: path.resolve(
+        //                 __dirname,
+        //                 './custom_tfjs/custom_tfjs_core.js'
+        //             ),
+        //         },
+        //         {
+        //             find: '@tensorflow/tfjs-core/dist/ops/ops_for_converter',
+        //             replacement: path.resolve(
+        //                 __dirname,
+        //                 './custom_tfjs/custom_ops_for_converter.js'
+        //             ),
+        //         },
+        //     ],
+        // }),
         svelte({
             compilerOptions: {
                 // enable run-time checks when not in production
                 dev: !production,
             },
         }),
-		// Use postcss + autoprefixer to add vendor prefixes
+        // Use postcss + autoprefixer to add vendor prefixes
         postcss({
             sourceMap: !production,
             ...(production && {
@@ -59,11 +55,9 @@ export default {
                 // actually write the file for prod or livereload
                 extract: 'bundle.css',
             },
-			... {
-				plugins: [
-					require('autoprefixer')
-				]
-			}
+            ...{
+                plugins: [require('autoprefixer')],
+            },
         }),
         // we'll extract any component CSS out into
         // a separate file - better for performance
