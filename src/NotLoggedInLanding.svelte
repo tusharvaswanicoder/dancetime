@@ -1,5 +1,6 @@
 <script>
     import { flip } from 'svelte/animate';
+    import { fade, fly } from 'svelte/transition';
     
     let input_value = '';
     let submitted = false;
@@ -41,10 +42,10 @@
     }
 </script>
 
-<main>
+<main in:fade>
     <div class="container">
-        <h1>Dance Time</h1>
-        <h2>
+        <h1 in:fly={{delay: 400, y: -30, duration: 800}}>Dance Time</h1>
+        <h2 in:fly={{delay: 1000, y: 30, duration: 800}}>
             {#if !submitted}
                 Got an invitation? Enter your email below and we'll send you a magic
                 link to login.
@@ -52,7 +53,7 @@
                 Thanks! You should receive an email from us momentarily if you were invited.
             {/if}
         </h2>
-        <input class:hidden={submitted} placeholder="bob@example.com" bind:value={input_value} />
+        <input in:fade={{delay: 1600, duration: 600}} class:hidden={submitted} placeholder="bob@example.com" bind:value={input_value} />
         <div
             class={`button ${validateEmail(input_value.trim()) ? 'visible' : ''}`}
             on:click={ClickSubmitButton}
