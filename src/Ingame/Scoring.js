@@ -5,7 +5,7 @@ export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.5;
 
 // Amount of frames to lookback and average scores over to the the "current" frame's score
 export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = (fps) => {
-    return fps;
+    return fps * 2;
 }
 
 // Default weighting for each group. Scores are averaged based on these weights - should add to 1
@@ -84,12 +84,16 @@ export const GetScoreFromGroups = (score_groups, group_weights) => {
 
 // Returns the current score averaged over the past X frames, only taking the avg of top 5 scores in that group
 const NUM_TOP_SCORES = 5;
+
+// Outliers are below (1 - this) * top score and are not used in average calculation
+// TODO: consider making this use the average and also get rid of very high outliers?
+const OUTLIER_THRESHOLD = 0.1;
 export const GetCurrentTopXLastScores = (all_scores, current_frame, fps, num_scores) => {
     const num_scores_to_lookat = num_scores || NUM_TOP_SCORES;
     const num_frames_to_lookback = DEFAULT_SCORE_AVG_FRAME_LOOKBACK(fps);
     
     const last_scores = [];
-    // TODO: optimize with a stack
+    // TODO: optimize with a stack and store last X frame scores in memory or somethign to avoid this loop every time
     for (let frame = current_frame; frame > current_frame - num_frames_to_lookback && frame > 0; frame--) {
         const frame_score = all_scores[frame];
         
@@ -100,7 +104,9 @@ export const GetCurrentTopXLastScores = (all_scores, current_frame, fps, num_sco
     
     // Get average of top X scores in the last X frames
     const top_5_scores = last_scores.sort((a,b) => b - a).slice(0, num_scores_to_lookat);
-    return top_5_scores.reduce((a, b) => a + b) / top_5_scores.length;
+    const top_score_threshold = top_5_scores[0] * (1 - OUTLIER_THRESHOLD);
+    const top_x_scores_no_outliers = top_5_scores.filter((s) => s > top_score_threshold);
+    return top_x_scores_no_outliers.reduce((a, b) => a + b) / top_x_scores_no_outliers.length;
 }
 
 // Returns the current score averaged over the past X frames (instead of instantaneous on each frame)
@@ -128,7 +134,7 @@ export const JUDGEMENTS = {
     BEAUTIFUL: 2,
     MARVELOUS: 3,
     AWESOME: 4,
-    EXCELLENT: 5,
+    FANTASTIC: 5,
     SUPER: 6,
     GREAT: 7,
     GOOD: 8,
@@ -148,7 +154,7 @@ export const JUDGEMENT_VISUALS = {
     [JUDGEMENTS.BEAUTIFUL]:     {name: 'Beautiful', color: 'hsla(94, 100%, 55%, 1)'},
     [JUDGEMENTS.MARVELOUS]:     {name: 'Marvelous', color: 'hsla(135, 100%, 62%, 1)'},
     [JUDGEMENTS.AWESOME]:       {name: 'Awesome',   color: 'hsla(166, 100%, 58%, 1)'},
-    [JUDGEMENTS.EXCELLENT]:     {name: 'Excellent', color: 'hsla(164, 79%, 58%, 1)'},
+    [JUDGEMENTS.FANTASTIC]:     {name: 'Fantastic', color: 'hsla(164, 79%, 58%, 1)'},
     [JUDGEMENTS.SUPER]:         {name: 'Super',     color: 'hsla(180, 62%, 59%, 1)'},
     [JUDGEMENTS.GREAT]:         {name: 'Great',     color: 'hsla(207, 80%, 63%, 1)'},
     [JUDGEMENTS.GOOD]:          {name: 'Good',      color: 'hsla(236, 98%, 61%, 1)'},
@@ -165,7 +171,7 @@ export const JUDGEMENT_VALUES = {
     [JUDGEMENTS.BEAUTIFUL]:     0.93,
     [JUDGEMENTS.MARVELOUS]:     0.90,
     [JUDGEMENTS.AWESOME]:       0.88,
-    [JUDGEMENTS.EXCELLENT]:     0.85,
+    [JUDGEMENTS.FANTASTIC]:     0.85,
     [JUDGEMENTS.SUPER]:         0.83,
     [JUDGEMENTS.GREAT]:         0.80,
     [JUDGEMENTS.GOOD]:          0.75,

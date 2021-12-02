@@ -11,7 +11,8 @@
         currentFrameRawScores,
         ingameRawScores,
         currentAverageScore,
-        ingameCurrentJudgement
+        ingameCurrentJudgement,
+        ingameVideo
     } from '../stores';
     import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits.js';
     import {
@@ -126,7 +127,19 @@
             // Set all scores to 0
         }
 
-        raf = window.requestAnimationFrame(onFrame);
+        if (Math.ceil($ingameTime) < $ingameVideo.duration - 2) {
+            raf = window.requestAnimationFrame(onFrame);
+        } else {
+            console.log('ended')
+            const values = Object.values($ingameRawScores);
+            
+            let total = 0;
+            for (let value of values) {
+                total += value.overall;
+            }
+            
+            $testIngameScores = `TOTAL: ${(total / values.length * 100).toFixed(2)}`;
+        }
     };
 
     const startTFJS = async () => {
