@@ -151,39 +151,34 @@ export const JUDGEMENT_VISUAL_FREQUENCY = 0.5;
 // Visual data for judgements
 export const JUDGEMENT_VISUALS = {
     [JUDGEMENTS.PERFECT]:       {name: 'Perfect',   color: 'hsla(61, 100%, 50%, 1)'},
-    [JUDGEMENTS.BEAUTIFUL]:     {name: 'Beautiful', color: 'hsla(94, 100%, 55%, 1)'},
-    [JUDGEMENTS.MARVELOUS]:     {name: 'Marvelous', color: 'hsla(135, 100%, 62%, 1)'},
-    [JUDGEMENTS.AWESOME]:       {name: 'Awesome',   color: 'hsla(166, 100%, 58%, 1)'},
-    [JUDGEMENTS.FANTASTIC]:     {name: 'Fantastic', color: 'hsla(164, 79%, 58%, 1)'},
-    [JUDGEMENTS.SUPER]:         {name: 'Super',     color: 'hsla(180, 62%, 59%, 1)'},
-    [JUDGEMENTS.GREAT]:         {name: 'Great',     color: 'hsla(207, 80%, 63%, 1)'},
+    [JUDGEMENTS.MARVELOUS]:     {name: 'Marvelous', color: 'hsla(175, 100%, 58%, 1)'},
+    [JUDGEMENTS.GREAT]:         {name: 'Great',     color: 'hsla(135, 100%, 54%, 1)'},
     [JUDGEMENTS.GOOD]:          {name: 'Good',      color: 'hsla(236, 98%, 61%, 1)'},
-    [JUDGEMENTS.OK]:            {name: 'Ok',        color: 'hsla(269, 78%, 56%, 1)'},
-    [JUDGEMENTS.ALMOST]:        {name: 'Almost',    color: 'hsla(303, 71%, 53%, 1)'},
-    [JUDGEMENTS.WAY_OFF]:       {name: 'Way Off',   color: 'hsla(325, 95%, 56%, 1)'},
-    [JUDGEMENTS.BOO]:           {name: 'Boo',       color: 'hsla(342, 97%, 55%, 1)'},
+    [JUDGEMENTS.ALMOST]:        {name: 'Almost',    color: 'hsla(313, 100%, 51%, 1)'},
     [JUDGEMENTS.MISS]:          {name: 'Miss',      color: 'hsla(360, 100%, 58%, 1)'}
 }
 
 // Score must be greater than or equal to these values to get the judgement
-export const JUDGEMENT_VALUES = {
+export const JUDGEMENT_CUTOFFS = {
     [JUDGEMENTS.PERFECT]:       0.95,
-    [JUDGEMENTS.BEAUTIFUL]:     0.93,
     [JUDGEMENTS.MARVELOUS]:     0.90,
-    [JUDGEMENTS.AWESOME]:       0.88,
-    [JUDGEMENTS.FANTASTIC]:     0.85,
-    [JUDGEMENTS.SUPER]:         0.83,
-    [JUDGEMENTS.GREAT]:         0.80,
+    [JUDGEMENTS.GREAT]:         0.85,
     [JUDGEMENTS.GOOD]:          0.75,
-    [JUDGEMENTS.OK]:            0.70,
     [JUDGEMENTS.ALMOST]:        0.65,
-    [JUDGEMENTS.WAY_OFF]:       0.60,
-    [JUDGEMENTS.BOO]:           0.50,
     [JUDGEMENTS.MISS]:          0.00
 }
 
+export const JUDGEMENT_SCORE_VALUES = {
+    [JUDGEMENTS.PERFECT]:       5,
+    [JUDGEMENTS.MARVELOUS]:     4,
+    [JUDGEMENTS.GREAT]:         3,
+    [JUDGEMENTS.GOOD]:          2,
+    [JUDGEMENTS.ALMOST]:        1,
+    [JUDGEMENTS.MISS]:          0
+}
+
 export const GetJudgementFromScore = (score) => {
-    for (const [judgement, cutoff_score] of Object.entries(JUDGEMENT_VALUES)) {
+    for (const [judgement, cutoff_score] of Object.entries(JUDGEMENT_CUTOFFS)) {
         if (score >= cutoff_score) {
             return judgement;
         }

@@ -12,7 +12,13 @@
         createVideoFPS,
         createLoadingPercent,
         createThumbnailURLs,
-        createProject
+        createProject,
+        createCTX,
+        createProjectUnsaved,
+        createAAInProgress,
+        createEditorDisabled,
+        createFramesAnalyzed,
+        createTabState
     } from "../stores";
     
     const CREATE_STATE = {
@@ -35,14 +41,36 @@
     let createState = CREATE_STATE.PROJECTS_VIEW;
 
     const OpenProject = (project) => {
+        if ($createProject) {
+            return;
+        }
+        
         $createLoadingPercent = 0;
         $createProject = project;
         createState = CREATE_STATE.EDITOR_VIEW;
     }
     
     const ExitEditor = () => {
-        $createProject = null;
         createState = CREATE_STATE.PROJECTS_VIEW;
+        setTimeout(() => {
+            $createCanvas = null;
+            $createCTX = null;
+            $createVideo = null;
+            $createAudio = null;
+            $createVideoCurrentTime = 0;
+            $createVideoDuration = 0;
+            $createWaveSurfer = null;
+            $createVideoFPS = 30;
+            $createLoadingPercent = 0;
+            $createThumbnailURLs = {};
+            $createProject = null;
+            $createProjectUnsaved = false;
+            $createAAInProgress = false;
+            $createEditorDisabled = false;
+            $createFramesAnalyzed = {};
+            $createTabState = null;
+            $createProject = null;
+        }, 500);
     }
     
 </script>

@@ -15,7 +15,9 @@ import {
     ingameRawScores,
     currentFrameRawScores,
     currentAverageScore,
-    ingameCurrentJudgement
+    ingameCurrentJudgement,
+    ingameFinalScore,
+    ingameEvalScreenShouldShow
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -34,6 +36,8 @@ export const PlayChart = (metadata, keypoints) => {
     currentFrameRawScores.set(0);
     currentAverageScore.set(0);
     ingameCurrentJudgement.set(null);
+    ingameFinalScore.set(0);
+    ingameEvalScreenShouldShow.set(false);
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

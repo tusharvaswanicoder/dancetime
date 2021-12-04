@@ -36,7 +36,7 @@
     }
     
     const animationCallback = () => {
-        if ($createVideo) {
+        if ($createVideo && $createProject) {
             drawImageProp($createCTX, $createVideo);
             
             if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress && !seeking) {

@@ -1,7 +1,8 @@
 <script>
     import IngameLoadingScreen from "./IngameLoadingScreen.svelte";
     import IngameScreen from "./IngameScreen.svelte";
-    import { ingameIsLoading, ingameScreenShouldShow } from '../stores';
+    import IngameEvaluationScreen from './IngameEvaluationScreen.svelte';
+    import { ingameIsLoading, ingameScreenShouldShow, ingameEvalScreenShouldShow } from '../stores';
 </script>
 
 <main>
@@ -10,6 +11,9 @@
     {/if}
     {#if $ingameScreenShouldShow}
         <IngameScreen />
+    {/if}
+    {#if $ingameEvalScreenShouldShow}
+        <IngameEvaluationScreen />
     {/if}
 </main>
 

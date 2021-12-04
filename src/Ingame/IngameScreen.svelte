@@ -4,8 +4,18 @@
     import IngameLookahead from './IngameLookahead.svelte';
     import IngameScores from './IngameScores.svelte';
     import IngameTFJS from './IngameTFJS.svelte';
+    import { ingameTime, ingameVideo, ingameEvalScreenShouldShow, ingameScreenShouldShow } from '../stores';
     
-    import { testIngameScores } from '../stores';
+    // Detect when song is over and show ingame eval screen
+    $: {
+        if (!$ingameEvalScreenShouldShow && $ingameVideo && Math.ceil($ingameTime) > $ingameVideo.duration - 1) {
+            $ingameEvalScreenShouldShow = true;
+            
+            setTimeout(() => {
+                $ingameScreenShouldShow = false;
+            }, 1000);
+        }
+    }
     
 </script>
 

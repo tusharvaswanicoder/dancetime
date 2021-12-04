@@ -149,7 +149,9 @@
     
     let AAsummary = [];
     $: {
-        AAsummary = GetAnalysisSummary($createProject, keypointScoreThreshold[0]);
+        if ($createProject) {
+            AAsummary = GetAnalysisSummary($createProject, keypointScoreThreshold[0]);
+        }
 
         setTimeout(() => {
             // clickPlaytestIcon() // JUST FOR TESTING

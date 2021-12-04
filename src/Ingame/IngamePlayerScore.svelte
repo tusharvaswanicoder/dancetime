@@ -115,7 +115,8 @@ import { onMount } from 'svelte';
         text-transform: uppercase;
         margin-left: 10px;
         --fallback-color: 'red';
-        text-shadow: 0px 0px 16px var(--judgement-color, var(--fallback-color)), 
+        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5),
+                     0px 0px 16px var(--judgement-color, var(--fallback-color)), 
                      0px 0px 8px var(--judgement-color, var(--fallback-color)), 
                      0px 0px 6px var(--judgement-color, var(--fallback-color));
     }

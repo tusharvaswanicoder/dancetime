@@ -52,7 +52,7 @@ export const COMPONENT_DATA = {
     [COMPONENT_TYPE.VIDEO_IN_OUT_POINTS]:   {name: 'Video In/Out Points', limit: 1, get_default_data: (project) => {
         return {
             in: 0,
-            out: project.length
+            out: project.duration
         }
     }},
     [COMPONENT_TYPE.SCORING_AREAS]:         {name: 'Scoring Areas', limit: 1, get_default_data: (project) => {

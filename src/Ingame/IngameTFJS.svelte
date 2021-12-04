@@ -12,7 +12,7 @@
         ingameRawScores,
         currentAverageScore,
         ingameCurrentJudgement,
-        ingameVideo
+        ingameEvalScreenShouldShow
     } from '../stores';
     import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits.js';
     import {
@@ -72,6 +72,7 @@
         let scoresString = '';
         const group_scores = {};
         for (const group_name in groups) {
+            // TODO: add frame lookback ~15 frames or so to get highest score with past 15 frames
             const similarity = shapeSimilarity(
                 model_groups[group_name],
                 groups[group_name],
@@ -127,7 +128,7 @@
             // Set all scores to 0
         }
 
-        if (Math.ceil($ingameTime) < $ingameVideo.duration - 2) {
+        if (!$ingameEvalScreenShouldShow) {
             raf = window.requestAnimationFrame(onFrame);
         } else {
             console.log('ended')
