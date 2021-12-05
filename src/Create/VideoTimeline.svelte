@@ -66,6 +66,10 @@
                     $createLoadingPercent = progress;
                 }
             );
+            
+            if (!$createProject) {
+                return;
+            }
 
             $createThumbnailURLs = {};
 

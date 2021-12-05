@@ -8,138 +8,53 @@
         TFJSReady,
         playGameMetadata,
         ingameTime,
-        currentFrameRawScores,
         ingameRawScores,
-        currentAverageScore,
-        ingameCurrentJudgement,
-        ingameEvalScreenShouldShow
+        ingameEvalScreenShouldShow,
+        ingameJudgementTotals,
+        ingameAdjustedScores,
+        ingameFinalScore,
+        ingameRawJudgements
     } from '../stores';
-    import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits.js';
     import {
         GetFrameNumberFromTime,
-        GetKeypointsForFrame,
         sleep,
     } from '../utils';
     import {
-        GetScoreFromGroups,
         DEFAULT_ACCURACY_SCORE_THRESHOLD,
-        GetCurrentAvgScore,
-        GetJudgementFromScore,
-        JUDGEMENT_VISUALS,
-        GetCurrentTopXLastScores
+        AnalyzePose,
+        GetTotalFinalScore
     } from './Scoring';
-    import { shapeSimilarity } from 'curve-matcher';
 
     let raf;
     let personDetected = false;
 
-    const analyzePose = async (pose, frame) => {
-        if (!pose) {
-            return;
-        }
-        
-        // Detect if there is a person in the frame by checking all keypoints scores to see if all points are good
-        if (!personDetected) {
-            const keypointsUnderThreshold = pose.keypoints.filter(
-                (keypoint) => keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
-            );
-            personDetected = keypointsUnderThreshold.length == 0;
-        }
-
-        if (pose.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
-            $testIngameScores = `0.00`;
-            return;
-        }
-
-        const videoFrameKeypoints = GetKeypointsForFrame(
-            $playGameMetadata.keypoints,
-            frame
-        );
-        if (!videoFrameKeypoints) {
-            // Set scores to 0?
-            $testIngameScores = `0.00`;
-            return;
-        }
-
-        if (!pose.keypoints || !videoFrameKeypoints.keypoints) {
-            $testIngameScores = `0.00`;
-            return;
-        }
-
-        const groups = SplitPoseByGroupXY(pose.keypoints);
-        const model_groups = SplitPoseByGroupXY(videoFrameKeypoints.keypoints);
-        
-        let scoresString = '';
-        const group_scores = {};
-        for (const group_name in groups) {
-            // TODO: add frame lookback ~15 frames or so to get highest score with past 15 frames
-            const similarity = shapeSimilarity(
-                model_groups[group_name],
-                groups[group_name],
-                {
-                    restrictRotationAngle: 0.05 * Math.PI,
-                    estimationPoints: 50,
-                    rotations: 10,
-                }
-            );
-
-            group_scores[group_name] = similarity;
-        }
-
-        const score = GetScoreFromGroups(group_scores);
-        $currentFrameRawScores = score;
-        $ingameRawScores[frame] = score;
-
-        $currentAverageScore = GetCurrentAvgScore(
-            $ingameRawScores,
-            frame,
-            $playGameMetadata.fps
-        );
-        const currentAvg5Score = GetCurrentTopXLastScores(
-            $ingameRawScores,
-            frame,
-            $playGameMetadata.fps
-        );
-
-        scoresString = `${$currentAverageScore.toFixed(3)} - ${currentAvg5Score.toFixed(3)}`;
-
-        for (const group_name in groups) {
-            scoresString += `   ${group_name}: ${score.groups[
-                group_name
-            ].toFixed(2)}`;
-        }
-
-        const judgement = GetJudgementFromScore(currentAvg5Score);
-        scoresString += ` -- ${JUDGEMENT_VISUALS[judgement].name}`;
-        $ingameCurrentJudgement = judgement;
-
-        $testIngameScores = scoresString;
-    };
-
     const onFrame = async () => {
+        const frame = GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps);
         const pose = await tfjs.detectFrame($ingameCameraCanvas);
 
         if (pose) {
-            analyzePose(
-                pose,
-                GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps)
-            );
-        } else {
-            // Set all scores to 0
+            if (!personDetected) {
+                const keypointsUnderThreshold = pose.keypoints.filter(
+                    (keypoint) => keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
+                );
+                personDetected = keypointsUnderThreshold.length == 0;
+            } else {
+                AnalyzePose(
+                    pose,
+                    $ingameTime,
+                    $playGameMetadata,
+                    $ingameRawScores,
+                    $ingameAdjustedScores,
+                    $ingameJudgementTotals,
+                    $ingameRawJudgements
+                );
+            }
         }
 
         if (!$ingameEvalScreenShouldShow) {
             raf = window.requestAnimationFrame(onFrame);
         } else {
-            console.log('ended')
-            const values = Object.values($ingameRawScores);
-            
-            let total = 0;
-            for (let value of values) {
-                total += value.overall;
-            }
-            
-            $testIngameScores = `TOTAL: ${(total / values.length * 100).toFixed(2)}`;
+            $ingameFinalScore = GetTotalFinalScore($ingameJudgementTotals);
         }
     };
 

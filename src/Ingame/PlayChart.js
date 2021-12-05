@@ -13,11 +13,12 @@ import {
     ingameCTX,
     TFJSReady,
     ingameRawScores,
-    currentFrameRawScores,
-    currentAverageScore,
     ingameCurrentJudgement,
     ingameFinalScore,
-    ingameEvalScreenShouldShow
+    ingameEvalScreenShouldShow,
+    ingameJudgementTotals,
+    ingameAdjustedScores,
+    ingameRawJudgements
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -33,11 +34,12 @@ export const PlayChart = (metadata, keypoints) => {
     ingameCTX.set(null);
     TFJSReady.set(false);
     ingameRawScores.set({});
-    currentFrameRawScores.set(0);
-    currentAverageScore.set(0);
     ingameCurrentJudgement.set(null);
     ingameFinalScore.set(0);
     ingameEvalScreenShouldShow.set(false);
+    ingameJudgementTotals.set({});
+    ingameAdjustedScores.set({});
+    ingameRawJudgements.set({});
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

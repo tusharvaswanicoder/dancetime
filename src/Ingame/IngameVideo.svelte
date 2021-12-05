@@ -65,7 +65,7 @@
 
     const onVideoPlay = () => {
         $ingameAudio.play();
-        $ingameAudio.volume = 0.05;
+        $ingameAudio.volume = 0.2;
     };
 
     const onVideoPause = () => {

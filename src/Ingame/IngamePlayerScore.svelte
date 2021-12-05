@@ -14,14 +14,12 @@ import { onMount } from 'svelte';
             return;
         }
         
-        if (currentJudgement != player_data.judgement) {
-            currentJudgement = player_data.judgement;
-            if (judgement_elem && player_data.judgement) {
-                judgement_elem.classList.remove('judgement_anim');
-                // Magic line to refresh https://css-tricks.com/restart-css-animation/
-                void judgement_elem.offsetWidth;
-                judgement_elem.classList.add('judgement_anim');
-            }
+        currentJudgement = player_data.judgement;
+        if (judgement_elem && player_data.judgement) {
+            judgement_elem.classList.remove('judgement_anim');
+            // Magic line to refresh https://css-tricks.com/restart-css-animation/
+            void judgement_elem.offsetWidth;
+            judgement_elem.classList.add('judgement_anim');
         }
         
         if (refreshTimeout) {
@@ -115,7 +113,8 @@ import { onMount } from 'svelte';
         text-transform: uppercase;
         margin-left: 10px;
         --fallback-color: 'red';
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5),
+        text-shadow: 0px 1px 2px rgba(0, 0, 0, 1),
+                     0px 2px 4px rgba(0, 0, 0, 0.75),
                      0px 0px 16px var(--judgement-color, var(--fallback-color)), 
                      0px 0px 8px var(--judgement-color, var(--fallback-color)), 
                      0px 0px 6px var(--judgement-color, var(--fallback-color));

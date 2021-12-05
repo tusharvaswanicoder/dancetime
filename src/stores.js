@@ -35,13 +35,12 @@ export const TFJSReady = writable(false);
 
 // All ingame scores per frame (only frames that were used though, some may be skipped)
 export const ingameRawScores = writable({});
-// Score on the current frame
-export const currentFrameRawScores = writable(0);
-// Score at the current time averaged over the last X frames (see Scoring.js for frame lookback)
-export const currentAverageScore = writable(0);
+export const ingameAdjustedScores = writable({});
 export const ingameCurrentJudgement = writable();
 export const ingameFinalScore = writable(0);
 export const ingameEvalScreenShouldShow = writable(false);
+export const ingameJudgementTotals = writable({});
+export const ingameRawJudgements = writable({});
 
 export const testIngameScores = writable('');
 

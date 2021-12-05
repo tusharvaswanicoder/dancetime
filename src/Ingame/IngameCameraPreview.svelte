@@ -8,7 +8,7 @@
     
     // Update canvas on frame to use mirrored version in TFJS
     const onFrame = () => {
-        if ($ingameCamera.readyState == 4) {
+        if ($ingameCamera && $ingameCamera.readyState == 4) {
             ingameCameraCTX.translate($ingameCamera.videoWidth, 0);
             ingameCameraCTX.scale(-1, 1);
             drawImageProp(ingameCameraCTX, $ingameCamera);
