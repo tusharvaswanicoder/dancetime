@@ -1,3 +1,5 @@
+import { COMPONENT_TYPE } from './constants';
+
 export const ConvertDurationToNiceString = (duration) => {
     if (!duration) {
         return '--';
@@ -130,6 +132,19 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
 }
 
 // Navigation
+export const CreateNavToTime = (time, video, audio, disabled) => {
+    if (!video) {
+        return;
+    }
+
+    if (disabled) {
+        return;
+    }
+
+    video.currentTime = time;
+    audio.currentTime = time;
+};
+
 export const CreateNavToBeginning = (video, audio, disabled) => {
     if (!video) {
         return;
@@ -324,4 +339,14 @@ export const sleep = (ms) => {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
+}
+
+export const GetVideoStartTimeFromMetadata = (metadata) => {
+    const in_out_component = metadata.components.find((component) => component.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS);
+    return in_out_component ? in_out_component.in : 0;
+}
+
+export const GetVideoEndTimeFromMetadata = (metadata) => {
+    const in_out_component = metadata.components.find((component) => component.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS);
+    return in_out_component ? in_out_component.out : metadata.duration;
 }

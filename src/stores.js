@@ -63,3 +63,5 @@ export const createAAInProgress = writable(false);
 export const createEditorDisabled = writable(false);
 export const createFramesAnalyzed = writable({});
 export const createTabState = writable();
+export const createSelectedComponent = writable({});
+export const createSelectedComponentIndex = writable(-1);

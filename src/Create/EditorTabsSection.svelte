@@ -5,7 +5,7 @@
     import { EDITOR_TAB_STATE } from '../constants';
     import { createAAInProgress, createTabState } from '../stores';
     
-    let tab_state = EDITOR_TAB_STATE.REVIEW;
+    let tab_state = EDITOR_TAB_STATE.EDIT;
     
     const tabs = {
         [EDITOR_TAB_STATE.EDIT]: EditTab,

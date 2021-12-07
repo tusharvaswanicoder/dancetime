@@ -1,19 +1,43 @@
+<script context="module">
+    // FYI: script context module variables are not reactive - use stores to make them reactive
+    import { writable } from 'svelte/store';
+    const selectedComponent = writable();
+</script>
+
 <script>
     import Icon from '../../Icon.svelte';
     import { slide } from 'svelte/transition'
     import { cubicOut } from 'svelte/easing';
+    import { createSelectedComponent, createSelectedComponentIndex } from '../../stores';
     export let title = '';
     
+    export let component = {};
     export let selected = false;
+    export let componentIndex;
     let contentElement;
     
     const OnClickTitleBar = () => {
-        selected = !selected;
+        $selectedComponent = selected ? null : contentElement;
     }
     
     const OnClick = (e) => {
         if (e.target == contentElement && !selected) {
-            selected = !selected;
+            $selectedComponent = e.target;
+        }
+    }
+    
+    $: {
+        selected = $selectedComponent == contentElement
+    }
+    
+    $: {
+        onComponentSelected(selected);
+    }
+    
+    const onComponentSelected = (selected) => {
+        if (selected || $createSelectedComponentIndex == componentIndex) {
+            $createSelectedComponent = selected ? component : {};
+            $createSelectedComponentIndex = selected ? componentIndex : -1;
         }
     }
 </script>

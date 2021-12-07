@@ -1,5 +1,5 @@
 <script>
-    import { fade, scale } from "svelte/transition";
+    import { scale } from "svelte/transition";
     import { onMount } from "svelte";
     import { tweened } from 'svelte/motion';
 	import { cubicOut } from 'svelte/easing';
@@ -19,7 +19,7 @@
     })
 </script>
 
-<main transition:fade={{ duration: 400, easing: cubicOut }}>
+<main>
     <div class="content">
         <h1 in:scale={{ delay: delay, easing: cubicOut, duration: 8000, start: 0, opacity: 1 }}>
             {($score).toFixed(2)}
@@ -42,8 +42,21 @@
         cursor: default;
         user-select: none;
         color: var(--color-gray-100);
+        clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 25%, 0% 25%, 0% 25%, 0% 25%, 0% 25%, 0% 25%, 0% 25%);
+        animation: 1s ease-in-out show-anim reverse forwards;
     }
 
+    @keyframes show-anim {
+        0% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 25%, 75% 25%, 75% 75%, 25% 75%, 25% 50%, 50% 50%, 25% 50%, 25% 75%, 75% 75%, 75% 25%, 0% 25%); }
+        14.25% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 25%, 75% 25%, 75% 75%, 50% 75%, 50% 50%, 50% 50%, 25% 50%, 25% 75%, 75% 75%, 75% 25%, 0% 25%); }
+        28.5% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 25%, 75% 25%, 75% 50%, 50% 50%, 50% 50%, 50% 50%, 25% 50%, 25% 75%, 75% 75%, 75% 25%, 0% 25%); }
+        42.75% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 25%, 25% 25%, 25% 50%, 25% 50%, 25% 50%, 25% 50%, 25% 50%, 25% 75%, 75% 75%, 75% 25%, 0% 25%); }
+        57% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 75%, 25% 75%, 25% 75%, 25% 75%, 25% 75%, 25% 75%, 25% 75%, 25% 75%, 75% 75%, 75% 25%, 0% 25%); }
+        71.25% { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 75% 100%, 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 75%, 75% 25%, 0% 25%); }
+        85.5% { clip-path: polygon(0% 0%, 100% 0%, 100% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 75% 25%, 0% 25%); }
+        100% {clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 25%, 0% 25%, 0% 25%, 0% 25%, 0% 25%, 0% 25%, 0% 25%); }
+    }
+    
     div.content {
         display: grid;
         place-items: center;

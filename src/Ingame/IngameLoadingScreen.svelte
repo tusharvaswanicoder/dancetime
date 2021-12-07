@@ -20,7 +20,7 @@
         ingameIsLoading,
         TFJSReady
     } from "../stores";
-    import { HasCameraAccess, RequestCameraAccess, sleep } from "../utils";
+    import { HasCameraAccess, RequestCameraAccess, sleep, GetVideoStartTimeFromMetadata } from "../utils";
 
     let preLoadbarTime = 2200;
     let loadbarTime = 3000;
@@ -91,6 +91,10 @@
             // Enter gameplay woo
             $ingameIsLoading = false;
             
+            const startTime = GetVideoStartTimeFromMetadata($playGameMetadata);
+            $ingameVideo.currentTime = startTime;
+            $ingameAudio.currentTime = startTime;
+                
             setTimeout(() => {
                 $ingameVideo.play();
                 $ingameAudio.play();

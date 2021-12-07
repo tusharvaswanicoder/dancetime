@@ -6,7 +6,7 @@
         getThumbnailsInParalell,
     } from './VideoThumbnailGenerator';
     import { dlManager } from '../Downloads/DownloadManager';
-    import { THUMBNAIL_INTERVAL } from '../constants';
+    import { THUMBNAIL_INTERVAL, COMPONENT_TYPE } from '../constants';
     import { GetMediaBlobFromDB } from '../Downloads/VideoBlobManager';
     import {
         createWaveSurfer,
@@ -19,9 +19,11 @@
         createThumbnailURLs,
         createProject,
         createEditorDisabled,
+        createSelectedComponent
     } from '../stores';
     import { ConvertDurationToNiceStringWithFPS } from '../utils';
     import Icon from '../Icon.svelte';
+    import VideoInOutPointsTimelineDisplay from './EditComponents/Displays/VideoInOutPointsTimelineDisplay.svelte';
 
     let timelineWidth = 0;
     let timelineHeight = 0;
@@ -216,6 +218,9 @@
         </div>
     </div>
     <div class="timeline-container">
+        <div class='timeline-underlays'>
+            <!-- All underlay elements go here -->
+        </div>
         <div
             class="thumbnails"
             bind:clientWidth={timelineWidth}
@@ -248,6 +253,12 @@
         </div>
         <div class="keyframes" />
         <div class="waveform" id="waveform" />
+        <div class='timeline-overlays'>
+            <!-- All overlay elements go here -->
+            {#if $createSelectedComponent.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS}
+                <VideoInOutPointsTimelineDisplay />
+            {/if}
+        </div>
         <div class="seeker" style={`left: ${seekerProgressPercent}`}>
             <div class="head"><Icon name={'create_seeker_head'} /></div>
             <div class="tail" />
@@ -428,4 +439,15 @@
         height: 100%;
         background-color: var(--seeker-color);
     }
+    
+    div.timeline-overlays, div.timeline-underlays {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+    
+    div.timeline-overlays {
+        z-index: 4;
+    }
+    
 </style>

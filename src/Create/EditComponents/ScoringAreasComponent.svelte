@@ -1,6 +1,6 @@
 <script>
     import BasicComponent from './BasicComponent.svelte';
-    import { createProject, createProjectUnsaved } from '../../stores';
+    import { createProject, createProjectUnsaved, createSelectedComponent, createSelectedComponentIndex } from '../../stores';
     import DeleteRow from './DeleteRow.svelte';
     import Dropdown from '../../Dropdown.svelte';
     import KeyframeControls from './KeyframeControls.svelte';
@@ -11,18 +11,19 @@
 
     const type = COMPONENT_TYPE.SCORING_AREAS;
     let componentSelected = false;
+    export let component = {};
     export let componentIndex;
 
     const options = ['Yes', 'No']
     let selectedOption = options[0];
-
+    
     const onDropdownChanged = (new_val, old_val) => {
         selectedOption = new_val;
         $createProjectUnsaved = true;
     };
 </script>
 
-<BasicComponent selected={componentSelected} title={COMPONENT_DATA[type].name}>
+<BasicComponent selected={componentSelected} {component} {componentIndex} title={COMPONENT_DATA[type].name}>
     <div class="content-container">
         <h2>Scoring Enabled</h2>
         <div>

@@ -10,12 +10,13 @@
         ingameAudio,
         ingameAudioURL,
         playGameMetadata,
-        ingameTime
+        ingameTime,
+        ingameEvalScreenShouldShow
     } from '../stores';
     import { drawImageProp, GetKeypointsForFrame, GetFrameNumberFromTime } from '../utils';
     
     const animationCallback = () => {
-        if ($ingameVideo) {
+        if ($ingameVideo && !$ingameEvalScreenShouldShow) {
             drawImageProp($ingameCTX, $ingameVideo);
             
             const keypoints = GetKeypointsForFrame($playGameMetadata.keypoints, GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps));
