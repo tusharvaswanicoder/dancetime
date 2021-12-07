@@ -18,7 +18,8 @@
         ingameScreenShouldShow,
         ingameErrorMessage,
         ingameIsLoading,
-        TFJSReady
+        TFJSReady,
+        ingameShouldScore
     } from "../stores";
     import { HasCameraAccess, RequestCameraAccess, sleep, GetVideoStartTimeFromMetadata } from "../utils";
 
@@ -98,7 +99,8 @@
             setTimeout(() => {
                 $ingameVideo.play();
                 $ingameAudio.play();
-            }, 1000);
+                $ingameShouldScore = true;
+            }, 2000);
         }
     }
 

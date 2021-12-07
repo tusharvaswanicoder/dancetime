@@ -32,6 +32,7 @@ export const ingameTime = writable(0);
 export const ingameCamera = writable();
 export const ingameCameraCanvas = writable();
 export const TFJSReady = writable(false);
+export const ingameShouldScore = writable(false);
 
 // All ingame scores per frame (only frames that were used though, some may be skipped)
 export const ingameRawScores = writable({});

@@ -16,13 +16,13 @@ export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.5;
 
 // Amount of frames to lookback and average scores over to the the "current" frame's score
 export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = (fps) => {
-    return fps * 2;
+    return fps;
 };
 
 // Default weighting for each group. Scores are averaged based on these weights - should add to 1
 export const DEFAULT_GROUP_WEIGHTS = {
-    [GROUP_TYPE.Head]: 0.1,
-    [GROUP_TYPE.Torso]: 0.45,
+    [GROUP_TYPE.Head]: 0.05,
+    [GROUP_TYPE.Torso]: 0.50,
     [GROUP_TYPE.Legs]: 0.45,
 };
 
@@ -99,7 +99,7 @@ export const GetScoreFromGroups = (score_groups, group_weights) => {
 // TODO: try only filtering out outliers based on the average of last X scores in case there was an analysis error
 
 // Returns the current score averaged over the past X frames, only taking the avg of top 5 scores in that group
-const NUM_TOP_SCORES = 5;
+const NUM_TOP_SCORES = 8;
 
 // Outliers are below (1 - this) * top score and are not used in average calculation
 // TODO: consider making this use the average and also get rid of very high outliers?
@@ -132,18 +132,18 @@ export const GetCurrentTopXLastScores = (
         .sort((a, b) => b - a)
         .slice(0, num_scores_to_lookat);
     const top_score_threshold = top_5_scores[0] * (1 - OUTLIER_THRESHOLD);
-    const top_x_scores_no_outliers = top_5_scores.filter(
+    const last_scores_no_outliers = last_scores.filter(
         (s) => s > top_score_threshold
     );
 
-    if (top_x_scores_no_outliers.length == 0) {
+    if (last_scores_no_outliers.length == 0) {
         console.warn('No top x scores found');
         return 0;
     }
 
     return (
-        top_x_scores_no_outliers.reduce((a, b) => a + b) /
-        top_x_scores_no_outliers.length
+        last_scores_no_outliers.reduce((a, b) => a + b) /
+        last_scores_no_outliers.length
     );
 };
 

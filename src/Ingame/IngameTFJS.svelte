@@ -13,11 +13,13 @@
         ingameJudgementTotals,
         ingameAdjustedScores,
         ingameFinalScore,
-        ingameRawJudgements
+        ingameRawJudgements,
+        ingameVideo,
+        ingameShouldScore
     } from '../stores';
     import {
         GetFrameNumberFromTime,
-        sleep,
+        sleep
     } from '../utils';
     import {
         DEFAULT_ACCURACY_SCORE_THRESHOLD,
@@ -38,7 +40,7 @@
                     (keypoint) => keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
                 );
                 personDetected = keypointsUnderThreshold.length == 0;
-            } else {
+            } else if (!$ingameVideo.paused && $ingameShouldScore) {
                 AnalyzePose(
                     pose,
                     $ingameTime,

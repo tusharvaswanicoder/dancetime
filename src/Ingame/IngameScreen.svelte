@@ -10,6 +10,7 @@
         playGameMetadata,
         ingameEvalScreenShouldShow,
         ingameScreenShouldShow,
+        ingameShouldScore
     } from '../stores';
     import { GetVideoEndTimeFromMetadata } from '../utils';
 
@@ -21,6 +22,7 @@
             $ingameTime >=
                 GetVideoEndTimeFromMetadata($playGameMetadata)
         ) {
+            $ingameShouldScore = false;
             $ingameEvalScreenShouldShow = true;
             $ingameVideo.pause;
 

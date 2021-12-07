@@ -2,7 +2,7 @@
 import { onMount } from 'svelte';
 
     import { JUDGEMENT_VISUAL_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring';
-    import { ingameVideo } from '../stores';
+    import { ingameVideo, ingameShouldScore } from '../stores';
     export let player_data = { name: 'Unknown' };
     
     let judgement_elem;
@@ -14,12 +14,14 @@ import { onMount } from 'svelte';
             return;
         }
         
-        currentJudgement = player_data.judgement;
-        if (judgement_elem && player_data.judgement) {
-            judgement_elem.classList.remove('judgement_anim');
-            // Magic line to refresh https://css-tricks.com/restart-css-animation/
-            void judgement_elem.offsetWidth;
-            judgement_elem.classList.add('judgement_anim');
+        if ($ingameShouldScore) {
+            currentJudgement = player_data.judgement;
+            if (judgement_elem && currentJudgement) {
+                judgement_elem.classList.remove('judgement_anim');
+                // Magic line to refresh https://css-tricks.com/restart-css-animation/
+                void judgement_elem.offsetWidth;
+                judgement_elem.classList.add('judgement_anim');
+            }
         }
         
         if (refreshTimeout) {
