@@ -1,7 +1,7 @@
 <script>
 import { onMount } from 'svelte';
 
-    import { JUDGEMENT_VISUAL_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring';
+    import { JUDGEMENT_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring/Judgements';
     import { ingameVideo, ingameShouldScore, ingameNumStars } from '../stores';
     import Icon from '../Icon.svelte';
     export let player_data = { name: 'Unknown' };
@@ -38,7 +38,7 @@ import { onMount } from 'svelte';
         refreshTimeout = setTimeout(() => {
             refreshTimeout = null;
             refreshJudgementAnim();
-        }, JUDGEMENT_VISUAL_FREQUENCY * 1000);
+        }, JUDGEMENT_FREQUENCY * 1000);
     }
     
     onMount(() => {
@@ -56,9 +56,26 @@ import { onMount } from 'svelte';
     // 1-x for in place
     $: starsArray = Array.from({length: $ingameNumStars}, () => 1)
     
-    
+    const starAudio = {}
+    let old_num_stars = 0;
+    $: {
+        if ($ingameNumStars > old_num_stars) {
+            old_num_stars = $ingameNumStars;
+            
+            if (starAudio[$ingameNumStars]) {
+                starAudio[$ingameNumStars].play();
+            }
+        }
+    }
     
 </script>
+
+
+<audio bind:this={starAudio[1]} src='../sfx/got_star_1.ogg' />
+<audio bind:this={starAudio[2]} src='../sfx/got_star_2.ogg' />
+<audio bind:this={starAudio[3]} src='../sfx/got_star_3.ogg' />
+<audio bind:this={starAudio[4]} src='../sfx/got_star_4.ogg' />
+
 
 <main>
     <div class='background'></div>
@@ -85,7 +102,7 @@ import { onMount } from 'svelte';
             class="judgement judgement_anim"
             style={`--judgement-color: ${
                 JUDGEMENT_VISUALS[currentJudgement].color
-            }; --judgement-frequency: ${JUDGEMENT_VISUAL_FREQUENCY}s`}
+            }; --judgement-frequency: ${JUDGEMENT_FREQUENCY}s`}
         >
             {JUDGEMENT_VISUALS[currentJudgement].name}
         </h2>

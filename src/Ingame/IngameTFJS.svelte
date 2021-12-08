@@ -23,12 +23,12 @@
         sleep
     } from '../utils';
     import {
-        DEFAULT_ACCURACY_SCORE_THRESHOLD,
         AnalyzePose,
-        GetTotalFinalScore,
-        GetNumStarsFromPerfectPercentage,
-        GetPerfectPercentage
-    } from './Scoring';
+        GetTotalFinalScore
+    } from './Scoring/Scoring';
+    import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring/Defaults';
+    import { GetNumStarsFromPerfectPercentage } from './Scoring/Stars';
+    import { GetPerfectPercentage } from './Scoring/Judgements';
 
     let raf;
     let personDetected = false;
