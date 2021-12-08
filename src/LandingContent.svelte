@@ -5,6 +5,15 @@
     import IngameContent from "./Ingame/IngameContent.svelte";
     import { GAMESTATE } from "./constants";
     import { settingsOpen, gameState } from "./stores";
+    
+    // Score screen testing
+    // import IngameEvaluationScreen from "./Ingame/IngameEvaluationScreen.svelte";
+    // import { ingameFinalScore } from './stores';
+    // import { onMount } from "svelte";
+    
+    // onMount(() => {
+    //     $ingameFinalScore = 95;
+    // })
 
 </script>
 
@@ -20,6 +29,7 @@
     {#if $settingsOpen}
         <SettingsScreen />
     {/if}
+    <!-- <IngameEvaluationScreen /> -->
 </main>
 
 <style>

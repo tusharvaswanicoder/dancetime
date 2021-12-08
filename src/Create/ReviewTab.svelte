@@ -154,7 +154,7 @@
         }
 
         setTimeout(() => {
-            // clickPlaytestIcon() // JUST FOR TESTING
+            clickPlaytestIcon() // JUST FOR TESTING
         }, 3000);
     }
 

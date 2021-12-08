@@ -2,12 +2,18 @@
 import { onMount } from 'svelte';
 
     import { JUDGEMENT_VISUAL_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring';
-    import { ingameVideo, ingameShouldScore } from '../stores';
+    import { ingameVideo, ingameShouldScore, ingameNumStars } from '../stores';
+    import Icon from '../Icon.svelte';
     export let player_data = { name: 'Unknown' };
     
     let judgement_elem;
     let refreshTimeout;
     let currentJudgement;
+    
+    const star_stops = [
+        { color: 'var(--color-yellow-dark)', offset: '0' },
+        { color: 'var(--color-yellow-light)', offset: '1' },
+    ];
     
     const refreshJudgementAnim = async () => {
         if (($ingameVideo && $ingameVideo.ended) || refreshTimeout) {
@@ -45,11 +51,34 @@ import { onMount } from 'svelte';
         refreshJudgementAnim()
     }
     
+    // 0.6 seconds for intro
+    // 0.6-1 for zoom into place
+    // 1-x for in place
+    $: starsArray = Array.from({length: $ingameNumStars}, () => 1)
+    
+    
+    
 </script>
 
 <main>
     <div class='background'></div>
-    <h1>{player_data.name}</h1>
+    <div class='content'>
+        <h1>{player_data.name}</h1>
+        <div class='star-container unfilled'>
+            {#each {length: 4} as _}
+                <Icon name={'star'} />
+            {/each}
+            
+            <div class='star-container filled'>
+                {#each starsArray as _}
+                    <div>
+                        <Icon name={'star'} stops={star_stops} />
+                    </div>
+                {/each}
+            </div>
+        </div>
+    </div>
+    
     {#if currentJudgement}
         <h2
             bind:this={judgement_elem}
@@ -66,16 +95,15 @@ import { onMount } from 'svelte';
 <style>
     main {
         position: relative;
-        padding: 16px;
         user-select: none;
         width: 100%;
+        --edge-pixels: 50px;
     }
     
     div.background {
         position: absolute;
         top: 0;
         left: 0;
-        --edge-pixels: 50px;
         width: 100%;
         clip-path: polygon(
             0% 0%,
@@ -85,11 +113,19 @@ import { onMount } from 'svelte';
         );
         background-image: linear-gradient(
             45deg,
-            var(--color-pink-dark) 0%,
-            var(--color-pink-light) 100%
+            var(--color-blue-dark) 0%,
+            var(--color-blue-light) 100%
         );
         box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
         height: 100%;
+    }
+    
+    div.content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr max-content;
     }
 
     h1 {
@@ -99,6 +135,7 @@ import { onMount } from 'svelte';
         text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
         color: var(--color-gray-100);
         margin-left: 10px;
+        padding: 16px;
     }
     
     h2.judgement {
@@ -131,5 +168,45 @@ import { onMount } from 'svelte';
         0% {transform: scale(0.8); opacity: 0;}
         50% {transform: scale(1.1); opacity: 1;}
         100% {transform: scale(1); opacity: 1;}
+    }
+    
+    div.star-container {
+        position: relative;
+        margin-right: var(--edge-pixels);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 2px;
+        padding: 4px;
+        font-size: 1.5rem;
+    }
+    
+    div.star-container.unfilled {
+        color: var(--color-gray-500);
+    }
+    
+    div.star-container.filled {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        --icon-filter: 
+            drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.5)) 
+            drop-shadow(0px 0px 2px rgba(0, 0, 0, 0.5)) 
+            drop-shadow(0px 0px 2px var(--color-yellow-light)) 
+            drop-shadow(0px 0px 4px var(--color-yellow-light))
+            drop-shadow(0px 0px 8px var(--color-yellow-dark));
+    }
+    
+    div.star-container.filled > div {
+        animation: 1s ease-in star-appear;
+    }
+    
+    @keyframes star-appear {
+        0% {opacity: 0; transform: scale(1) rotate(-180deg);}
+        10% {opacity: 1; transform: scale(3) rotate(0deg);}
+        90% {opacity: 1; transform: scale(3.5) rotate(90deg);}
+        100% {opacity: 1; transform: scale(1) rotate(0deg);}
     }
 </style>

@@ -15,7 +15,8 @@
         ingameFinalScore,
         ingameRawJudgements,
         ingameVideo,
-        ingameShouldScore
+        ingameShouldScore,
+        ingameNumStars
     } from '../stores';
     import {
         GetFrameNumberFromTime,
@@ -24,7 +25,9 @@
     import {
         DEFAULT_ACCURACY_SCORE_THRESHOLD,
         AnalyzePose,
-        GetTotalFinalScore
+        GetTotalFinalScore,
+        GetNumStarsFromPerfectPercentage,
+        GetPerfectPercentage
     } from './Scoring';
 
     let raf;
@@ -78,6 +81,11 @@
             $TFJSReady = true;
             // Only become ready when a person is detected
         }
+    }
+    
+    $: {
+        $ingameNumStars = GetNumStarsFromPerfectPercentage(GetPerfectPercentage($ingameJudgementTotals)),
+        console.log($ingameNumStars)
     }
 
     onMount(() => {

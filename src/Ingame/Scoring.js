@@ -1,4 +1,3 @@
-import { GROUP_TYPE } from '../tensorflow/KeypointGroupSplits';
 import { shapeSimilarity } from 'curve-matcher';
 import { GetKeypointsForFrame, GetFrameNumberFromTime } from '../utils';
 import {
@@ -9,7 +8,8 @@ import {
     ingameAdjustedScores,
     ingameRawJudgements
 } from '../stores';
-import { SplitPoseByGroupXY } from '../tensorflow/KeypointGroupSplits';
+import { SplitPoseByGroupXY, GROUP_TYPE } from '../tensorflow/KeypointGroupSplits';
+import outlier from './RemoveOutliers';
 
 // Accuracy scores must be above this to even be scored
 export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.5;
@@ -54,7 +54,7 @@ const DEFAULT_SCORE_SCALING_FUNCTION = (_value, _min, _max) => {
 
     const score_percentage = value / max;
 
-    return Math.pow(score_percentage, 1);
+    return Math.pow(score_percentage, 0.3);
 };
 
 /**
@@ -99,7 +99,7 @@ export const GetScoreFromGroups = (score_groups, group_weights) => {
 // TODO: try only filtering out outliers based on the average of last X scores in case there was an analysis error
 
 // Returns the current score averaged over the past X frames, only taking the avg of top 5 scores in that group
-const NUM_TOP_SCORES = 8;
+const NUM_TOP_SCORES = 5;
 
 // Outliers are below (1 - this) * top score and are not used in average calculation
 // TODO: consider making this use the average and also get rid of very high outliers?
@@ -127,14 +127,28 @@ export const GetCurrentTopXLastScores = (
         }
     }
 
+    const outliers = outlier(last_scores).findOutliers();
+    
+    // Remove outliers from all_similarity_scores
+    if (outliers.length > 0) {
+        for (const index in last_scores) {
+            const score = last_scores[index];
+            if (outliers.includes(score)) {
+                last_scores[index] = null;
+            }
+        }
+    }
+    
+    const last_scores_no_outliers = last_scores.filter((s) => s != null);
+    
     // Get average of top X scores in the last X frames
-    const top_5_scores = last_scores
-        .sort((a, b) => b - a)
-        .slice(0, num_scores_to_lookat);
-    const top_score_threshold = top_5_scores[0] * (1 - OUTLIER_THRESHOLD);
-    const last_scores_no_outliers = last_scores.filter(
-        (s) => s > top_score_threshold
-    );
+    // const top_5_scores = last_scores
+    //     .sort((a, b) => b - a)
+    //     .slice(0, num_scores_to_lookat);
+    // const top_score_threshold = top_5_scores[0] * (1 - OUTLIER_THRESHOLD);
+    // const last_scores_no_outliers = last_scores.filter(
+    //     (s) => s > top_score_threshold
+    // );
 
     if (last_scores_no_outliers.length == 0) {
         console.warn('No top x scores found');
@@ -149,7 +163,7 @@ export const GetCurrentTopXLastScores = (
 
 // Returns the current judgement for a judgement index taking the top judgement from the past period
 export const GetCurrentTopJudgementFromPastPeriod = (all_judgements, current_frame, fps) => {
-    const num_frames_to_lookback = GROUP_SCORE_FRAME_LOOKBACK(fps);
+    const num_frames_to_lookback = Math.ceil(fps * JUDGEMENT_VISUAL_FREQUENCY);
 
     const last_judgements = [];
     for (
@@ -251,7 +265,18 @@ export const GetTotalFinalScore = (judgement_list) => {
         total += JUDGEMENT_SCORE_VALUES[judgement];
     }
     
+    const perfects = Object.values(judgement_list).filter((v) => v == JUDGEMENTS.PERFECT);
+    console.log(`Perfect percent: ${perfects.length / values.length}`)
+    
     return total / (values.length * JUDGEMENT_SCORE_VALUES[JUDGEMENTS.PERFECT]) * 100;
+}
+
+export const GetPerfectPercentage = (judgement_list) => {
+    // Not accurate - use other list or something because this list keeps growing
+    // Get 
+    const values = Object.values(judgement_list);
+    const perfects = Object.values(judgement_list).filter((v) => v == JUDGEMENTS.PERFECT);
+    return perfects.length / values.length;
 }
 
 export const GetJudgementFromScore = (score) => {
@@ -281,12 +306,13 @@ const GROUP_SCORE_FRAME_LOOKBACK = (fps) => {
     return Math.ceil(fps / 2);
 };
 
-// Compares the current frame group scores to the past X frames group scores and returns the highest similarities
-const GetBestGroupScoresWithFrameLookback = (
+// Compares the current frame group scores to the past X frames group scores and returns the averge similarities no outliers
+const GetAvgGroupScoresWithFrameLookbackNoOutliers = (
     groups,
     current_frame,
     playGameMetadataValue
 ) => {
+    // Find and remove outliers then take the average of all similarity scores in the past X frames
     const lookback_frame_amount = GROUP_SCORE_FRAME_LOOKBACK(
         playGameMetadataValue.fps
     );
@@ -296,8 +322,11 @@ const GetBestGroupScoresWithFrameLookback = (
         return values.reduce((a, b) => a + b) / values.length;
     };
 
-    let largest_avg_group_score = 0;
-    let best_group_scores;
+    // let largest_avg_group_score = 0;
+    // let best_group_scores;
+    
+    let all_similarity_scores = [];
+    const all_avg_group_scores = [];
 
     for (
         let frame = current_frame;
@@ -314,15 +343,49 @@ const GetBestGroupScoresWithFrameLookback = (
                 videoFrameKeypoints.keypoints
             );
             const group_scores = ShapeSimilarityGroups(groups, model_groups);
+            all_similarity_scores.push(group_scores);
             const avg_group_score = GetAvgGroupScore(group_scores) || 0;
-            if (avg_group_score > largest_avg_group_score) {
-                largest_avg_group_score = avg_group_score;
-                best_group_scores = group_scores;
+            all_avg_group_scores.push(avg_group_score);
+        }
+    }
+    
+    const outliers = outlier(all_avg_group_scores).findOutliers();
+    
+    // Remove outliers from all_similarity_scores
+    if (outliers.length > 0) {
+        for (const index in all_avg_group_scores) {
+            const avg_score = all_avg_group_scores[index];
+            if (outliers.includes(avg_score)) {
+                all_similarity_scores[index] = null;
             }
         }
     }
+    
+    // Filter out outliers
+    all_similarity_scores = all_similarity_scores.filter((v) => v != null);
+    
+    // Using all_similarity_scores, compute average similarity scores
+    const averaged_group_scores = {
+        [GROUP_TYPE.Head]: 0,
+        [GROUP_TYPE.Torso]: 0,
+        [GROUP_TYPE.Legs]: 0
+    }
 
-    return best_group_scores;
+    // Sum up all scores
+    for (const score of all_similarity_scores) {
+        for (const group_type of Object.values(GROUP_TYPE)) {
+            averaged_group_scores[group_type] += score[group_type];
+        }
+    }
+    
+    // TODO: don't get average, but instead take top score that's not an outlier
+    // Average is too inconsistent
+    // Divide to get average
+    for (const group_type of Object.values(GROUP_TYPE)) {
+        averaged_group_scores[group_type] /= all_similarity_scores.length;
+    }
+    
+    return averaged_group_scores;
 };
 
 const ShapeSimilarityGroups = (groups, model_groups) => {
@@ -339,6 +402,23 @@ const ShapeSimilarityGroups = (groups, model_groups) => {
     }
     return group_scores;
 };
+
+const STAR_SCORE_CUTOFFS = {
+    [4]: 0.8,
+    [3]: 0.6,
+    [2]: 0.4,
+    [1]: 0.2
+}
+
+export const GetNumStarsFromPerfectPercentage = (percentage) => {
+    for (const [num_stars, cutoff_score] of Object.entries(STAR_SCORE_CUTOFFS)) {
+        if (percentage >= cutoff_score) {
+            return num_stars;
+        }
+    }
+    
+    return 0;
+}
 
 // Every frame starts here
 export const AnalyzePose = async (
@@ -362,7 +442,7 @@ export const AnalyzePose = async (
     const frame = GetFrameNumberFromTime(currentTime, playGameMetadataValue.fps);
     
     const groups = SplitPoseByGroupXY(pose.keypoints);
-    const group_scores = GetBestGroupScoresWithFrameLookback(
+    const group_scores = GetAvgGroupScoresWithFrameLookbackNoOutliers(
         groups,
         frame,
         playGameMetadataValue

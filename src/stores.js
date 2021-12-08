@@ -42,6 +42,7 @@ export const ingameFinalScore = writable(0);
 export const ingameEvalScreenShouldShow = writable(false);
 export const ingameJudgementTotals = writable({});
 export const ingameRawJudgements = writable({});
+export const ingameNumStars = writable(0);
 
 export const testIngameScores = writable('');
 

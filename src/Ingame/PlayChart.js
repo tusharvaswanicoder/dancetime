@@ -19,7 +19,8 @@ import {
     ingameJudgementTotals,
     ingameAdjustedScores,
     ingameRawJudgements,
-    ingameShouldScore
+    ingameShouldScore,
+    ingameNumStars
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -42,6 +43,7 @@ export const PlayChart = (metadata, keypoints) => {
     ingameAdjustedScores.set({});
     ingameRawJudgements.set({});
     ingameShouldScore.set(false);
+    ingameNumStars.set(0);
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

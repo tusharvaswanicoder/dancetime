@@ -70,5 +70,6 @@
         fill: currentColor;
         overflow: visible;
         transition: 0.2s ease-in-out transform;
+        filter: var(--icon-filter, none);
     }
 </style>
