@@ -71,12 +71,48 @@ export const GetCurrentTopJudgementFromPastPeriod = (all_judgements, current_fra
     return last_judgements.sort((a, b) => b - a)[0];
 }
 
-export const GetPerfectPercentage = (judgement_list) => {
-    // Not accurate - use other list or something because this list keeps growing
-    // Get 
+// Given currentTime of a song, in, out, and scoring areas keyframes, returns modified currentTime of only scoring areas
+// Ex. If a song has in of 5 seconds and scoring areas keyframes that blocks 5 seconds after the in,
+// the value returned from this would be 0 until 10 seconds in, then it would start counting up like normal
+// This way, you can use this function to determine the current judgement index and always use it
+export const GetScoringCurrentTime = (currentTime, _in, _out, scoring_areas) => {
+    // TODO: factor in scoring areas
+    const time = Math.max(0, currentTime - _in);
+    return Math.min(time, _out - _in);
+}
+
+// Returns the total duration of scoring areas given in, out, and scoring areas keyframes
+export const GetScoringDurationFromInOutScoringAreas = (
+    duration,
+    _in,
+    _out,
+    scoring_areas
+) => {
+    // TODO: factor in scoring areas
+    const dur = Math.max(0, duration - _in);
+    return Math.min(dur, _out - _in);
+};
+
+const GetTotalFinalPossibleScore = (scoringMaxTime) => {
+    const finalIndex = GetCurrentJudgementIndex(scoringMaxTime);
+    return finalIndex * JUDGEMENT_SCORE_VALUES[JUDGEMENTS.PERFECT];
+}
+
+export const GetTotalFinalScore = (judgement_list, scoringMaxTime) => {
     const values = Object.values(judgement_list);
+    let total = 0;
+
+    for (const judgement of values) {
+        total += JUDGEMENT_SCORE_VALUES[judgement];
+    }
+    
+    return (total / GetTotalFinalPossibleScore(scoringMaxTime)) * 100;
+};
+
+export const GetPerfectPercentage = (judgement_list, scoringMaxTime) => {
     const perfects = Object.values(judgement_list).filter((v) => v == JUDGEMENTS.PERFECT);
-    return perfects.length / values.length;
+    const max_perfects = GetCurrentJudgementIndex(scoringMaxTime); 
+    return perfects.length / max_perfects;
 }
 
 export const GetJudgementFromScore = (score) => {

@@ -54,19 +54,19 @@ import { onMount } from 'svelte';
     // 0.6 seconds for intro
     // 0.6-1 for zoom into place
     // 1-x for in place
-    $: starsArray = Array.from({length: $ingameNumStars}, () => 1)
-    
     const starAudio = {}
-    let old_num_stars = 0;
+    let num_stars = 0;
     $: {
-        if ($ingameNumStars > old_num_stars) {
-            old_num_stars = $ingameNumStars;
+        if ($ingameNumStars > num_stars) {
+            num_stars = $ingameNumStars;
             
             if (starAudio[$ingameNumStars]) {
                 starAudio[$ingameNumStars].play();
             }
         }
     }
+    
+    $: starsArray = Array.from({length: num_stars}, () => 1)
     
 </script>
 

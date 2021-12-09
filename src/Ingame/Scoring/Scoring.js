@@ -1,4 +1,4 @@
-import { GetFrameNumberFromTime } from '../../utils';
+import { GetFrameNumberFromTime, GetVideoStartAndEndTimeFromMetadata } from '../../utils';
 import {
     testIngameScores,
     ingameRawScores,
@@ -15,36 +15,13 @@ import {
     GetJudgementFromScore,
     GetCurrentJudgementIndex,
     GetCurrentTopJudgementFromPastPeriod,
+    GetTotalFinalScore,
     JUDGEMENT_VISUALS,
     JUDGEMENT_SCORE_VALUES,
-    JUDGEMENTS
+    JUDGEMENTS,
+    GetScoringCurrentTime
 } from './Judgements';
 import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
-
-export const GetScoringDurationFromInOutScoringAreas = (
-    _in,
-    _out,
-    scoring_areas
-) => {};
-
-export const GetTotalFinalScore = (judgement_list) => {
-    const values = Object.values(judgement_list);
-    let total = 0;
-
-    for (const judgement of values) {
-        total += JUDGEMENT_SCORE_VALUES[judgement];
-    }
-
-    const perfects = Object.values(judgement_list).filter(
-        (v) => v == JUDGEMENTS.PERFECT
-    );
-    console.log(`Perfect percent: ${perfects.length / values.length}`);
-
-    return (
-        (total / (values.length * JUDGEMENT_SCORE_VALUES[JUDGEMENTS.PERFECT])) *
-        100
-    );
-};
 
 /**
  * Every frame starts here.
@@ -166,7 +143,9 @@ export const AnalyzePose = async (
     testIngameScores.set(scoresString);
 
     // Update current judgement and judgement values if needed
-    const judgement_index = GetCurrentJudgementIndex(currentTime);
+    const startEndTime = GetVideoStartAndEndTimeFromMetadata(playGameMetadataValue);
+    const scoringCurrentTime = GetScoringCurrentTime(currentTime, startEndTime.start, startEndTime.end, {});
+    const judgement_index = GetCurrentJudgementIndex(scoringCurrentTime);
     if (!ingameJudgementTotalsValue[judgement_index]) {
         const top_judgement = GetCurrentTopJudgementFromPastPeriod(
             ingameRawJudgementsValue,

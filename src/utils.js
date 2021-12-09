@@ -341,12 +341,15 @@ export const sleep = (ms) => {
     });
 }
 
-export const GetVideoStartTimeFromMetadata = (metadata) => {
+export const GetVideoStartAndEndTimeFromMetadata = (metadata) => {
     const in_out_component = metadata.components.find((component) => component.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS);
-    return in_out_component ? in_out_component.in : 0;
+    return in_out_component ? {start: in_out_component.in, end: in_out_component.out} : {start: 0, end: metadata.duration};
+}
+
+export const GetVideoStartTimeFromMetadata = (metadata) => {
+    return GetVideoStartAndEndTimeFromMetadata(metadata).start;
 }
 
 export const GetVideoEndTimeFromMetadata = (metadata) => {
-    const in_out_component = metadata.components.find((component) => component.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS);
-    return in_out_component ? in_out_component.out : metadata.duration;
+    return GetVideoStartAndEndTimeFromMetadata(metadata).end;
 }

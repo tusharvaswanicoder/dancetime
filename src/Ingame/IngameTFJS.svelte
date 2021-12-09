@@ -16,31 +16,29 @@
         ingameRawJudgements,
         ingameVideo,
         ingameShouldScore,
-        ingameNumStars
+        ingameNumStars,
     } from '../stores';
-    import {
-        GetFrameNumberFromTime,
-        sleep
-    } from '../utils';
-    import {
-        AnalyzePose,
-        GetTotalFinalScore
-    } from './Scoring/Scoring';
+    import { GetFrameNumberFromTime, sleep, GetVideoStartAndEndTimeFromMetadata } from '../utils';
+    import { AnalyzePose } from './Scoring/Scoring';
     import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring/Defaults';
     import { GetNumStarsFromPerfectPercentage } from './Scoring/Stars';
-    import { GetPerfectPercentage } from './Scoring/Judgements';
+    import {
+        GetPerfectPercentage,
+        GetTotalFinalScore,
+        GetScoringDurationFromInOutScoringAreas
+    } from './Scoring/Judgements';
 
     let raf;
     let personDetected = false;
 
     const onFrame = async () => {
-        const frame = GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps);
         const pose = await tfjs.detectFrame($ingameCameraCanvas);
 
         if (pose) {
             if (!personDetected) {
                 const keypointsUnderThreshold = pose.keypoints.filter(
-                    (keypoint) => keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
+                    (keypoint) =>
+                        keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
                 );
                 personDetected = keypointsUnderThreshold.length == 0;
             } else if (!$ingameVideo.paused && $ingameShouldScore) {
@@ -59,7 +57,18 @@
         if (!$ingameEvalScreenShouldShow) {
             raf = window.requestAnimationFrame(onFrame);
         } else {
-            $ingameFinalScore = GetTotalFinalScore($ingameJudgementTotals);
+            const startEndTime =
+                GetVideoStartAndEndTimeFromMetadata($playGameMetadata);
+            const scoringDuration = GetScoringDurationFromInOutScoringAreas(
+                $playGameMetadata.duration,
+                startEndTime.start,
+                startEndTime.end,
+                {}
+            );
+            $ingameFinalScore = GetTotalFinalScore(
+                $ingameJudgementTotals,
+                scoringDuration
+            );
         }
     };
 
@@ -82,10 +91,23 @@
             // Only become ready when a person is detected
         }
     }
-    
+
+    const UpdateNumStars = (judgementTotals) => {
+        const startEndTime =
+            GetVideoStartAndEndTimeFromMetadata($playGameMetadata);
+        const scoringDuration = GetScoringDurationFromInOutScoringAreas(
+            $playGameMetadata.duration,
+            startEndTime.start,
+            startEndTime.end,
+            {}
+        );
+        return GetNumStarsFromPerfectPercentage(
+            GetPerfectPercentage(judgementTotals, scoringDuration)
+        );
+    };
+
     $: {
-        $ingameNumStars = GetNumStarsFromPerfectPercentage(GetPerfectPercentage($ingameJudgementTotals)),
-        console.log($ingameNumStars)
+        $ingameNumStars = UpdateNumStars($ingameJudgementTotals);
     }
 
     onMount(() => {
