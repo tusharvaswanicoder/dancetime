@@ -20,16 +20,6 @@ import { onMount } from 'svelte';
             return;
         }
         
-        if ($ingameShouldScore) {
-            currentJudgement = player_data.judgement;
-            if (judgement_elem && currentJudgement) {
-                judgement_elem.classList.remove('judgement_anim');
-                // Magic line to refresh https://css-tricks.com/restart-css-animation/
-                void judgement_elem.offsetWidth;
-                judgement_elem.classList.add('judgement_anim');
-            }
-        }
-        
         if (refreshTimeout) {
             clearTimeout(refreshTimeout);
         }
@@ -39,6 +29,16 @@ import { onMount } from 'svelte';
             refreshTimeout = null;
             refreshJudgementAnim();
         }, JUDGEMENT_FREQUENCY * 1000);
+        
+        if ($ingameShouldScore) {
+            currentJudgement = player_data.judgement;
+            if (judgement_elem && currentJudgement) {
+                judgement_elem.classList.remove('judgement_anim');
+                // Magic line to refresh https://css-tricks.com/restart-css-animation/
+                void judgement_elem.offsetWidth;
+                judgement_elem.classList.add('judgement_anim');
+            }
+        }
     }
     
     onMount(() => {
@@ -46,10 +46,10 @@ import { onMount } from 'svelte';
     })
     
     // Enable this code to make the judgement pop up after every change
-    $: {
-        player_data.judgement,
-        refreshJudgementAnim()
-    }
+    // $: {
+    //     player_data.judgement,
+    //     refreshJudgementAnim()
+    // }
     
     // 0.6 seconds for intro
     // 0.6-1 for zoom into place
@@ -177,14 +177,15 @@ import { onMount } from 'svelte';
     }
     
     h2.judgement_anim {
-        /* animation: var(--judgement-frequency, 1s) ease-in judgement-anim; */
-        animation: 0.1s ease-in judgement-anim;
+        animation: var(--judgement-frequency, 1s) ease-in judgement-anim forwards;
+        /* animation: 0.4s ease-in judgement-anim; */
     }
     
     @keyframes judgement-anim {
         0% {transform: scale(0.8); opacity: 0;}
-        50% {transform: scale(1.1); opacity: 1;}
-        100% {transform: scale(1); opacity: 1;}
+        10% {transform: scale(1.1); opacity: 1;}
+        20%, 30% {transform: scale(1); opacity: 1;}
+        100% {transform: scale(0.9); opacity: 0;}
     }
     
     div.star-container {
@@ -217,13 +218,13 @@ import { onMount } from 'svelte';
     }
     
     div.star-container.filled > div {
-        animation: 1s ease-in star-appear;
+        animation: 1.2s ease-in-out star-appear;
     }
     
     @keyframes star-appear {
         0% {opacity: 0; transform: scale(1) rotate(-180deg);}
-        10% {opacity: 1; transform: scale(3) rotate(0deg);}
-        90% {opacity: 1; transform: scale(3.5) rotate(90deg);}
+        15% {opacity: 1; transform: scale(3) rotate(0deg);}
+        95% {opacity: 1; transform: scale(3.5) rotate(90deg);}
         100% {opacity: 1; transform: scale(1) rotate(0deg);}
     }
 </style>

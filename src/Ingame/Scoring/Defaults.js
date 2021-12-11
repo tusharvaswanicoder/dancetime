@@ -43,7 +43,7 @@ export const DEFAULT_SCORE_SCALING_FUNCTION = (_value, _min, _max) => {
 
     const score_percentage = value / max;
 
-    return Math.pow(score_percentage, 1);
+    return Math.min(1, Math.pow(score_percentage, 1.2) + score_percentage / 10);
 };
 
 export const GROUP_SCORE_FRAME_LOOKBACK = (fps) => {

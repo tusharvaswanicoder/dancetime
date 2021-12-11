@@ -14,7 +14,7 @@ import { GetCurrentTopXLastScores } from './FrameScore';
 import {
     GetJudgementFromScore,
     GetCurrentJudgementIndex,
-    GetCurrentTopJudgementFromPastPeriod,
+    GetCurrentTopJudgementFromPastPeriodWithoutOutliers,
     GetTotalFinalScore,
     JUDGEMENT_VISUALS,
     JUDGEMENT_SCORE_VALUES,
@@ -64,7 +64,7 @@ import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
  * 8. Judgements used in scoring are calculated every JUDGEMENT_INTERVAL.
  *      a. Current judgement index is calculated using GetCurrentJudgementIndex.
  *      b. If there is no judgement yet for the current index, the highest judgement value from the last period
- *      is gotten by GetCurrentTopJudgementFromPastPeriod.
+ *      is gotten by GetCurrentTopJudgementFromPastPeriodWithoutOutliers.
  * 9. At the end of the song, the final score is calculated using the judgements from each judgement interval.
  *      a. GetTotalFinalScore adds JUDGEMENT_SCORE_VALUES per judgement and divides the total by the
  *      total value of all potential perfects in the song.
@@ -147,7 +147,7 @@ export const AnalyzePose = async (
     const scoringCurrentTime = GetScoringCurrentTime(currentTime, startEndTime.start, startEndTime.end, {});
     const judgement_index = GetCurrentJudgementIndex(scoringCurrentTime);
     if (!ingameJudgementTotalsValue[judgement_index]) {
-        const top_judgement = GetCurrentTopJudgementFromPastPeriod(
+        const top_judgement = GetCurrentTopJudgementFromPastPeriodWithoutOutliers(
             ingameRawJudgementsValue,
             frame,
             playGameMetadataValue.fps

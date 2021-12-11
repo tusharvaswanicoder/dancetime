@@ -39,9 +39,7 @@ export const GetCurrentTopXLastScores = (
         console.warn('No top x scores found');
         return 0;
     }
-
-    return (
-        last_scores_no_outliers.reduce((a, b) => a + b) /
-        last_scores_no_outliers.length
-    );
+    
+    return last_scores_no_outliers.reduce((a, b) => a + b) /
+        last_scores_no_outliers.length;
 };

@@ -27,6 +27,8 @@
         GetTotalFinalScore,
         GetScoringDurationFromInOutScoringAreas
     } from './Scoring/Judgements';
+    
+    const shouldDisplayDebugScores = true;
 
     let raf;
     let personDetected = false;
@@ -121,7 +123,9 @@
     });
 </script>
 
-<h1>{$testIngameScores}</h1>
+{#if shouldDisplayDebugScores}
+    <h1>{$testIngameScores}</h1>
+{/if}
 
 <style>
     h1 {

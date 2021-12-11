@@ -6,7 +6,7 @@ import outlier from './RemoveOutliers';
 
 const SHAPE_SIMILARITY_OPTIONS = {
     ['restrictRotationAngle']: 0.05 * Math.PI,
-    ['estimationPoints']: 30,
+    ['estimationPoints']: 50,
     ['rotations']: 10,
 };
 
@@ -121,6 +121,12 @@ const GetGroups_NoOutliersHighestGroups = (
     const all_similarity_scores = GetShapeSimilarityWithLookback(groups, current_frame, playGameMetadataValue);
     const all_weighted_avg_scores = GetWeightedAvgGroupsScores(all_similarity_scores);
     const all_similarity_scores_no_outliers = RemoveWeightedAvgOutliers(all_similarity_scores, all_weighted_avg_scores);
+    
+    // TODO: continue experimenting with these - it is too generous right now (see: industry baby without doing much - you get perfects)
+    
+    if (all_similarity_scores_no_outliers.length == 0) {
+        return groups;
+    }
     
     // Take highest non outlier score.
     let highest_avgs = {};

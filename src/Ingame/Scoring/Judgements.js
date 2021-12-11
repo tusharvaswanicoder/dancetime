@@ -1,3 +1,5 @@
+import outlier from './RemoveOutliers';
+
 // List of all judgements used
 export const JUDGEMENTS = {
     PERFECT: 1,
@@ -51,10 +53,10 @@ export const JUDGEMENT_SCORE_VALUES = {
 };
 
 // Returns the current judgement for a judgement index taking the top judgement from the past period
-export const GetCurrentTopJudgementFromPastPeriod = (all_judgements, current_frame, fps) => {
+export const GetCurrentTopJudgementFromPastPeriodWithoutOutliers = (all_judgements, current_frame, fps) => {
     const num_frames_to_lookback = Math.ceil(fps * JUDGEMENT_FREQUENCY);
-
-    const last_judgements = [];
+    
+    let last_judgements = [];
     for (
         let frame = current_frame;
         frame > current_frame - num_frames_to_lookback && frame > 0;
@@ -63,12 +65,20 @@ export const GetCurrentTopJudgementFromPastPeriod = (all_judgements, current_fra
         const frame_judgement = all_judgements[frame];
 
         if (frame_judgement) {
-            last_judgements.push(frame_judgement);
+            last_judgements.push(parseInt(frame_judgement));
         }
     }
+    
+    if (last_judgements.length == 0) {
+        return JUDGEMENTS.MISS;
+    }
+    
+    const outliers = outlier(last_judgements).findOutliers();
+    last_judgements = last_judgements.filter((v) => !outliers.includes(v));
 
     // Get get top judgement in the last X frames
-    return last_judgements.sort((a, b) => b - a)[0];
+    // Reverse sort because PERFECT = 1 and MISS = 6
+    return last_judgements.sort((a, b) => a - b)[0];
 }
 
 // Given currentTime of a song, in, out, and scoring areas keyframes, returns modified currentTime of only scoring areas
@@ -118,7 +128,7 @@ export const GetPerfectPercentage = (judgement_list, scoringMaxTime) => {
 export const GetJudgementFromScore = (score) => {
     for (const [judgement, cutoff_score] of Object.entries(JUDGEMENT_CUTOFFS)) {
         if (score >= cutoff_score) {
-            return judgement;
+            return parseInt(judgement);
         }
     }
 

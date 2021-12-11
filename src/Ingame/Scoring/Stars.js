@@ -1,8 +1,8 @@
 const STAR_SCORE_CUTOFFS = [
-    {num_stars: 4, cutoff: 0.8},
-    {num_stars: 3, cutoff: 0.6},
-    {num_stars: 2, cutoff: 0.4},
-    {num_stars: 1, cutoff: 0.2},
+    {num_stars: 4, cutoff: 0.90},
+    {num_stars: 3, cutoff: 0.75},
+    {num_stars: 2, cutoff: 0.5},
+    {num_stars: 1, cutoff: 0.25},
 ]
 
 export const GetNumStarsFromPerfectPercentage = (percentage) => {
