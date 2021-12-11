@@ -124,6 +124,14 @@ const GetGroups_NoOutliersHighestGroups = (
     
     // TODO: continue experimenting with these - it is too generous right now (see: industry baby without doing much - you get perfects)
     
+    // Love Again
+    // Exact match: 3 stars, 95.10
+    // Bad match: 1 star, 56.22
+    
+    // Industry Baby
+    // Exact match: 3 stars, 97.25
+    // Bad match: 1 star, 58.58
+    
     if (all_similarity_scores_no_outliers.length == 0) {
         return groups;
     }
@@ -140,6 +148,133 @@ const GetGroups_NoOutliersHighestGroups = (
 };
 
 
+// Compares the current frame group scores to the past X frames group scores and returns the averge similarities no outliers
+const GetGroups_NoOutliersAverage = (
+    groups,
+    current_frame,
+    playGameMetadataValue
+) => {
+    const all_similarity_scores = GetShapeSimilarityWithLookback(groups, current_frame, playGameMetadataValue);
+    const all_weighted_avg_scores = GetWeightedAvgGroupsScores(all_similarity_scores);
+    const all_similarity_scores_no_outliers = RemoveWeightedAvgOutliers(all_similarity_scores, all_weighted_avg_scores);
+    
+    // Love Again
+    // Exact match: 2 stars, 78.62
+    // Bad match: 0 stars, 35.10
+    
+    // Industry Baby
+    // Exact match: 1 star, 72.99
+    // Bad match: 0 stars, 26.49
+    
+    if (all_similarity_scores_no_outliers.length == 0) {
+        return groups;
+    }
+    
+    // Take average of all non outlier scores.
+    const averaged_group_scores = {};
+
+    // Sum up all scores
+    for (const group_type of Object.values(GROUP_TYPE)) {
+        averaged_group_scores[group_type] = 0;
+        for (const score of all_similarity_scores_no_outliers) {
+            averaged_group_scores[group_type] += score[group_type];
+        }
+    }
+    
+    // TODO: don't get average, but instead take top score that's not an outlier
+    // Average is too inconsistent
+    // Divide to get average
+    for (const group_type of Object.values(GROUP_TYPE)) {
+        averaged_group_scores[group_type] /= all_similarity_scores_no_outliers.length;
+    }
+    
+    return averaged_group_scores;
+};
+
+
+// Compares the current frame group scores to the past X frames group scores and returns the averge similarities no outliers
+const GetGroups_NoOutliersUpperHalf = (
+    groups,
+    current_frame,
+    playGameMetadataValue
+) => {
+    const all_similarity_scores = GetShapeSimilarityWithLookback(groups, current_frame, playGameMetadataValue);
+    const all_weighted_avg_scores = GetWeightedAvgGroupsScores(all_similarity_scores);
+    const all_similarity_scores_no_outliers = RemoveWeightedAvgOutliers(all_similarity_scores, all_weighted_avg_scores);
+    
+    // Love Again
+    // Exact match: 2 stars, 87.27
+    // Bad match: 0 stars, 38.62
+    
+    // Industry Baby
+    // Exact match: 86.59
+    // Bad match: 0 stars, 34.88
+    
+    if (all_similarity_scores_no_outliers.length == 0) {
+        return groups;
+    }
+    
+    const reorganized = all_similarity_scores_no_outliers.map((score, i) => {
+        return {
+            score,
+            avg: all_weighted_avg_scores[i]
+        }
+    })
+    
+    const upper_half = reorganized.sort((a, b) => b.avg - a.avg).slice(0, Math.ceil(reorganized.length / 2));
+    
+    // Take average of all non outlier scores upper half.
+    const averaged_group_scores = {};
+
+    // Sum up all scores
+    for (const group_type of Object.values(GROUP_TYPE)) {
+        averaged_group_scores[group_type] = 0;
+        for (const score_data of upper_half) {
+            averaged_group_scores[group_type] += score_data.score[group_type];
+        }
+    }
+    
+    for (const group_type of Object.values(GROUP_TYPE)) {
+        averaged_group_scores[group_type] /= upper_half.length;
+    }
+    
+    return averaged_group_scores;
+};
+
+
+// Compares the current frame group scores to the past X frames group scores and returns the averge similarities no outliers
+const GetGroups_NoOutliersTopScore = (
+    groups,
+    current_frame,
+    playGameMetadataValue
+) => {
+    const all_similarity_scores = GetShapeSimilarityWithLookback(groups, current_frame, playGameMetadataValue);
+    const all_weighted_avg_scores = GetWeightedAvgGroupsScores(all_similarity_scores);
+    const all_similarity_scores_no_outliers = RemoveWeightedAvgOutliers(all_similarity_scores, all_weighted_avg_scores);
+    
+    // Love Again
+    // Exact match: 3 stars, 95.05
+    // Bad match: 0 stars, 40.90
+    
+    // Industry Baby
+    // Exact match: 3 stars, 95.64
+    // Bad match: 0 stars, 46.87
+    
+    if (all_similarity_scores_no_outliers.length == 0) {
+        return groups;
+    }
+    
+    const reorganized = all_similarity_scores_no_outliers.map((score, i) => {
+        return {
+            score,
+            avg: all_weighted_avg_scores[i]
+        }
+    })
+    
+    const top_score = reorganized.sort((a, b) => b.avg - a.avg)[0];
+    return top_score.score;
+};
+
 //////////////////////////////////
 
 
@@ -147,7 +282,7 @@ export const POSE_COMPARISON_BY_GROUPS_FUNC = {
     // All similarity scores use frame lookback - "similarity scores" are all scores in that lookback period
     
     // Average of all similarity scores with outliers removed
-    NoOutliersAverage: 1,
+    NoOutliersAverage: GetGroups_NoOutliersAverage,
     
     // Highest average score of all groups (avg. head, torso, legs)
     HighestAverage: 2,
@@ -165,8 +300,8 @@ export const POSE_COMPARISON_BY_GROUPS_FUNC = {
     TopXAverage: 5,
     
     // Average of upper half of similarity scores with outliers removed
-    NoOutliersUpperHalf: 6,
+    NoOutliersUpperHalf: GetGroups_NoOutliersUpperHalf,
     
     // Top 1 score with outliers removed
-    NoOutliersTopScore: 7
+    NoOutliersTopScore: GetGroups_NoOutliersTopScore
 }

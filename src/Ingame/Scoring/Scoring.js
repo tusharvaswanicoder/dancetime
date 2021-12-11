@@ -103,7 +103,7 @@ export const AnalyzePose = async (
     const groups = SplitPoseByGroupXY(pose.keypoints);
 
     const PoseComparisonFunc =
-        POSE_COMPARISON_BY_GROUPS_FUNC.NoOutliersHighestGroups;
+        POSE_COMPARISON_BY_GROUPS_FUNC.NoOutliersTopScore;
     const group_scores = PoseComparisonFunc(
         groups,
         frame,
