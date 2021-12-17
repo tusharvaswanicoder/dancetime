@@ -65,8 +65,8 @@
     };
 
     const onVideoPlay = () => {
-        $ingameAudio.play();
         $ingameAudio.volume = 0.2;
+        $ingameAudio.play();
     };
 
     const onVideoPause = () => {
@@ -85,6 +85,7 @@
         refreshCTX($ingameCanvas);
         updateVideoBlobURL(), updateAudioBlobURL();
         animationCallback();
+        $ingameAudio.volume = 0;
     });
 
     onDestroy(() => {

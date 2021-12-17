@@ -18,6 +18,8 @@ export const SEVERITY = {
     HIGH: 'High',
 };
 
+// TODO: take Video in/out points into consideration
+// FUTURE TODO: take scoring areas into consideration
 export const GetAnalysisSummary = (project, keypoint_score_threshold) => {
     return [
         GetAvgKeypointFrequency(project),

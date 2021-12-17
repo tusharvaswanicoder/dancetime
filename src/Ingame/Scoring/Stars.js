@@ -1,6 +1,6 @@
 const STAR_SCORE_CUTOFFS = [
-    {num_stars: 4, cutoff: 0.85},
-    {num_stars: 3, cutoff: 0.70},
+    {num_stars: 4, cutoff: 0.90},
+    {num_stars: 3, cutoff: 0.75},
     {num_stars: 2, cutoff: 0.5},
     {num_stars: 1, cutoff: 0.25},
 ]

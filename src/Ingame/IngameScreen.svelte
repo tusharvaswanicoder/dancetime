@@ -3,6 +3,7 @@
     import IngameCameraPreview from './IngameCameraPreview.svelte';
     import IngameLookahead from './IngameLookahead.svelte';
     import IngameScores from './IngameScores.svelte';
+    import IngameProgress from './IngameProgress.svelte';
     import IngameTFJS from './IngameTFJS.svelte';
     import {
         ingameTime,
@@ -37,7 +38,10 @@
     <IngameVideo />
     <IngameCameraPreview />
     <IngameLookahead />
-    <IngameScores />
+    <section class='progress-and-scores'>
+        <IngameProgress />
+        <IngameScores />
+    </section>
     <IngameTFJS />
 </main>
 
@@ -47,5 +51,19 @@
         width: 100%;
         height: 100%;
         /* cursor: none; */
+    }
+    
+    section.progress-and-scores {
+        position: absolute;
+        min-width: fit-content;
+        width: max(30%, 350px);
+        max-width: 450px;
+        height: fit-content;
+        top: 0;
+        left: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        max-height: 45%;
     }
 </style>

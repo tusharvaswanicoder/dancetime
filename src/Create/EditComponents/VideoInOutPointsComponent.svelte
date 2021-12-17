@@ -1,7 +1,7 @@
 <script>
     import BasicComponent from "./BasicComponent.svelte";
     import DeleteRow from './DeleteRow.svelte';
-    import { createProjectUnsaved, createVideoFPS, createVideoCurrentTime, createSelectedComponent } from "../../stores";
+    import { createProject, createProjectUnsaved, createVideoFPS, createVideoCurrentTime, createSelectedComponent } from "../../stores";
     import { ConvertDurationToNiceStringWithFPS } from "../../utils";
     import { COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
     import ClickableTimestampText from '../ClickableTimestampText.svelte';
@@ -27,6 +27,7 @@
     const metadataChanged = () => {
         $createProjectUnsaved = true;
         $createSelectedComponent = $createSelectedComponent;
+        $createProject.components = $createProject.components;
     }
 </script>
 

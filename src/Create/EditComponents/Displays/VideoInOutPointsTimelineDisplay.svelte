@@ -1,21 +1,31 @@
 <script>
-    import { createSelectedComponent, createVideoDuration } from '../../../stores';
+    import { createProject, createProjectUnsaved, createVideoDuration } from '../../../stores';
+    import { COMPONENT_TYPE } from '../../../constants';
+    
+    let inOutComponent;
+    $: {
+        inOutComponent = $createProject.components.find((component) => component.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS)
+    }
     
     let startPercent = '0%';
     let endPercent = '0%';
     $: {
-        startPercent = `${
-            ($createSelectedComponent.in / $createVideoDuration) * 100
-        }%`,
-        endPercent = `${
-            ($createSelectedComponent.out / $createVideoDuration) * 100
-        }%`;
+        if (inOutComponent) {
+            startPercent = `${
+                (inOutComponent.in / $createVideoDuration) * 100
+            }%`,
+            endPercent = `${
+                (inOutComponent.out / $createVideoDuration) * 100
+            }%`;
+        }
     }
 
 </script>
 
-<div class='section start' style={`--left-percent: ${startPercent}`}><div class='bg'></div></div>
-<div class='section end' style={`--left-percent: ${endPercent}`}><div class='bg'></div></div>
+{#if inOutComponent}
+    <div class='section start' style={`--left-percent: ${startPercent}`}><div class='bg'></div></div>
+    <div class='section end' style={`--left-percent: ${endPercent}`}><div class='bg'></div></div>
+{/if}
 
 <style>
     div.section {

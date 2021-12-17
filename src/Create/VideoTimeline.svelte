@@ -180,6 +180,10 @@
     const mouseOffTimeline = () => {
         mouseDownOnTimeline = false;
     };
+    
+    const hasComponentOfType = (type, project) => {
+        return project.components.find((component) => component.type == type) != undefined;
+    }
 
     let seekerProgressPercent = '0%';
 
@@ -255,7 +259,7 @@
         <div class="waveform" id="waveform" />
         <div class='timeline-overlays'>
             <!-- All overlay elements go here -->
-            {#if $createSelectedComponent.type == COMPONENT_TYPE.VIDEO_IN_OUT_POINTS}
+            {#if hasComponentOfType(COMPONENT_TYPE.VIDEO_IN_OUT_POINTS, $createProject)}
                 <VideoInOutPointsTimelineDisplay />
             {/if}
         </div>

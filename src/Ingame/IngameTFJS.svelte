@@ -28,7 +28,7 @@
         GetScoringDurationFromInOutScoringAreas
     } from './Scoring/Judgements';
     
-    const shouldDisplayDebugScores = true;
+    const shouldDisplayDebugScores = false;
 
     let raf;
     let personDetected = false;

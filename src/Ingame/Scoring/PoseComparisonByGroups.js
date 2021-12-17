@@ -305,3 +305,5 @@ export const POSE_COMPARISON_BY_GROUPS_FUNC = {
     // Top 1 score with outliers removed
     NoOutliersTopScore: GetGroups_NoOutliersTopScore
 }
+
+// TODO: add similarity modifier based on keypoint velocities
