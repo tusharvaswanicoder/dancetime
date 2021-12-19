@@ -5,7 +5,7 @@
         createCanvas,
         createVideo,
         createAudio,
-        createLoadingPercent,
+        createLoadingThumbnailsPercent,
         createProject,
         createEditorDisabled,
     } from '../stores';
@@ -21,7 +21,7 @@
     } from '../utils';
 
     const isLoadingFinished = () => {
-        return $createLoadingPercent >= 1;
+        return $createLoadingThumbnailsPercent >= 1;
     };
 
     const updatePausePlayIcons = () => {

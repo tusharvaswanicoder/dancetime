@@ -173,7 +173,7 @@ class DownloadManager {
      * Returns whether or not the download of a specific youtube ID is complete (audio and video)
      * @param {*} media_id 
      */
-    isMediaDownloaded (media_id) {
+    async isMediaDownloaded (media_id) {
         if (this.metaData[media_id]) {
             return this.metaData[media_id].status == MEDIA_STATUS.FINISHED;
         }

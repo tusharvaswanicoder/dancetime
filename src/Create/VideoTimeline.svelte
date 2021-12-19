@@ -15,7 +15,7 @@
         createVideoCurrentTime,
         createVideoDuration,
         createVideoFPS,
-        createLoadingPercent,
+        createLoadingThumbnailsPercent,
         createThumbnailURLs,
         createProject,
         createEditorDisabled,
@@ -49,38 +49,36 @@
         });
     };
 
-    function GetThumbnails(project) {
+    async function GetThumbnails(project) {
         if (!project || !dlManager.metaData[project.media_id]) {
             return;
         }
 
-        const blob_name =
-            dlManager.metaData[project.media_id]['indexedMediaBlob-v'];
+        const video_url =
+            dlManager.metaData[project.media_id]['video_url'];
 
-        if (!blob_name) {
+        if (!video_url) {
             return;
         }
 
-        GetMediaBlobFromDB(blob_name, async (blob) => {
-            const thumbnail_blobs = await getThumbnailsInParalell(
-                blob,
-                (progress) => {
-                    $createLoadingPercent = progress;
-                }
-            );
-            
-            if (!$createProject) {
-                return;
+        const thumbnail_blobs = await getThumbnailsInParalell(
+            video_url,
+            (progress) => {
+                $createLoadingThumbnailsPercent = progress;
             }
+        );
+        
+        if (!$createProject) {
+            return;
+        }
 
-            $createThumbnailURLs = {};
+        $createThumbnailURLs = {};
 
-            Object.keys(thumbnail_blobs).forEach((key) => {
-                const new_key = (key / THUMBNAIL_INTERVAL).toFixed(0);
-                $createThumbnailURLs[new_key] = URL.createObjectURL(
-                    thumbnail_blobs[key]
-                );
-            });
+        Object.keys(thumbnail_blobs).forEach((key) => {
+            const new_key = (key / THUMBNAIL_INTERVAL).toFixed(0);
+            $createThumbnailURLs[new_key] = URL.createObjectURL(
+                thumbnail_blobs[key]
+            );
         });
     }
     

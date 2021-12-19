@@ -13,14 +13,11 @@
         ingameTime,
         ingameEvalScreenShouldShow
     } from '../stores';
-    import { drawImageProp, GetKeypointsForFrame, GetFrameNumberFromTime } from '../utils';
+    import { drawImageProp } from '../utils';
     
     const animationCallback = () => {
         if ($ingameVideo && !$ingameEvalScreenShouldShow) {
             drawImageProp($ingameCTX, $ingameVideo);
-            
-            const keypoints = GetKeypointsForFrame($playGameMetadata.keypoints, GetFrameNumberFromTime($ingameTime, $playGameMetadata.fps));
-            
             window.requestAnimationFrame(animationCallback);
         }
 
@@ -30,46 +27,30 @@
         }
     };
 
-    const updateVideoBlobURL = () => {
+    const updateVideoURL = () => {
         if (!$playGameMetadata || !$playGameMetadata.media_id) {
             return;
         }
-
-        const blob_name =
-            dlManager.metaData[$playGameMetadata.media_id]['indexedMediaBlob-v'];
-
-        if (!blob_name) {
-            return;
-        }
-
-        GetMediaBlobFromDB(blob_name, (blob) => {
-            $ingameVideoURL = URL.createObjectURL(blob);
-        });
+        
+        $ingameVideoURL = dlManager.metaData[$playGameMetadata.media_id]['video_url'];
     };
 
-    const updateAudioBlobURL = () => {
+    const updateAudioURL = () => {
         if (!$playGameMetadata || !$playGameMetadata.media_id) {
             return;
         }
 
-        const blob_name =
-            dlManager.metaData[$playGameMetadata.media_id]['indexedMediaBlob-a'];
-
-        if (!blob_name) {
-            return;
-        }
-
-        GetMediaBlobFromDB(blob_name, (blob) => {
-            $ingameAudioURL = URL.createObjectURL(blob);
-        });
+        $ingameAudioURL = dlManager.metaData[$playGameMetadata.media_id]['audio_url'];
     };
 
     const onVideoPlay = () => {
+        $ingameAudio.currentTime = $ingameVideo.currentTime;
         $ingameAudio.volume = 0.2;
         $ingameAudio.play();
     };
 
     const onVideoPause = () => {
+        $ingameAudio.currentTime = $ingameVideo.currentTime;
         $ingameAudio.pause();
     };
 
@@ -83,14 +64,12 @@
     
     onMount(() => {
         refreshCTX($ingameCanvas);
-        updateVideoBlobURL(), updateAudioBlobURL();
+        updateVideoURL(), updateAudioURL();
         animationCallback();
         $ingameAudio.volume = 0;
     });
 
     onDestroy(() => {
-        URL.revokeObjectURL($ingameVideoURL);
-        URL.revokeObjectURL($ingameAudioURL);
         $ingameVideoURL = null;
         $ingameAudioURL = null;
     });

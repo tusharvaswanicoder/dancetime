@@ -1,48 +1,11 @@
 <script>
+    import { onMount } from 'svelte';
     import Icon from '../Icon.svelte';
-    import { dlManager, MEDIA_STATUS } from '../Downloads/DownloadManager';
     import { ConvertDurationToNiceString, GetFormattedDate } from '../utils';
     export let card_data = {
         title: 'Create New Project',
         new_project: true,
     };
-    
-    let isDownloadedOrDownloading = false;
-    
-    const DownloadMedia = () => {
-        isDownloadedOrDownloading = true;
-        dlManager.startMediaDownload(card_data.media_id);
-    }
-    
-    const GetDownloadText = (card_data) => {
-        if (!card_data.media_id) {
-            return '--';
-        }
-        
-        const songData = dlManager.metaData[card_data.media_id];
-        if (!songData) { // Not downloaded
-            return '--';
-        }
-        isDownloadedOrDownloading = true;
-        if (songData.status == MEDIA_STATUS.ERROR) {
-            return 'Error';
-        } else if (songData.status == MEDIA_STATUS.FINISHED) {
-            return `100%`;
-        } else if (songData.status == MEDIA_STATUS.NOT_READY) {
-            return `Wait...`;
-        } else {
-            return `${dlManager.getMediaPercentComplete(card_data.media_id).toFixed(0)}%`;
-        }
-    };
-    
-    let downloadText = GetDownloadText(card_data);
-    let isDownloaded = dlManager.isMediaDownloaded(card_data.media_id);
-    
-    $: {
-        $dlManager,
-        downloadText = GetDownloadText(card_data),
-        isDownloaded = dlManager.isMediaDownloaded(card_data.media_id)
-    }
     
     export let OnClick = () => {};
     export let OnClickOpen = () => {};
@@ -79,23 +42,15 @@
                 <h2>Length</h2>
                 <h3>{card_data.duration == 0 ? '--' : ConvertDurationToNiceString(card_data.duration)}</h3>
                 <div class='hr' />
-                <h2>Download</h2>
-                {#if isDownloadedOrDownloading}
-                    <h3>{downloadText}</h3>
-                {:else}
-                    <h3 class='red' on:click={() => DownloadMedia()}>Not downloaded. Click to download.</h3>
-                {/if}
                 <h2>Visibility</h2>
                 <h3>{card_data.visibility}</h3>
             </div>
             <div class='icon-container delete' on:click={() => OnClickDelete(card_data)}>
                 <Icon name="trash_icon" />
             </div>
-            {#if isDownloaded}
-                <div class="icon-container open" on:click={() => OnClickOpen(card_data)}>
-                    <Icon name="right_arrow_icon" />
-                </div>
-            {/if}
+            <div class="icon-container open" on:click={() => OnClickOpen(card_data)}>
+                <Icon name="right_arrow_icon" />
+            </div>
         {/if}
     </div>
 </main>

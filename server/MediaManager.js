@@ -94,7 +94,13 @@ class MediaManager {
      *  - status: MEDIA_STATUS
      * @param {*} videoId - String of the youtube video id or url
      */
-    async getMedia(videoId) {
+    async getMedia(videoId, is_query) {
+        if (!videoId) {
+            return {
+                status: MEDIA_STATUS.ERROR
+            };
+        }
+        
         try {
             if (!IS_PYTHON_INSTALLED()) {
                 return {
@@ -104,16 +110,15 @@ class MediaManager {
             
             let id = this.videoid_cache_lookup[videoId];
             let metadata;
-            if (typeof id == 'undefined') {
+            if (typeof id == 'undefined' || typeof this.metadata_cache[id] == 'undefined') {
                 metadata = await YTDL.get_video_metadata(videoId);
-                console.log(metadata);
                 id = metadata.id;
                 this.videoid_cache_lookup[videoId] = id;
             }
             else {
                 metadata = this.metadata_cache[id];
             }
-
+            
             // Status does not exist, get current status and store it for a bit
             if (id in this.in_progress_media === false) {
                 // Check if media is in blob store
@@ -125,14 +130,20 @@ class MediaManager {
                     CONTAINER_TYPE.AUDIO,
                     this.getMediaFilename(id, MEDIA_TYPE.AUDIO)
                 );
-                if (!video_blob_exists || !audio_blob_exists) {
+                
+                if ((!video_blob_exists || !audio_blob_exists) && !is_query) {
                     // Begin media download/upload
+
                     this.in_progress_media[id] =
                         this.getNewInProgressMedia(metadata);
                     this.processMedia(metadata);
-                } else {
+                } else if (video_blob_exists && audio_blob_exists) {
                     // Store already completed media metadata for a while
                     this.in_progress_media[id] = this.getCompletedMedia(metadata);
+                } else {
+                    return {
+                        status: MEDIA_STATUS.NOT_STARTED
+                    };
                 }
             }
 
@@ -317,8 +328,6 @@ class MediaManager {
         // Get best thumbnail info
         const format = metadata.thumbnails.reduce(thumbnailComparator);
 
-        console.log(format);
-
         if (!format) {
             throw new Error(
                 `Could not find thumbnail for ${id}`
@@ -381,8 +390,6 @@ class MediaManager {
                 : this.audioFormatComparator;
         // Get best quality (max file size) media format
         const format = metadata.formats.reduce(formatComparator);
-
-        console.log(format);
 
         if (!format) {
             throw new Error(
@@ -468,9 +475,9 @@ class MediaManager {
                     this.in_progress_media[id][dl_progress_var] =
                         progress.percent / 100;
                 })
-                .on('youtubeDlEvent', (eventType, eventData) =>
-                    console.log(eventType, eventData)
-                )
+                // .on('youtubeDlEvent', (eventType, eventData) =>
+                //     console.log(eventType, eventData)
+                // )
                 .on('error', (error) => {
                     throw new Error(error);
                 })

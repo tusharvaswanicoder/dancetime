@@ -1,6 +1,5 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
-    import { GetMediaBlobFromDB } from '../Downloads/VideoBlobManager';
+    import { onMount } from 'svelte';
     import { dlManager } from '../Downloads/DownloadManager';
     import {
         createCanvas,
@@ -61,38 +60,20 @@
         }
     };
 
-    const updateVideoBlobURL = () => {
+    const updateVideoURL = () => {
         if (!$createProject || !$createProject.media_id) {
             return;
         }
 
-        const blob_name =
-            dlManager.metaData[$createProject.media_id]['indexedMediaBlob-v'];
-
-        if (!blob_name) {
-            return;
-        }
-
-        GetMediaBlobFromDB(blob_name, (blob) => {
-            videoURL = URL.createObjectURL(blob);
-        });
+        videoURL = dlManager.metaData[$createProject.media_id]['video_url'];
     };
 
-    const updateAudioBlobURL = () => {
+    const updateAudioURL = () => {
         if (!$createProject || !$createProject.media_id) {
             return;
         }
 
-        const blob_name =
-            dlManager.metaData[$createProject.media_id]['indexedMediaBlob-a'];
-
-        if (!blob_name) {
-            return;
-        }
-
-        GetMediaBlobFromDB(blob_name, (blob) => {
-            audioURL = URL.createObjectURL(blob);
-        });
+        audioURL = dlManager.metaData[$createProject.media_id]['audio_url'];
     };
 
     const onVideoPlay = () => {
@@ -126,12 +107,7 @@
     
     onMount(() => {
         refreshCTX($createCanvas), animationCallback();
-        updateVideoBlobURL(), updateAudioBlobURL();
-    });
-
-    onDestroy(() => {
-        URL.revokeObjectURL(videoURL);
-        URL.revokeObjectURL(audioURL);
+        updateVideoURL(), updateAudioURL();
     });
 </script>
 
