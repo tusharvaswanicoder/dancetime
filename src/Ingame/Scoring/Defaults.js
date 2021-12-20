@@ -10,7 +10,7 @@ export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = (fps) => {
 
 // Default weighting for each group. Scores are averaged based on these weights - should add to 1
 export const DEFAULT_GROUP_WEIGHTS = {
-    [GROUP_TYPE.Head]: 0,
+    // [GROUP_TYPE.Head]: 0,
     [GROUP_TYPE.Torso]: 0.50,
     [GROUP_TYPE.Legs]: 0.50,
 };
@@ -19,7 +19,7 @@ export const DEFAULT_GROUP_WEIGHTS = {
 // Anything below the minimum will result in a 0 and scales up to max from there.
 // Anything above max is a perfect score (100)
 export const DEFAULT_GROUP_SCORE_THRESHOLDS = {
-    [GROUP_TYPE.Head]: { min: 0.6, max: 0.90 },
+    // [GROUP_TYPE.Head]: { min: 0.6, max: 0.90 },
     [GROUP_TYPE.Torso]: { min: 0.7, max: 0.95 },
     [GROUP_TYPE.Legs]: { min: 0.7, max: 0.95 },
 };
