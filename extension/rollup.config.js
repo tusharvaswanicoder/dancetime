@@ -98,7 +98,9 @@ export default [
             format: 'iife',
             file: 'public/build/content_script_iframe.js',
         },
-        plugins: [resolve(), commonjs()],
+        plugins: [resolve({
+            browser: true
+        }), commonjs()],
         watch: {
             clearScreen: false,
         },

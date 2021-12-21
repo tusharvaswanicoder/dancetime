@@ -7,27 +7,25 @@ import browser from 'webextension-polyfill';
 
 console.log(`content_script_main ${window.document.domain}`);
 
-setTimeout(() => {
-    browser.runtime.sendMessage('runtime message from main')
-    // WORKS to POST messages to the webpage
-    top.postMessage('hello from MAIN');
-    
-    // WORKS to RECEIVE messages from the webpage
-    top.addEventListener('message', (evt) => {
-        console.log('got top message')
-        console.log(evt);
-    })
-}, 3000);
+// Messages from extension background
+browser.runtime.onMessage.addListener((data) => {
+    if (data.main_passthrough) {
+        return;
+    }
 
-setTimeout(() => {
-    browser.runtime.sendMessage('hello from MAIN runtime')
-}, 1000);
+    top.postMessage(data);
+})
 
-browser.runtime.onMessage.addListener((request) => {
-    // if (request.name == "")
-    console.log('MAIN Message from the background script:');
-    console.log(request.greeting);
-    return Promise.resolve({ response: 'Hi from content script' });
+// Messages from dancetime.io SVELTE to Iframe
+top.addEventListener('message', (evt) => {
+    // Just passing through data, do not process here
+    if (evt.data.main_passthrough) {
+        return;
+    }
+
+    evt.data.main_passthrough = true;
+    evt.data.passthrough_event = true;
+    browser.runtime.sendMessage(evt.data);
 });
 
 

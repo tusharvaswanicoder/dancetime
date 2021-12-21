@@ -47,18 +47,9 @@
         $createThumbnailURLs = {};
         $createLoadingFinished = false;
         
-        setTimeout(() => {
-            window.postMessage('hello test message from create')
-        }, 3000);
-        
-        yt.addEventListener("message", (event) => {
-            console.log('got message in svelte YT')
-            console.log(event.origin); // Always verify identity using origin and source
-            console.log(event);
-        }, false);
         window.addEventListener("message", (event) => {
             console.log('got message in svelte')
-            console.log(event.origin); // Always verify identity using origin and source
+            // console.log(event.origin); // Always verify identity using origin and source
             console.log(event);
         }, false);
     })
@@ -116,10 +107,22 @@
             createState = CREATE_STATE.EDITOR_VIEW;
         }
     }
+
+    const TestClickButton = () => {
+        top.postMessage({
+            event_name: 'dancetime-message:start-analysis',
+            source: 'dancetime-main',
+            data: {
+                text: 'nothing useful here'
+            }
+        })
+    }
     
 </script>
 
-<iframe bind:this={yt} width="560" height="315" src="https://www.youtube.com/embed/mQiHypmwLzQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<button on:click={() => TestClickButton()}>Test Button</button>
+<iframe bind:this={yt} width="560" height="315" src="https://www.youtube.com/embed/mQiHypmwLzQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+</iframe>
 
 <main>
     {#if displayEditorLoadingPage}

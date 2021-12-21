@@ -1,19 +1,23 @@
 {
     "manifest_version": 2,
-    "name": "My Extension",
+    "name": "DanceTime",
     "version": "1.0.0",
     "permissions": [
         "storage",
         "tabs",
-        "*://*.dancetime.io/*"
+        "*://*.dancetime.io/*",
+        "*://tfhub.dev/*",
+        "webRequest",
+        "webRequestBlocking",
+        "activeTab"
     ],
+    "content_security_policy": "script-src 'self' https://tfhub.dev; object-src 'self' https://tfhub.dev; connect-src 'self' https://tfhub.dev https://storage.googleapis.com",
     "browser_action": {
         "default_popup": "index.html"
     },
     "background": {
         "scripts": ["build/background.js"]
     },
-    "run_at": "document_idle",
     "content_scripts": [
         {
             "matches": [

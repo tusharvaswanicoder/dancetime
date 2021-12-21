@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill';
-// import tfjs from './TFJS';
+import tfjs from './TFJS';
 
 // const ALLOWED_DOMAINS = ["www.youtube.com", "youtube.com"]
 // if (!ALLOWED_DOMAINS.includes(window.document.domain)) {
@@ -8,9 +8,31 @@ import browser from 'webextension-polyfill';
 
 console.log(`content_script_iframe ${window.document.domain}`);
 
-setTimeout(() => {
-    browser.runtime.sendMessage('hello from IFRAME runtime')
-}, 3000);
+const video = document.querySelector('video');
+console.log(video);
+
+const StartTFJSAnalysis = () => {
+    console.log('starting analysis')
+
+    let shouldContinue = true;
+    const onFrame = async () => {
+        const pose = await tfjs.detectFrame(video);
+        console.log(pose);
+
+        if (shouldContinue) {
+            requestAnimationFrame(onFrame)
+        }
+
+    }
+
+    onFrame();
+
+
+    setTimeout(() => {
+        console.log('stopping analysis')
+        shouldContinue = false;
+    }, 15000);
+}
 
 // tfjs.initialize();
 
@@ -20,39 +42,35 @@ const valid_referrers = [
     'http://localhost:3001/',
 ];
 
-const key = 'background';
-const isIframe = !(self == top);
-console.log(`iframe: ${isIframe}`);
-// This gets the item from the popup menu in the extension icon
-browser.storage.local.get(key).then((data) => {
-    // console.log(document.referrer);
-    if (
-        isIframe &&
-        document.domain == 'www.youtube.com' &&
-        valid_referrers.includes(document.referrer)
-    ) {
-        // console.log(document);
+// TODO: check domain to ensure that it is youtube
+// console.log(document.referrer);
+// if (
+//     isIframe &&
+//     document.domain == 'www.youtube.com' &&
+//     valid_referrers.includes(document.referrer)
+// ) {
 
-        // setTimeout(() => {
-        //     console.log('posting message to top...');
-        //     console.log(top);
-        //     browser.extension
-        //         .getBackgroundPage()
-        //         .postMessage('hello from youtube');
-        //     console.log('posted message to top');
-        // }, 2000);
-        // setInterval(() => {
-        //     console.log(document)
-        //     document.body.querySelectorAll('video').forEach((v) => {
-        //         console.log(v.currentTime)
-        //     })
-        // }, 1000);
+
+browser.runtime.onMessage.addListener((data) => {
+    if (data.source == 'dancetime-yt-iframe') {
+        return;
+    }
+
+    data.main_passthrough = false;
+
+    const func = EVENTS[data.event_name];
+    if (func) {
+        func(data);
     }
 });
 
-browser.runtime.onMessage.addListener((request) => {
-    console.log(window);
-    console.log('IFRAME Message from the background script:');
-    console.log(request.greeting);
-    return Promise.resolve({ response: 'hello i am the iframe' });
-});
+const SendMessageToDanceTime = (data) => {
+    data.source = 'dancetime-yt-iframe';
+    data.passthrough_event = true;
+    browser.runtime.sendMessage(data);
+}
+
+
+const EVENTS = {
+    ['dancetime-message:start-analysis']: StartTFJSAnalysis
+}
