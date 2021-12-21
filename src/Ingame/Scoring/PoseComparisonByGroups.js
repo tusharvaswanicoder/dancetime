@@ -6,8 +6,8 @@ import outlier from './RemoveOutliers';
 
 const SHAPE_SIMILARITY_OPTIONS = {
     ['restrictRotationAngle']: 0.05 * Math.PI,
-    ['estimationPoints']: 50,
-    ['rotations']: 10,
+    ['estimationPoints']: 20,
+    ['rotations']: 5,
 };
 
 /////////////////////// COMMON

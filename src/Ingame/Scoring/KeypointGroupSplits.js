@@ -1,6 +1,6 @@
 export const GROUP_TYPE = 
 {
-    Head: "HEAD",
+    // Head: "HEAD",
     Torso: "TORSO",
     Legs: "LEGS"
 }
@@ -8,11 +8,11 @@ export const GROUP_TYPE =
 // Index references from here: https://github.com/tensorflow/tfjs-models/blob/master/pose-detection/README.md#pose-estimation
 const KP_NAME_TO_GROUP_TYPE =
 {
-    "nose": GROUP_TYPE.Head,
-    "left_eye": GROUP_TYPE.Head,
-    "right_eye": GROUP_TYPE.Head,
-    "left_ear": GROUP_TYPE.Head,
-    "right_ear": GROUP_TYPE.Head,
+    // "nose": GROUP_TYPE.Head,
+    // "left_eye": GROUP_TYPE.Head,
+    // "right_eye": GROUP_TYPE.Head,
+    // "left_ear": GROUP_TYPE.Head,
+    // "right_ear": GROUP_TYPE.Head,
     "left_shoulder": GROUP_TYPE.Torso,
     "right_shoulder": GROUP_TYPE.Torso,
     "left_elbow": GROUP_TYPE.Torso,
