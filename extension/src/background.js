@@ -23,10 +23,9 @@ function sendMessageToThisTab(data) {
         .catch(onError);
 }
 
+// fetch only works in background script, so must forward from platform_browser.js to load models
 function fetchTFJSModel(data) {
     return new Promise(async (resolve, reject) => {
-        console.log('fetchTFJSModel');
-        console.log(data);
         // https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4/model.json?tfjs-format=file
         const model_path_start = 'https://tfhub.dev/google/tfjs-model/'
         if (!data.path || !data.path.startsWith(model_path_start)) {
@@ -34,16 +33,14 @@ function fetchTFJSModel(data) {
             return;
         }
 
+        // Cannot return direct result since it contains non-serializable fields
         const result = await fetch(data.path, data.init);
-        console.log(result);
         resolve(data.path.includes('.json') ? result.json() : result.arrayBuffer());
     })
 }
 
 // Passthrough for messages from iframe or main (ext)
 browser.runtime.onMessage.addListener((data) => {
-    console.log('background onMessage')
-    console.log(data);
     if (data.fetchModel) {
         return fetchTFJSModel(data);
     } else if (data.passthrough_event) {

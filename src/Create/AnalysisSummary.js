@@ -1,7 +1,7 @@
 import {
     GetFrameNumberFromTime,
     GetTimeFromFrameNumber,
-    ConvertDurationToNiceStringWithFPS,
+    ConvertDurationToNiceStringWithDecimal,
 } from '../utils';
 
 export const PROBLEM_TYPE = {
@@ -96,13 +96,11 @@ const GetKeypointsUnderScoreThreshold = (project, keypoint_score_threshold) => {
         const group_keys = Object.keys(group).map((key) => parseInt(key));
         const max_frame = group_keys.reduce((prev, cur) => prev > cur ? prev : cur);
         const min_frame = group_keys.reduce((prev, cur) => prev < cur ? prev : cur);
-        const start_time = ConvertDurationToNiceStringWithFPS(
-            GetTimeFromFrameNumber(min_frame, project.fps),
-            project.fps
+        const start_time = ConvertDurationToNiceStringWithDecimal(
+            GetTimeFromFrameNumber(min_frame, project.fps)
         );
-        const end_time = ConvertDurationToNiceStringWithFPS(
-            GetTimeFromFrameNumber(max_frame, project.fps),
-            project.fps
+        const end_time = ConvertDurationToNiceStringWithDecimal(
+            GetTimeFromFrameNumber(max_frame, project.fps)
         );
         
         let severity = SEVERITY.NONE;

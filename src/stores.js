@@ -51,6 +51,7 @@ export const settingsOpen = writable(false); // Single flag for settings so it c
 
 export const createCanvas = writable();
 export const createCTX = writable();
+export const createVideoPlayer = writable();
 export const createVideo = writable();
 export const createAudio = writable();
 export const createVideoCurrentTime = writable(0);

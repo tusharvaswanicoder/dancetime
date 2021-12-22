@@ -3,6 +3,7 @@
     import EditorPage from "./EditorPage.svelte";
     import LoadingEditorPage from './LoadingEditorPage.svelte';
     import { onMount } from "svelte";
+    import { GetVideoMetadataFromYouTube } from './GetVideoMetadata';
     import {
         createCanvas,
         createVideo,
@@ -22,7 +23,8 @@
         createTabState,
         createMediaLoaded,
         createLoadingFinished,
-        createLoadingMediaPercent
+        createLoadingMediaPercent,
+        createVideoPlayer
     } from "../stores";
     
     const CREATE_STATE = {
@@ -31,7 +33,8 @@
         LOADING_EDITOR_VIEW: 3
     }
     
-    let yt;
+    // import YouTubePlayer from 'youtube-player';
+    // let player;
     
     onMount(() => {
         $createCanvas = null;
@@ -46,12 +49,32 @@
         $createMediaLoaded = false;
         $createThumbnailURLs = {};
         $createLoadingFinished = false;
-        
-        window.addEventListener("message", (event) => {
-            console.log('got message in svelte')
-            // console.log(event.origin); // Always verify identity using origin and source
-            console.log(event);
-        }, false);
+        $createVideoPlayer = null;
+
+    // player = YouTubePlayer('video-player', {
+    //     playerVars: {
+    //         controls: 0,
+    //         disablekb: 1,
+    //         autoplay: 1,
+    //         enablejsapi: 1,
+    //         fs: 0,
+    //         modestbranding: 1,
+    //         origin: document.domain,
+    //         rel: 0,
+    //         showinfo: 0,
+    //         autoplay: 0,
+    //         frameborder: 0,
+    //         iv_load_policy: 3
+    //     }
+    // });
+    
+    // player.loadVideoById('mQiHypmwLzQ');
+
+    //     window.addEventListener("message", (event) => {
+    //         console.log('got message in svelte')
+    //         // console.log(event.origin); // Always verify identity using origin and source
+    //         console.log(event);
+    //     }, false);
     })
     
     let createState = CREATE_STATE.PROJECTS_VIEW;
@@ -108,21 +131,17 @@
         }
     }
 
-    const TestClickButton = () => {
-        top.postMessage({
-            event_name: 'dancetime-message:start-analysis',
-            source: 'dancetime-main',
-            data: {
-                text: 'nothing useful here'
-            }
-        })
-    }
+
+
+    // const TestClickButton = async () => {
+    //     if (await player.getPlayerState() == 1) {
+    //         player.pauseVideo();
+    //     } else {
+    //         player.playVideo();
+    //     }
+    // }
     
 </script>
-
-<button on:click={() => TestClickButton()}>Test Button</button>
-<iframe bind:this={yt} width="560" height="315" src="https://www.youtube.com/embed/mQiHypmwLzQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-</iframe>
 
 <main>
     {#if displayEditorLoadingPage}
@@ -135,8 +154,15 @@
     {/if}
 </main>
 
-
 <style>
+    /* #video-player {
+        position: relative;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        border-radius: 20px;
+    } */
+
     main {
         position: relative;
         width: 100%;

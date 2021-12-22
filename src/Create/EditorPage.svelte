@@ -68,7 +68,7 @@
             {/if}
         </section>
         <section class="timeline">
-            <VideoTimeline />
+            <!-- <VideoTimeline /> -->
         </section>
         <section class="preview">
             <VideoPreviewAndNav />

@@ -3,7 +3,7 @@
     import Dropdown from "../../Dropdown.svelte";
     import Icon from "../../Icon.svelte";
     import { createProject, createProjectUnsaved, createVideoFPS, createVideoDuration } from "../../stores";
-    import { ConvertDurationToNiceStringWithFPS } from "../../utils";
+    import { ConvertDurationToNiceStringWithDecimal } from "../../utils";
     import { DIFFICULTY, MAX_PROJECT_TAGS, COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
     
     const type = COMPONENT_TYPE.METADATA;
@@ -30,7 +30,7 @@
             <h3>--</h3>
         {/if}
         <h2>Length</h2>
-        <h3>{ConvertDurationToNiceStringWithFPS($createVideoDuration, $createVideoFPS)}</h3>
+        <h3>{ConvertDurationToNiceStringWithDecimal($createVideoDuration)}</h3>
         <div class='hr' />
         <h2>Chart Title</h2>
         <input bind:value={$createProject.title} on:input={metadataChanged} placeholder={"Chart Title"} />

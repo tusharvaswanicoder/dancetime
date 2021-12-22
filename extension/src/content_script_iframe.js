@@ -1,55 +1,10 @@
 import browser from 'webextension-polyfill';
-import tfjs from './TFJS';
-
-// const ALLOWED_DOMAINS = ["www.youtube.com", "youtube.com"]
-// if (!ALLOWED_DOMAINS.includes(window.document.domain)) {
-//     return;
-// }
+import IFrameManager from './iframe/IFrameManager';
 
 console.log(`content_script_iframe ${window.document.domain}`);
 
-const video = document.querySelector('video');
-console.log(video);
-
-const StartTFJSAnalysis = () => {
-    console.log('starting analysis')
-
-    let shouldContinue = true;
-    const onFrame = async () => {
-        const pose = await tfjs.detectFrame(video);
-        console.log(pose);
-
-        if (shouldContinue) {
-            requestAnimationFrame(onFrame)
-        }
-
-    }
-
-    onFrame();
-
-
-    setTimeout(() => {
-        console.log('stopping analysis')
-        shouldContinue = false;
-    }, 15000);
-}
-
-// tfjs.initialize();
-
-const valid_referrers = [
-    'https://b-a.dev/',
-    'https://b-a.dev/japan/',
-    'http://localhost:3001/',
-];
-
-// TODO: check domain to ensure that it is youtube
-// console.log(document.referrer);
-// if (
-//     isIframe &&
-//     document.domain == 'www.youtube.com' &&
-//     valid_referrers.includes(document.referrer)
-// ) {
-
+const ifm = new IFrameManager();
+ifm.initialize();
 
 browser.runtime.onMessage.addListener((data) => {
     if (data.source == 'dancetime-yt-iframe') {
@@ -60,17 +15,13 @@ browser.runtime.onMessage.addListener((data) => {
 
     const func = EVENTS[data.event_name];
     if (func) {
-        func(data);
+        ifm[func]();
     }
 });
 
-const SendMessageToDanceTime = (data) => {
-    data.source = 'dancetime-yt-iframe';
-    data.passthrough_event = true;
-    browser.runtime.sendMessage(data);
-}
-
-
 const EVENTS = {
-    ['dancetime-message:start-analysis']: StartTFJSAnalysis
+    ['dancetime-message:start-analysis']: 'start_analysis',
+    ['dancetime-message:stop-analysis']: 'stop_analysis',
+    ['dancetime-message:get-analysis']: 'get_analysis',
+    ['dancetime-message:get-status']: 'get_status'
 }

@@ -3,7 +3,6 @@
     import { SelectedNavIdStore } from './stores';
     import PlaySection from './Play/PlaySection.svelte';
     import CreateSection from './Create/CreateSection.svelte';
-    import DownloadsSection from './Downloads/DownloadsSection.svelte';
 </script>
 
 <main>
@@ -11,8 +10,6 @@
         <PlaySection />
     {:else if $SelectedNavIdStore == NAV_IDS.CREATE}
         <CreateSection />
-    {:else if $SelectedNavIdStore == NAV_IDS.DOWNLOADS}
-        <DownloadsSection />
     {/if}
 </main>
 

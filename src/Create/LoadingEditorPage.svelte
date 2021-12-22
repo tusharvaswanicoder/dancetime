@@ -1,6 +1,5 @@
 <script>
     import { fly, fade } from 'svelte/transition';
-    import { streamManager } from '../Streaming/StreamingManager';
     import {
         createLoadingThumbnailsPercent,
         createLoadingMediaPercent,
@@ -11,36 +10,17 @@
     import ProgressCircle from '../ProgressCircle.svelte';
     import { tweened } from 'svelte/motion';
     import { cubicOut } from 'svelte/easing';
+    import { onMount } from 'svelte';
 
     let media_load_progress = tweened(0, {
         duration: 1000,
         easing: cubicOut,
     });
 
-    const refreshDownloadStatus = async () => {
-        
-        isDownloaded = streamManager.isMediaDownloaded($createProject.media_id);
-        if (!isDownloaded && !streamManager.isMediaDownloading($createProject.media_id)) {
-            streamManager.startMediaDownload($createProject.media_id);
-        }
-        
-        $createLoadingMediaPercent =
-            streamManager.getMediaPercentComplete($createProject.media_id) /
-            100;
-            
-        setTimeout(() => {
-            media_load_progress.set($createLoadingMediaPercent);
-        }, 500);
-    };
-
-    $: {
-        $createMediaLoaded = $media_load_progress == 1;
-    }
-
-    let isDownloaded = false;
-    $: {
-        $streamManager, refreshDownloadStatus();
-    }
+    onMount(() => {
+        $createMediaLoaded = true;
+        $media_load_progress = 1;
+    })
 
     const stops = [
         { color: 'var(--color-yellow-dark)', offset: '0' },
@@ -53,9 +33,14 @@
     });
 
     $: {
+        // load_progress.set(
+        //     ($createLoadingThumbnailsPercent * 0.5 +
+        //         $media_load_progress * 0.5) *
+        //         100
+        // );
         load_progress.set(
-            ($createLoadingThumbnailsPercent * 0.5 +
-                $media_load_progress * 0.5) *
+            (
+                $media_load_progress * 1) *
                 100
         );
     }

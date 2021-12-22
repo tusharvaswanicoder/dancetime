@@ -12,7 +12,7 @@
     export let OnClickDelete = () => {};
 </script>
 
-<main class={`background ${card_data.visibility || ''}`}>
+<main class={`background ${card_data.visibility || ''} ${card_data.error ? 'error' : ''}`}>
     <div class={`content ${card_data.new_project ? 'new' : ''}`} on:click={() => OnClick(card_data)}>
         {#if card_data.new_project}
             <h1>{card_data.title}</h1>
@@ -22,35 +22,41 @@
         {:else}
             <h1>{card_data.project_name}</h1>
             <div class='details-container'>
-                <h2>Chart Title</h2>
-                <h3>{card_data.title || "--"}</h3>
-                <h2>Song Artist</h2>
-                <h3>{card_data.song_artist || "--"}</h3>
-                <h2>Difficulty</h2>
-                <h3>{card_data.difficulty}</h3>
-                <div class='hr' />
-                <h2>Last Edited</h2>
-                <h3>{GetFormattedDate(card_data.last_edited)}</h3>
-                <!-- <h2>Video Source</h2>
-                <h3>{card_data.video_source}</h3> -->
-                <h2>Video ID</h2>
-                {#if card_data.video_link && card_data.media_id}
-                    <h3><a href={card_data.video_link} target="_blank">{card_data.media_id}</a></h3>
+                {#if !card_data.error}
+                    <h2>Chart Title</h2>
+                    <h3>{card_data.title || "--"}</h3>
+                    <h2>Song Artist</h2>
+                    <h3>{card_data.song_artist || "--"}</h3>
+                    <h2>Difficulty</h2>
+                    <h3>{card_data.difficulty}</h3>
+                    <div class='hr' />
+                    <h2>Last Edited</h2>
+                    <h3>{GetFormattedDate(card_data.last_edited)}</h3>
+                    <!-- <h2>Video Source</h2>
+                    <h3>{card_data.video_source}</h3> -->
+                    <h2>Video ID</h2>
+                    {#if card_data.video_link && card_data.video_id}
+                        <h3><a href={card_data.video_link} target="_blank">{card_data.video_id}</a></h3>
+                    {:else}
+                        <h3>--</h3>
+                    {/if}
+                    <h2>Length</h2>
+                    <h3>{card_data.duration == 0 ? '--' : ConvertDurationToNiceString(card_data.duration)}</h3>
+                    <div class='hr' />
+                    <h2>Visibility</h2>
+                    <h3>{card_data.visibility}</h3>
                 {:else}
-                    <h3>--</h3>
+                    <h3 class='red'>This video is not available. Please delete this project and try again. Double check the YouTube link to ensure it is correct.</h3>
                 {/if}
-                <h2>Length</h2>
-                <h3>{card_data.duration == 0 ? '--' : ConvertDurationToNiceString(card_data.duration)}</h3>
-                <div class='hr' />
-                <h2>Visibility</h2>
-                <h3>{card_data.visibility}</h3>
             </div>
             <div class='icon-container delete' on:click={() => OnClickDelete(card_data)}>
                 <Icon name="trash_icon" />
             </div>
-            <div class="icon-container open" on:click={() => OnClickOpen(card_data)}>
-                <Icon name="right_arrow_icon" />
-            </div>
+            {#if card_data.ready}
+                <div class="icon-container open" on:click={() => OnClickOpen(card_data)}>
+                    <Icon name="right_arrow_icon" />
+                </div>
+            {/if}
         {/if}
     </div>
 </main>
@@ -76,6 +82,14 @@
     main.background.Draft {
         background-image: none;
         background-color: var(--color-gray-500);
+    }
+
+    main.background.error {
+        background-image: linear-gradient(
+            45deg,
+            var(--color-red-dark),
+            var(--color-red-light)
+        );
     }
 
     div.content {
@@ -123,7 +137,12 @@
         gap: 10px 30px;
         margin-top: 10px;
     }
-    
+
+
+    main.background.error div.details-container {
+        grid-template-columns: 1fr;
+    }
+
     div.details-container h2 {
         color: var(--color-gray-300);
     }
@@ -168,10 +187,5 @@
     
     div.details-container h3.red {
         color: var(--color-red-light);
-        cursor: pointer;
-    }
-    
-    div.details-container h3.red:hover {
-        text-decoration: underline;
     }
 </style>

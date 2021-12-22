@@ -21,7 +21,7 @@
         createEditorDisabled,
         createSelectedComponent
     } from '../stores';
-    import { ConvertDurationToNiceStringWithFPS } from '../utils';
+    import { ConvertDurationToNiceStringWithDecimal } from '../utils';
     import Icon from '../Icon.svelte';
     import VideoInOutPointsTimelineDisplay from './EditComponents/Displays/VideoInOutPointsTimelineDisplay.svelte';
 
@@ -207,16 +207,10 @@
             {/each}
         </div>
         <div class="timestamp left">
-            {ConvertDurationToNiceStringWithFPS(
-                $createVideoCurrentTime,
-                $createVideoFPS
-            )}
+            {ConvertDurationToNiceStringWithDecimal($createVideoCurrentTime)}
         </div>
         <div class="timestamp right">
-            {ConvertDurationToNiceStringWithFPS(
-                $createVideoDuration,
-                $createVideoFPS
-            )}
+            {ConvertDurationToNiceStringWithDecimal($createVideoDuration)}
         </div>
     </div>
     <div class="timeline-container">

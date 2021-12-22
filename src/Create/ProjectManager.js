@@ -1,10 +1,10 @@
-import { dlManager, MEDIA_STATUS } from '../Downloads/DownloadManager';
 import { writable } from "svelte/store";
 import { DIFFICULTY, VISIBILITY } from '../constants';
 import { v1 } from 'uuid';
 import { DB_TABLES, StoreObject, DeleteObjectInDB } from '../ChartAndKeypointDBManager';
+import { GetVideoMetadataFromYouTube } from './GetVideoMetadata';
 
-const PROJECTS_LOCALSTORE_NAME = 'projects';
+const PROJECTS_LOCALSTORE_NAME = 'projects';GetVideoMetadataFromYouTube
 
 class ProjectManager {
     constructor () {
@@ -56,20 +56,24 @@ class ProjectManager {
         return typeof this.projects[uuid] != 'undefined'; 
     }
     
-    createNewProject (name, media_id) {
-        const metadata = this.getNewProjectMetadata(name, media_id);
+    createNewProject (name, youtube_link) {
+        const metadata = this.getNewProjectMetadata(name, youtube_link);
         this.projects[metadata.uuid] = metadata;
         this.updateProjectsInLocalStorage();
-        dlManager.startMediaDownload(media_id, (metadata_entry) => {
-            metadata.choreography = metadata_entry.channel;
-            metadata.video_link = metadata_entry.url;
-            metadata.media_id = metadata_entry.media_id;
-            metadata.duration = metadata_entry.duration;
-            metadata.fps = metadata_entry.fps;
+        GetVideoMetadataFromYouTube(youtube_link).then((video_metadata) => {
+            metadata.choreography = video_metadata.author;
+            metadata.title = video_metadata.title;
+            metadata.video_id = video_metadata.video_id;
+            metadata.duration = video_metadata.duration;
+            metadata.ready = true;
             this.updateProjectsInLocalStorage();
-        });
+        }).catch((error) => {
+            metadata.ready = false;
+            metadata.error = true;
+            this.updateProjectsInLocalStorage();
+        })
     }
-    
+
     deleteProject (project) {
         if (this.projects[project.uuid]) {
             DeleteObjectInDB(project.uuid, DB_TABLES.LOCAL_KEYPOINTS, () => {
@@ -79,7 +83,7 @@ class ProjectManager {
         }
     }
     
-    getNewProjectMetadata (name, media_id) {
+    getNewProjectMetadata (name, youtube_link) {
         return {
             project_name: name,
             uuid: this.getNewProjectUUID(),
@@ -88,10 +92,8 @@ class ProjectManager {
             choreography: '',
             difficulty: DIFFICULTY.EASY,
             last_edited: (new Date()).toISOString(),
-            video_source: 'youtube',
-            video_link: media_id,
+            video_link: youtube_link,
             duration: 0,
-            download: 0,
             visibility: VISIBILITY.DRAFT,
             version: 1,
             tags: [],

@@ -4,13 +4,13 @@ export const ConvertDurationToNiceString = (duration) => {
     if (!duration) {
         return '--';
     }
-    return `${Math.floor(duration / 60)}:${(duration % 60)
+    return `${Math.floor(duration / 60)}:${Math.round(duration % 60)
         .toString()
         .padStart(2, '0')}`;
 };
 
-export const ConvertDurationToNiceStringWithFPS = (duration, fps) => {
-    if (!duration || !fps) {
+export const ConvertDurationToNiceStringWithDecimal = (duration) => {
+    if (!duration) {
         return '00:00:00';
     }
     const minutes = Math.floor(duration / 60)
@@ -21,12 +21,12 @@ export const ConvertDurationToNiceStringWithFPS = (duration, fps) => {
         .toFixed(0)
         .toString()
         .padStart(2, '0');
-    const frames = Math.floor(((duration % 60) % 1) * fps)
+    const decimal = ((duration % 1) * 100)
         .toFixed(0)
         .toString()
         .padStart(2, '0');
 
-    return `${minutes}:${seconds}:${frames}`;
+    return `${minutes}:${seconds}.${decimal}`;
 };
 
 export const GetFrameNumberFromTime = (time, fps) => {
@@ -132,7 +132,7 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
 }
 
 // Navigation
-export const CreateNavToTime = (time, video, audio, disabled) => {
+export const CreateNavToTime = (time, video, disabled) => {
     if (!video) {
         return;
     }
@@ -141,11 +141,10 @@ export const CreateNavToTime = (time, video, audio, disabled) => {
         return;
     }
 
-    video.currentTime = time;
-    audio.currentTime = time;
+    video.seekTo(time, true);
 };
 
-export const CreateNavToBeginning = (video, audio, disabled) => {
+export const CreateNavToBeginning = (video, disabled) => {
     if (!video) {
         return;
     }
@@ -154,11 +153,10 @@ export const CreateNavToBeginning = (video, audio, disabled) => {
         return;
     }
 
-    video.currentTime = 0;
-    audio.currentTime = 0;
+    video.seekTo(0, true);
 };
 
-export const CreateNavToEnd = (video, audio, disabled) => {
+export const CreateNavToEnd = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -167,11 +165,11 @@ export const CreateNavToEnd = (video, audio, disabled) => {
         return;
     }
 
-    video.currentTime = video.duration;
-    audio.currentTime = audio.duration;
+    const duration = await video.getDuration();
+    video.seekTo(duration, true);
 };
 
-export const CreateNavToPrevFrame = (video, audio, disabled, videoFPS) => {
+export const CreateNavToPrevFrame = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -180,12 +178,12 @@ export const CreateNavToPrevFrame = (video, audio, disabled, videoFPS) => {
         return;
     }
 
-    video.pause();
-    video.currentTime -= 1 / videoFPS;
-    audio.currentTime = video.currentTime;
+    const currentTime = await video.getCurrentTime();
+    video.pauseVideo();
+    video.seekTo(currentTime - 0.16, true);
 };
 
-export const CreateNavToNextFrame = (video, audio, disabled, videoFPS) => {
+export const CreateNavToNextFrame = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -194,12 +192,12 @@ export const CreateNavToNextFrame = (video, audio, disabled, videoFPS) => {
         return;
     }
 
-    video.pause();
-    video.currentTime += 1 / videoFPS;
-    audio.currentTime = video.currentTime;
+    const currentTime = await video.getCurrentTime();
+    video.pauseVideo();
+    video.seekTo(currentTime + 0.16, true);
 };
 
-export const CreatePlayOrPause = (video, audio, disabled) => {
+export const CreatePlayOrPause = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -208,12 +206,12 @@ export const CreatePlayOrPause = (video, audio, disabled) => {
         return;
     }
 
-    if (video.paused) {
-        video.play();
+    const state = await video.getPlayerState();
+    if (state != 1) {
+        video.playVideo();
     } else {
-        video.pause();
+        video.pauseVideo();
     }
-    audio.currentTime = video.currentTime;
 };
 
 // Sizeof object for debugging how large objects are

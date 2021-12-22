@@ -1,29 +1,28 @@
 <script>
+    import { onMount } from 'svelte';
     import {
-        createVideo,
-        createAudio,
-        createVideoCurrentTime,
-        createVideoDuration,
-        createVideoFPS
+        createVideoPlayer,
+        createProject,
+        createVideoCurrentTime
     } from '../stores';
-    import { ConvertDurationToNiceStringWithFPS } from '../utils';
+    import { ConvertDurationToNiceStringWithDecimal } from '../utils';
 
     let width = 0;
     let progressBarPercent = 0;
 
     const onClickProgressBar = (e) => {
-        const percentClick = e.layerX / width;
-        $createVideo.currentTime = percentClick * $createVideoDuration;
-        $createAudio.currentTime = percentClick * $createVideoDuration;
-        createVideoCurrentTime.set($createVideo.currentTime);
+        // const percentClick = e.layerX / width;
+        // $createVideo.currentTime = percentClick * $createProject.duration;
+        // $createAudio.currentTime = percentClick * $createProject.duration;
+        // createVideoCurrentTime.set($createVideo.currentTime);
     };
 
     const GetProgressBarPercent = () => {
-        if (!$createVideoCurrentTime || !$createVideoDuration) {
+        if (!$createVideoCurrentTime || !$createProject.duration) {
             return 0;
         }
 
-        return ($createVideoCurrentTime / $createVideoDuration) * 100;
+        return ($createVideoCurrentTime / $createProject.duration) * 100;
     };
 
     let mouseDownOnSeeker = false;
@@ -41,16 +40,31 @@
         mouseDownOnSeeker = false;
     };
 
+    const onYoutubeEvent = (data) => {
+        if (data.event == "infoDelivery" && data.info && data.info.currentTime) {
+            // TODO: tween this
+            $createVideoCurrentTime = data.info.currentTime;
+        }
+    }
+
+    onMount(() => {
+        $createVideoCurrentTime = 0;
+        window.addEventListener('message', (evt) => {
+            if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
+                onYoutubeEvent(JSON.parse(evt.data));
+            }
+        })
+    })
+
     $: {
-        $createVideo,
-            $createVideoCurrentTime,
-            (progressBarPercent = GetProgressBarPercent());
+        $createVideoCurrentTime,
+        (progressBarPercent = GetProgressBarPercent());
     }
 </script>
 
 <main>
-    {#if $createVideo}
-        <div>{ConvertDurationToNiceStringWithFPS($createVideoCurrentTime, $createVideoFPS)}</div>
+    {#if $createVideoPlayer}
+        <div>{ConvertDurationToNiceStringWithDecimal($createVideoCurrentTime)}</div>
         <div
             bind:clientWidth={width}
             class="progress"
@@ -64,7 +78,7 @@
         >
             <div style={`width: ${progressBarPercent}%`} />
         </div>
-        <div>{ConvertDurationToNiceStringWithFPS($createVideoDuration, $createVideoFPS)}</div>
+        <div>{ConvertDurationToNiceStringWithDecimal($createProject.duration)}</div>
     {/if}
 </main>
 
