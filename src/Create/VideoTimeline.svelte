@@ -5,9 +5,7 @@
         getThumbnails,
         getThumbnailsInParalell,
     } from './VideoThumbnailGenerator';
-    import { dlManager } from '../Downloads/DownloadManager';
     import { THUMBNAIL_INTERVAL, COMPONENT_TYPE } from '../constants';
-    import { GetMediaBlobFromDB } from '../Downloads/VideoBlobManager';
     import {
         createWaveSurfer,
         createVideo,
@@ -27,27 +25,6 @@
 
     let timelineWidth = 0;
     let timelineHeight = 0;
-
-    const updateAudioBlob = (project) => {
-        if (
-            !project ||
-            !$createWaveSurfer ||
-            !dlManager.metaData[project.media_id]
-        ) {
-            return;
-        }
-
-        const blob_name =
-            dlManager.metaData[project.media_id]['indexedMediaBlob-a'];
-
-        if (!blob_name) {
-            return;
-        }
-
-        GetMediaBlobFromDB(blob_name, (blob) => {
-            $createWaveSurfer.loadBlob(blob);
-        });
-    };
 
     async function GetThumbnails(project) {
         if (!project || !dlManager.metaData[project.media_id]) {

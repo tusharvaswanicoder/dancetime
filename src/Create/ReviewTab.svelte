@@ -5,11 +5,7 @@
     import tfjs from "../tensorflow/TFJS";
     import { fly } from "svelte/transition";
     import {
-        createCanvas,
-        createVideo,
         createVideoCurrentTime,
-        createVideoFPS,
-        createFramesAnalyzed,
         createAAInProgress,
         createProjectUnsaved,
         createProject,
@@ -39,8 +35,10 @@
         StopAA();
     };
 
-    const StartAA = () => {
+    const StartAA = async () => {
         $createAAInProgress = true;
+        await $createVideoPlayer.pauseVideo();
+        await $createVideoPlayer.mute();
         window.postMessage({
             source: "dancetime",
             event_name: "dancetime-message:start-analysis",
@@ -49,15 +47,13 @@
             },
         });
 
-        $createVideoPlayer.pauseVideo();
-        $createVideoPlayer.mute();
         CreateNavToBeginning($createVideoPlayer, false);
     };
 
-    const StopAA = () => {
+    const StopAA = async () => {
         $createAAInProgress = false;
-        $createVideoPlayer.pauseVideo();
-        $createVideoPlayer.unMute();
+        await $createVideoPlayer.pauseVideo();
+        await $createVideoPlayer.unMute();
         window.postMessage({
             source: "dancetime",
             event_name: "dancetime-message:stop-analysis"

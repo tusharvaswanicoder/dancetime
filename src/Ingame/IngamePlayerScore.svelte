@@ -1,8 +1,7 @@
 <script>
-import { onMount } from 'svelte';
-
+    import { onMount } from 'svelte';
     import { JUDGEMENT_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring/Judgements';
-    import { ingameVideo, ingameShouldScore, ingameNumStars } from '../stores';
+    import { ingameVideoPlayer, ingameShouldScore, ingameNumStars } from '../stores';
     import Icon from '../Icon.svelte';
     export let player_data = { name: 'Unknown' };
     
@@ -16,7 +15,9 @@ import { onMount } from 'svelte';
     ];
     
     const refreshJudgementAnim = async () => {
-        if (($ingameVideo && $ingameVideo.ended) || refreshTimeout) {
+        // if (($ingameVideoPlayer && $ingameVideo.ended) || refreshTimeout) {
+        // TODO: update this
+        if ($ingameVideoPlayer || refreshTimeout) {
             return;
         }
         

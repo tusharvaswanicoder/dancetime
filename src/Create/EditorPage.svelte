@@ -1,6 +1,6 @@
 <script>
     import Icon from '../Icon.svelte';
-    import { fly } from 'svelte/transition';
+    import { fly, fade } from 'svelte/transition';
     import VideoPreviewAndNav from './VideoPreviewAndNav.svelte';
     import VideoTimeline from './VideoTimeline.svelte';
     import EditorTabsSection from './EditorTabsSection.svelte';
@@ -41,6 +41,7 @@
 </script>
 
 <main
+    in:fade|local={{ delay: 400, duration: 0 }}
     out:fly|local={{ x: 500, duration: 200 }}
 >
     <main class="grid-container">

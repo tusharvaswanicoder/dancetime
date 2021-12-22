@@ -19,7 +19,10 @@
 
     onMount(() => {
         $createMediaLoaded = true;
-        $media_load_progress = 1;
+
+        setTimeout(() => {
+            $media_load_progress = 1;
+        }, 200);
     })
 
     const stops = [

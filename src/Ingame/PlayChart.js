@@ -2,15 +2,9 @@ import {
     gameState, 
     playGameMetadata, 
     playGameKeypoints,
-    ingameVideo,
-    ingameVideoURL,
-    ingameAudio,
-    ingameAudioURL,
-    ingameCanvas,
     ingameScreenShouldShow,
     ingameIsLoading,
     ingameErrorMessage,
-    ingameCTX,
     TFJSReady,
     ingameRawScores,
     ingameCurrentJudgement,
@@ -20,7 +14,8 @@ import {
     ingameAdjustedScores,
     ingameRawJudgements,
     ingameShouldScore,
-    ingameNumStars
+    ingameNumStars,
+    ingameVideoPlayer
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -28,12 +23,6 @@ export const PlayChart = (metadata, keypoints) => {
     ingameIsLoading.set(true);
     ingameScreenShouldShow.set(false);
     ingameErrorMessage.set(null);
-    ingameVideo.set(null);
-    ingameVideoURL.set(null);
-    ingameAudio.set(null);
-    ingameAudioURL.set(null);
-    ingameCanvas.set(null);
-    ingameCTX.set(null);
     TFJSReady.set(false);
     ingameRawScores.set({});
     ingameCurrentJudgement.set(null);
@@ -44,6 +33,7 @@ export const PlayChart = (metadata, keypoints) => {
     ingameRawJudgements.set({});
     ingameShouldScore.set(false);
     ingameNumStars.set(0);
+    ingameVideoPlayer.set(null);
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

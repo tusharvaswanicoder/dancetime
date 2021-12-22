@@ -33,6 +33,11 @@
         }
     };
 
+    const ignoreIframeErrors = async () => {
+        const iframe = await $createVideoPlayer.getIframe();
+        iframe.onerror = () => {};
+    }
+
     const video_div_id = 'create-youtube-video';
 
     onMount(() => {
@@ -54,6 +59,7 @@
             height: 1080,
             
         });
+        ignoreIframeErrors();
         // loadVideoById automatically loads and plays the video
         // $createVideoPlayer.loadVideoById($createProject.video_id);
     })

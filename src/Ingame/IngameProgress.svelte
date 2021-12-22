@@ -1,6 +1,10 @@
 <script>
+import { onDestroy, onMount } from 'svelte';
+import { linear } from 'svelte/easing';
+import { tweened } from 'svelte/motion';
+
     import ProgressCircle from '../ProgressCircle.svelte';
-    import { playGameMetadata, ingameTime } from '../stores';
+    import { playGameMetadata, ingameTime, ingameVideoPlayer } from '../stores';
     import { GetVideoStartAndEndTimeFromMetadata } from '../utils';
     
     const GetProgress = (ingameTimeValue) => {
@@ -9,6 +13,36 @@
             
         return Math.min(1, Math.max(0, (ingameTimeValue - startEndTime.start) / (startEndTime.end - startEndTime.start)));
     }
+
+    const currentTime = tweened(0, {
+        duration: 30,
+        easing: linear
+    })
+
+    let raf;
+    const onFrame = async () => {
+        if ($ingameVideoPlayer) {
+            const time = await $ingameVideoPlayer.getCurrentTime();
+            currentTime.set(time);
+        }
+
+        raf = window.requestAnimationFrame(onFrame);
+    }
+
+    $: {
+        $ingameTime = $currentTime;
+    }
+
+    onMount(() => {
+        $ingameTime = 0;
+        onFrame();
+    })
+
+    onDestroy(() => {
+        if (raf) {
+            raf = window.cancelAnimationFrame(raf);
+        }
+    })
     
     let progress = 0;
     $: {

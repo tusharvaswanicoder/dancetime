@@ -7,7 +7,7 @@
     import IngameTFJS from './IngameTFJS.svelte';
     import {
         ingameTime,
-        ingameVideo,
+        ingameVideoPlayer,
         playGameMetadata,
         ingameEvalScreenShouldShow,
         ingameScreenShouldShow,
@@ -19,13 +19,12 @@
     $: {
         if (
             !$ingameEvalScreenShouldShow &&
-            $ingameVideo &&
             $ingameTime >=
                 GetVideoEndTimeFromMetadata($playGameMetadata)
         ) {
             $ingameShouldScore = false;
             $ingameEvalScreenShouldShow = true;
-            $ingameVideo.pause;
+            $ingameVideoPlayer.pauseVideo();
 
             setTimeout(() => {
                 $ingameScreenShouldShow = false;
