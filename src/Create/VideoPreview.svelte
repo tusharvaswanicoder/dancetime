@@ -40,8 +40,8 @@
     onMount(() => {
         $createVideoPlayer = YouTubePlayer(video_div_id, {
             playerVars: {
-                controls: 0,
-                disablekb: 1,
+                // controls: 0,
+                // disablekb: 1,
                 enablejsapi: 1,
                 fs: 0,
                 modestbranding: 1,

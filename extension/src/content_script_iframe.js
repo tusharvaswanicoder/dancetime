@@ -15,7 +15,7 @@ browser.runtime.onMessage.addListener((data) => {
 
     const func = EVENTS[data.event_name];
     if (func) {
-        ifm[func]();
+        ifm[func](data.data);
     }
 });
 

@@ -23,7 +23,7 @@ export default class IFrameManager {
         this.initialized = true;
     }
 
-    start_analysis () {
+    start_analysis (args) {
         if (!this.initialized) {
             return;
         }
@@ -35,6 +35,8 @@ export default class IFrameManager {
         console.log('Starting analysis...');
 
         this.video = this.get_video_element();
+        this.previousPlaybackRate = this.video.playbackRate;
+        this.video.playbackRate = args.playbackRate || 0;
         this.analyzing = true;
         this.firstFrameDetected = false;
         this.frames_analyzed = {};
@@ -68,18 +70,25 @@ export default class IFrameManager {
             this.firstFrameDetected = true;
             this.video.play();
         }
+
+        if (!shouldContinue) {
+            this.stop_analysis();
+        }
     }
 
     stop_analysis () {
-        if (this.analyzing) {
+        if (!this.analyzing) {
             return;
         }
 
         this.analyzing = false;
+        this.video.playbackRate = this.previousPlaybackRate || 1;
 
         if (this.raf) {
             this.raf = cancelAnimationFrame(this.raf);
         }
+
+        this.get_analysis();
     }
 
     send_message_to_dancetime (data) {
@@ -96,7 +105,7 @@ export default class IFrameManager {
         this.send_message_to_dancetime({
             event_name: 'dancetime-iframe-message:get-analysis',
             data: {
-                keypoints: this.keypoints
+                keypoints: this.frames_analyzed
             }
         })
     }
