@@ -1,5 +1,5 @@
 import { shapeSimilarity } from 'curve-matcher';
-import { GetKeypointsForFrame } from '../../utils';
+import { GetKeypointsForTime } from '../../utils';
 import { SplitPoseByGroupXY, GROUP_TYPE } from './KeypointGroupSplits';
 import { DEFAULT_GROUP_WEIGHTS, GROUP_SCORE_FRAME_LOOKBACK } from './Defaults';
 import outlier from './RemoveOutliers';
@@ -60,7 +60,7 @@ const GetShapeSimilarityWithLookback = (groups, current_frame, playGameMetadataV
         frame > current_frame - lookback_frame_amount && frame > 0;
         frame--
     ) {
-        const videoFrameKeypoints = GetKeypointsForFrame(
+        const videoFrameKeypoints = GetKeypointsForTime(
             playGameMetadataValue.keypoints,
             frame
         );

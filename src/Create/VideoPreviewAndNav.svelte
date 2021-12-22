@@ -136,7 +136,7 @@
 
     onDestroy(() => {
         if (listener) {
-            window.removeEventListener(listener);
+            window.removeEventListener('message', listener);
         }
     })
 

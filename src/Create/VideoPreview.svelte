@@ -7,32 +7,30 @@
         createProject,
         createEditorDisabled,
         createAAInProgress,
-        createTabState,
-        createVideoPlayer
+        createVideoPlayer,
+        createVideoCurrentTime,
+        createTabState
     } from '../stores';
-    import { EDITOR_TAB_STATE } from '../constants';
-    import { drawImageProp } from '../utils';
+    import { GetKeypointsForTime } from '../utils';
     import { drawKeypointsAndSkeleton } from './DrawKeypoints';
-    import { GetKeypointsForFrame, GetFrameNumberFromTime } from '../utils';
+    import { EDITOR_TAB_STATE } from '../constants';
 
     const animationCallback = () => {
-        // if ($createProject) {
-        //     $createCTX.clearColor(0, 0, 0, 0);
-        //     if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress) {
-        //         const currentFrame = GetFrameNumberFromTime($createVideo.currentTime, $createProject.fps);
-                
-        //         if (Object.keys($createProject.keypoints).length > 0) {
-        //             const keypoints_obj = GetKeypointsForFrame($createProject.keypoints, currentFrame);
+        if ($createProject) {
+            $createCTX.clearRect(0, 0, 1920, 1080);
+            if ($createTabState == EDITOR_TAB_STATE.REVIEW && !$createAAInProgress) {
+                if (Object.keys($createProject.keypoints).length > 0) {
+                    const keypoints_obj = GetKeypointsForTime($createProject.keypoints, $createVideoCurrentTime);
                     
-        //             if (keypoints_obj && keypoints_obj.keypoints) {
-        //                 drawKeypointsAndSkeleton($createCTX, keypoints_obj.keypoints);
-        //             }
-        //         }
+                    if (keypoints_obj && keypoints_obj.keypoints) {
+                        drawKeypointsAndSkeleton($createCTX, keypoints_obj.keypoints);
+                    }
+                }
                 
-        //     }
+            }
             
-        //     window.requestAnimationFrame(animationCallback);
-        // }
+            window.requestAnimationFrame(animationCallback);
+        }
     };
 
     const video_div_id = 'create-youtube-video';

@@ -1,4 +1,4 @@
-import { GetFrameNumberFromTime, GetVideoStartAndEndTimeFromMetadata } from '../../utils';
+import { GetVideoStartAndEndTimeFromMetadata } from '../../utils';
 import {
     testIngameScores,
     ingameRawScores,
@@ -96,7 +96,7 @@ export const AnalyzePose = async (
         return;
     }
 
-    const frame = GetFrameNumberFromTime(
+    const frame = xx(
         currentTime,
         playGameMetadataValue.fps
     );

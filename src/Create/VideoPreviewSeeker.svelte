@@ -1,5 +1,7 @@
 <script>
     import { onDestroy, onMount } from 'svelte';
+    import { tweened } from 'svelte/motion';
+    import { linear } from 'svelte/easing';
     import {
         createVideoPlayer,
         createProject,
@@ -40,26 +42,30 @@
         mouseDownOnSeeker = false;
     };
 
-    const onYoutubeEvent = (data) => {
-        if (data.event == "infoDelivery" && data.info && data.info.currentTime) {
-            // TODO: tween this
-            $createVideoCurrentTime = data.info.currentTime;
-        }
+    const tweenedTime = tweened(0, {
+        duration: 20,
+        easing: linear
+    })
+
+    $: {
+        $createVideoCurrentTime = $tweenedTime;
     }
 
-    let listener;
+    let raf;
+    const onFrame = async () => {
+        const currentTime = await $createVideoPlayer.getCurrentTime();
+        tweenedTime.set(currentTime);
+        raf = window.requestAnimationFrame(onFrame);
+    }
+
     onMount(() => {
         $createVideoCurrentTime = 0;
-        listener = window.addEventListener('message', (evt) => {
-            if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
-                onYoutubeEvent(JSON.parse(evt.data));
-            }
-        })
+        onFrame();
     })
 
     onDestroy(() => {
-        if (listener) {
-            window.removeEventListener(listener);
+        if (raf) {
+            window.cancelAnimationFrame(raf);
         }
     })
 

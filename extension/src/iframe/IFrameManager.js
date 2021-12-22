@@ -23,7 +23,7 @@ export default class IFrameManager {
         this.initialized = true;
     }
 
-    start_analysis (args) {
+    async start_analysis (args) {
         if (!this.initialized) {
             return;
         }
@@ -32,15 +32,24 @@ export default class IFrameManager {
             return;
         }
 
-        console.log('Starting analysis...');
-
         this.video = this.get_video_element();
         this.previousPlaybackRate = this.video.playbackRate;
         this.video.playbackRate = args.playbackRate || 0;
         this.analyzing = true;
         this.firstFrameDetected = false;
         this.frames_analyzed = {};
+
+        while (this.video.readyState != 4) {
+            await this.sleep(200);
+        }
+        
         this.on_analysis_frame();
+    }
+
+    sleep (ms) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, ms);
+        });
     }
 
     async on_analysis_frame () {
@@ -56,8 +65,17 @@ export default class IFrameManager {
         }
 
         const pose = await tfjs.detectFrame(this.video);
-        this.frames_analyzed[frameTime] = pose || {};
-        console.log(pose);
+        if (pose) {
+            // Map keypoints to 1920x1080 rectangle
+            pose.keypoints = pose.keypoints.map((keypoint) => {
+                return {
+                    ...keypoint,
+                    x: keypoint.x / this.video.videoWidth * 1920,
+                    y: keypoint.y / this.video.videoHeight * 1080
+                }
+            })
+            this.frames_analyzed[frameTime] = pose;
+        }
 
         if (shouldContinue) {
             this.raf = requestAnimationFrame(() => {
@@ -71,7 +89,7 @@ export default class IFrameManager {
             this.video.play();
         }
 
-        if (!shouldContinue) {
+        if (!shouldContinue || this.video.currentTime >= this.video.duration) {
             this.stop_analysis();
         }
     }

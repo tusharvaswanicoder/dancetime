@@ -7,8 +7,6 @@
     import {
         createCanvas,
         createVideo,
-        createAudio,
-        createEditorDisabled,
         createVideoCurrentTime,
         createVideoFPS,
         createFramesAnalyzed,
@@ -17,7 +15,7 @@
         createProject,
         createVideoPlayer,
     } from "../stores";
-    import { GetFrameNumberFromTime, CreateNavToBeginning } from "../utils";
+    import { CreateNavToBeginning } from "../utils";
     import { GetAnalysisSummary, SEVERITY } from "./AnalysisSummary";
     import ProblemComponent from "./ReviewComponents/ProblemComponent.svelte";
     import { PlayChart } from "../Ingame/PlayChart";
@@ -26,9 +24,7 @@
     const publishTotalProblemLimit = 10;
     let keypointScoreThreshold = [0.5];
     let videoPlaybackRate = [1.0];
-    let raf;
     let analysisCompletion;
-    let firstFrameAnalyzed = false;
 
     const clickPlaytestIcon = () => {
         PlayChart($createProject, $createProject.keypoints);
@@ -70,36 +66,6 @@
 
     const clickAnalyzeButton = async () => {
         StartAA();
-    };
-
-    const analyzeOnFrame = async (ts) => {
-        const frame = GetFrameNumberFromTime(
-            $createVideoCurrentTime,
-            $createVideoFPS
-        );
-        const max_frame = GetFrameNumberFromTime($createProject.duration);
-
-        if (frame >= max_frame || !$createAAInProgress) {
-            StopAA();
-            return;
-        }
-
-        // This frame was already analyzed
-        if ($createFramesAnalyzed[frame]) {
-            raf = requestAnimationFrame(analyzeOnFrame);
-            return;
-        }
-
-        const poses = await tfjs.detectFrame($createCanvas);
-        $createFramesAnalyzed[frame] = poses || {};
-
-        raf = requestAnimationFrame(analyzeOnFrame);
-
-        // Delay on play so TFJS can start up properly
-        if (!firstFrameAnalyzed) {
-            $createVideo.play();
-            firstFrameAnalyzed = true;
-        }
     };
 
     const GetAnalysisCompletion = (analysisCompletion, keypoints) => {
@@ -163,12 +129,25 @@
     const onYoutubeIframeMessage = (args) => {
         if (args.event_name == "dancetime-iframe-message:get-status") {
             extensionInstalled = args.data.initialized == true;
+
+            if (extensionInstalled && extensionCheckInterval) {
+                clearInterval(extensionCheckInterval);
+            }
         } else if (args.event_name == "dancetime-iframe-message:get-analysis") {
             $createProjectUnsaved = true;
             $createProject.keypoints = args.data.keypoints;
             $createProject = $createProject;
+            StopAA();
         }
     };
+
+    const onYoutubeMessage = async (args) => {
+        const playerState = await $createVideoPlayer.getPlayerState();
+        if (playerState == 0 && $createAAInProgress) {
+            // Video ended, stop analysis if it is going
+            StopAA();
+        }
+    }
 
     let extensionCheckInterval;
     let extensionEventsListener;
@@ -178,9 +157,14 @@
                 event_name: "dancetime-message:get-status",
                 source: "dancetime",
             });
-        }, 1000);
+        }, 200);
 
         extensionEventsListener = window.addEventListener("message", (evt) => {
+            if (evt.origin == "https://youtube.com") {
+                onYoutubeMessage(JSON.parse(evt.data));
+                return;
+            }
+
             if (
                 evt.origin != "http://localhost:3001" &&
                 evt.origin != "https://dancetime.io"
@@ -201,7 +185,7 @@
             clearInterval(extensionCheckInterval);
         }
 
-        window.removeEventListener(extensionEventsListener);
+        window.removeEventListener('message', extensionEventsListener);
     });
 </script>
 

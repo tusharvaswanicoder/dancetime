@@ -18,7 +18,7 @@
         ingameShouldScore,
         ingameNumStars,
     } from '../stores';
-    import { GetFrameNumberFromTime, sleep, GetVideoStartAndEndTimeFromMetadata } from '../utils';
+    import { sleep, GetVideoStartAndEndTimeFromMetadata } from '../utils';
     import { AnalyzePose } from './Scoring/Scoring';
     import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring/Defaults';
     import { GetNumStarsFromPerfectPercentage } from './Scoring/Stars';

@@ -1,10 +1,5 @@
 import browser from 'webextension-polyfill';
 
-// const ALLOWED_DOMAINS = ["localhost", "dancetime.io"]
-// if (!ALLOWED_DOMAINS.includes(window.document.domain)) {
-//     return;
-// }
-
 console.log(`content_script_main ${window.document.domain}`);
 
 // Messages from extension background
