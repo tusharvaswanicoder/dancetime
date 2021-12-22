@@ -18,7 +18,6 @@
         width: 100%;
         height: 100%;
         position: relative;
-        grid-area: main;
         overflow: hidden;
     }
 </style>

@@ -1,7 +1,7 @@
 <script>
     import BasicComponent from "./BasicComponent.svelte";
     import DeleteRow from './DeleteRow.svelte';
-    import { createProject, createProjectUnsaved, createVideoFPS, createVideoCurrentTime, createSelectedComponent } from "../../stores";
+    import { createProject, createProjectUnsaved, createVideoCurrentTime, createSelectedComponent } from "../../stores";
     import { ConvertDurationToNiceStringWithDecimal } from "../../utils";
     import { COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
     import ClickableTimestampText from '../ClickableTimestampText.svelte';
@@ -28,6 +28,7 @@
         $createProjectUnsaved = true;
         $createSelectedComponent = $createSelectedComponent;
         $createProject.components = $createProject.components;
+        $createProject = $createProject;
     }
 </script>
 

@@ -55,7 +55,6 @@ export const createVideoPlayer = writable();
 export const createVideo = writable();
 export const createAudio = writable();
 export const createVideoCurrentTime = writable(0);
-export const createVideoDuration = writable(0);
 export const createWaveSurfer = writable();
 export const createVideoFPS = writable(30);
 export const createLoadingThumbnailsPercent = writable(0);

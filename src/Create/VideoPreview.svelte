@@ -4,10 +4,6 @@
     import {
         createCanvas,
         createCTX,
-        createVideo,
-        createAudio,
-        createVideoCurrentTime,
-        createVideoDuration,
         createProject,
         createEditorDisabled,
         createAAInProgress,
@@ -55,10 +51,13 @@
                 frameborder: 0,
                 iv_load_policy: 3
             },
+            videoId: $createProject.video_id,
             width: 1920,
-            height: 1080
+            height: 1080,
+            
         });
-        $createVideoPlayer.loadVideoById($createProject.video_id);
+        // loadVideoById automatically loads and plays the video
+        // $createVideoPlayer.loadVideoById($createProject.video_id);
     })
 
     onDestroy(() => {

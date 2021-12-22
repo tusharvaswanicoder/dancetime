@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import {
         createVideoPlayer,
         createProject,
@@ -47,13 +47,20 @@
         }
     }
 
+    let listener;
     onMount(() => {
         $createVideoCurrentTime = 0;
-        window.addEventListener('message', (evt) => {
+        listener = window.addEventListener('message', (evt) => {
             if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
                 onYoutubeEvent(JSON.parse(evt.data));
             }
         })
+    })
+
+    onDestroy(() => {
+        if (listener) {
+            window.removeEventListener(listener);
+        }
     })
 
     $: {

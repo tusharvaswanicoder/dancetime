@@ -1,4 +1,5 @@
 <script>
+    import { onMount, onDestroy } from 'svelte';
     import Icon from '../Icon.svelte';
     import VideoPreview from './VideoPreview.svelte';
     import {
@@ -8,7 +9,8 @@
         createLoadingThumbnailsPercent,
         createProject,
         createEditorDisabled,
-        createVideoPlayer
+        createVideoPlayer,
+        createLoadingFinished
     } from '../stores';
     import { keyPress, keyDown, createVideoFPS } from '../stores';
     import VideoPreviewSeeker from './VideoPreviewSeeker.svelte';
@@ -21,14 +23,14 @@
     } from '../utils';
 
     const isLoadingFinished = () => {
-        return true;
-        // return $createLoadingThumbnailsPercent >= 1;
+        return $createLoadingFinished;
     };
 
     const updatePausePlayIcons = async () => {
-        const playing = (await $createVideoPlayer.getPlayerState()) == 1;
-        icons['video_play_icon'].display = playing;
-        icons['video_pause_icon'].display = !playing;
+        const playerState = await $createVideoPlayer.getPlayerState();
+        const paused = playerState == 2 || playerState == 0;
+        icons['video_play_icon'].display = paused;
+        icons['video_pause_icon'].display = !paused;
     };
 
     const onVideoPaused = () => {
@@ -115,6 +117,29 @@
     $: {
         onKeyDown($keyDown);
     }
+
+    const onYoutubeEvent = (data) => {
+        if (data.event == "infoDelivery") {
+            // TODO: tween this
+            updatePausePlayIcons();
+        }
+    }
+
+    let listener;
+    onMount(() => {
+        listener = window.addEventListener('message', (evt) => {
+            if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
+                onYoutubeEvent(JSON.parse(evt.data));
+            }
+        })
+    })
+
+    onDestroy(() => {
+        if (listener) {
+            window.removeEventListener(listener);
+        }
+    })
+
 </script>
 
 {#if $createProject}

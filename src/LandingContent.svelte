@@ -19,10 +19,7 @@
 
 <main>
     {#if $gameState == GAMESTATE.NOT_INGAME}
-        <section class='grid'>
-            <Sidebar />
-            <MainContent />
-        </section>
+        <MainContent />
     {:else if $gameState == GAMESTATE.INGAME}
         <IngameContent />
     {/if}
@@ -37,17 +34,6 @@
         position: relative;
         height: 100%;
         width: 100%;
-        overflow: hidden;
-    }
-
-    section.grid {
-        position: relative;
-        display: grid;
-        height: 100%;
-        width: 100%;
-        grid-template-columns: 250px 1fr;
-        grid-template-areas: 
-            'sidebar main';
         overflow: hidden;
     }
 </style>

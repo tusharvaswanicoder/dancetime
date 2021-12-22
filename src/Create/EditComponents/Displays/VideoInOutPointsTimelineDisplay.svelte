@@ -1,5 +1,5 @@
 <script>
-    import { createProject, createProjectUnsaved, createVideoDuration } from '../../../stores';
+    import { createProject } from '../../../stores';
     import { COMPONENT_TYPE } from '../../../constants';
     
     let inOutComponent;
@@ -12,10 +12,10 @@
     $: {
         if (inOutComponent) {
             startPercent = `${
-                (inOutComponent.in / $createVideoDuration) * 100
+                (inOutComponent.in / $createProject.duration) * 100
             }%`,
             endPercent = `${
-                (inOutComponent.out / $createVideoDuration) * 100
+                (inOutComponent.out / $createProject.duration) * 100
             }%`;
         }
     }

@@ -9,7 +9,6 @@
         createVideo,
         createAudio,
         createEditorDisabled,
-        createVideoDuration,
         createVideoCurrentTime,
         createVideoFPS,
         createFramesAnalyzed,
@@ -87,8 +86,7 @@
             $createVideoFPS
         );
         const max_frame = GetFrameNumberFromTime(
-            $createVideoDuration,
-            $createVideoFPS
+            $createProject.duration
         );
 
         if (frame >= max_frame || !$createAAInProgress) {
@@ -160,7 +158,7 @@
 
     $: {
         if ($createAAInProgress) {
-            analysisCompletion = $createVideoCurrentTime / $createVideoDuration;
+            analysisCompletion = $createVideoCurrentTime / $createProject.duration;
         }
     }
 </script>

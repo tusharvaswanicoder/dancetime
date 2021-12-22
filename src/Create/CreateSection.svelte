@@ -9,7 +9,6 @@
         createVideo,
         createAudio,
         createVideoCurrentTime,
-        createVideoDuration,
         createWaveSurfer,
         createVideoFPS,
         createLoadingThumbnailsPercent,
@@ -41,7 +40,6 @@
         $createVideo = null;
         $createAudio = null;
         $createVideoCurrentTime = null;
-        $createVideoDuration = null;
         $createWaveSurfer = null;
         $createVideoFPS = 30;
         $createLoadingThumbnailsPercent = 0;
@@ -100,7 +98,6 @@
             $createVideo = null;
             $createAudio = null;
             $createVideoCurrentTime = 0;
-            $createVideoDuration = 0;
             $createWaveSurfer = null;
             $createVideoFPS = 30;
             $createLoadingThumbnailsPercent = 0;

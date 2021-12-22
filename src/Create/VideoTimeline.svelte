@@ -13,13 +13,13 @@
         createVideo,
         createAudio,
         createVideoCurrentTime,
-        createVideoDuration,
         createVideoFPS,
         createLoadingThumbnailsPercent,
         createThumbnailURLs,
         createProject,
         createEditorDisabled,
-        createSelectedComponent
+        createSelectedComponent,
+        createVideoPlayer
     } from '../stores';
     import { ConvertDurationToNiceStringWithDecimal } from '../utils';
     import Icon from '../Icon.svelte';
@@ -91,12 +91,13 @@
             height: 50,
             responsive: true,
             hideScrollbar: true,
+            backend: 'MediaElement'
         });
 
-        $createWaveSurfer.setMute(true);
-        GetThumbnails($createProject);
+        // $createWaveSurfer.load(document.querySelector('audio'))
 
-        updateAudioBlob($createProject);
+        $createWaveSurfer.setMute(true);
+        // GetThumbnails($createProject);
     });
 
     const updateWaveSurferCurrentTime = (time) => {
@@ -142,7 +143,7 @@
         timelineThumbnails = [];
         for (let i = 0; i < num_thumbnails_to_display; i++) {
             const timestamp =
-                $createVideoDuration * (i / num_thumbnails_to_display);
+                $createProject.duration * (i / num_thumbnails_to_display);
             const timestamp_interval = Math.ceil(
                 timestamp / THUMBNAIL_INTERVAL
             );
@@ -152,16 +153,14 @@
         timelineThumbnails = timelineThumbnails;
     };
 
-    $: {
-        timelineWidth, timelineHeight, imageRef;
-        getNumThumbnailsToDisplay();
-    }
+    // $: {
+    //     timelineWidth, timelineHeight, imageRef;
+    //     getNumThumbnailsToDisplay();
+    // }
 
     const onClickTimeline = (e) => {
         const percentClick = e.layerX / (width - timeline_padding * 2 - 2); // Account for padding + border width
-        $createVideo.currentTime = percentClick * $createVideoDuration;
-        $createAudio.currentTime = percentClick * $createVideoDuration;
-        createVideoCurrentTime.set($createVideo.currentTime);
+        $createVideoPlayer.seekTo(percentClick * $createProject.duration, !mouseDownOnTimeline);
     };
 
     let mouseDownOnTimeline = false;
@@ -187,7 +186,7 @@
 
     $: {
         seekerProgressPercent = `${
-            ($createVideoCurrentTime / $createVideoDuration) * 100
+            ($createVideoCurrentTime / $createProject.duration) * 100
         }%`;
     }
 
@@ -210,12 +209,13 @@
             {ConvertDurationToNiceStringWithDecimal($createVideoCurrentTime)}
         </div>
         <div class="timestamp right">
-            {ConvertDurationToNiceStringWithDecimal($createVideoDuration)}
+            {ConvertDurationToNiceStringWithDecimal($createProject.duration)}
         </div>
     </div>
     <div class="timeline-container">
         <div class='timeline-underlays'>
             <!-- All underlay elements go here -->
+            <div class='timeline-warning-text'>Thumbnails and waveform not available.</div>
         </div>
         <div
             class="thumbnails"
@@ -444,6 +444,16 @@
     
     div.timeline-overlays {
         z-index: 4;
+    }
+
+    div.timeline-underlays div.timeline-warning-text {
+        color: var(--color-gray-700);
+        font-weight: bold;
+        font-size: 1.5rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
     
 </style>
