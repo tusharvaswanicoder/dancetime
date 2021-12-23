@@ -1,8 +1,6 @@
 import browser from 'webextension-polyfill';
 import IFrameManager from './iframe/IFrameManager';
 
-console.log(`content_script_iframe ${window.document.domain}`);
-
 const ifm = new IFrameManager();
 ifm.initialize();
 

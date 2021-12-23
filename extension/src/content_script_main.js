@@ -1,7 +1,5 @@
 import browser from 'webextension-polyfill';
 
-console.log(`content_script_main ${window.document.domain}`);
-
 // Messages from extension background
 browser.runtime.onMessage.addListener((data) => {
     if (data.main_passthrough) {
