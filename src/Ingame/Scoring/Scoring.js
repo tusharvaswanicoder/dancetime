@@ -16,7 +16,8 @@ import {
     GetCurrentJudgementIndex,
     GetCurrentTopJudgementFromPastPeriodWithoutOutliers,
     JUDGEMENT_VISUALS,
-    GetScoringCurrentTime
+    GetScoringCurrentTime,
+    JUDGEMENTS
 } from './Judgements';
 import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
 
@@ -84,55 +85,69 @@ export const AnalyzePose = async (
     ingameJudgementTotalsValue,
     ingameRawJudgementsValue
 ) => {
-    // If this function returns early, the score given for that frame is 0
-    if (!pose || !pose.keypoints) {
-        return;
+    let is_miss = false;
+
+    if (!pose || !pose.keypoints || pose.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
+        is_miss = true;
     }
 
-    if (pose.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
-        return;
+    if (!is_miss) {
+        // Pose was recognized, now analyze it
+        const groups = SplitPoseByGroupXY(pose.keypoints);
+
+        const PoseComparisonFunc =
+            POSE_COMPARISON_BY_GROUPS_FUNC.NoOutliersTopScore;
+        const group_scores = PoseComparisonFunc(
+            groups,
+            currentTime,
+            playGameMetadataValue
+        );
+        if (!group_scores) {
+            ingameRawJudgementsValue[currentTime] = JUDGEMENTS.MISS;
+            ingameRawJudgements.set(ingameRawJudgementsValue);
+            return;
+        }
+
+        const raw_score = GetScoreFromGroups(group_scores);
+        ingameRawScoresValue[currentTime] = raw_score;
+        ingameRawScores.set(ingameRawScoresValue);
+
+        const thisTimeScore = GetCurrentTopXLastScores(
+            ingameRawScoresValue,
+            currentTime
+        );
+
+        ingameAdjustedScoresValue[currentTime] = thisTimeScore;
+        ingameAdjustedScores.set(ingameAdjustedScoresValue);
+
+        let scoresString = `${thisTimeScore.toFixed(2)}`;
+
+        for (const group_name in raw_score.groups) {
+            scoresString += `   ${group_name}: ${raw_score.groups[
+                group_name
+            ].toFixed(2)}`;
+        }
+
+        const judgement = GetJudgementFromScore(thisTimeScore);
+        ingameRawJudgementsValue[currentTime] = judgement;
+        ingameRawJudgements.set(ingameRawJudgementsValue);
+
+        scoresString += ` -- ${JUDGEMENT_VISUALS[judgement].name}`;
+
+        testIngameScores.set(scoresString);
+    } else {
+        // This is a miss due to no pose recognized or something else
+        ingameRawScoresValue[currentTime] = 0;
+        ingameRawScores.set(ingameRawScoresValue);
+        ingameAdjustedScoresValue[currentTime] = 0;
+        ingameAdjustedScores.set(ingameAdjustedScoresValue);
+
+        const judgement = GetJudgementFromScore(0);
+        ingameRawJudgementsValue[currentTime] = judgement;
+        ingameRawJudgements.set(ingameRawJudgementsValue);
+
+        testIngameScores.set('MISS - INVALID DATA');
     }
-
-    const groups = SplitPoseByGroupXY(pose.keypoints);
-
-    const PoseComparisonFunc =
-        POSE_COMPARISON_BY_GROUPS_FUNC.NoOutliersTopScore;
-    const group_scores = PoseComparisonFunc(
-        groups,
-        currentTime,
-        playGameMetadataValue
-    );
-    if (!group_scores) {
-        return;
-    }
-
-    const raw_score = GetScoreFromGroups(group_scores);
-    ingameRawScoresValue[currentTime] = raw_score;
-    ingameRawScores.set(ingameRawScoresValue);
-
-    const thisTimeScore = GetCurrentTopXLastScores(
-        ingameRawScoresValue,
-        currentTime
-    );
-
-    ingameAdjustedScoresValue[currentTime] = thisTimeScore;
-    ingameAdjustedScores.set(ingameAdjustedScoresValue);
-
-    let scoresString = `${thisTimeScore.toFixed(2)}`;
-
-    for (const group_name in raw_score.groups) {
-        scoresString += `   ${group_name}: ${raw_score.groups[
-            group_name
-        ].toFixed(2)}`;
-    }
-
-    const judgement = GetJudgementFromScore(thisTimeScore);
-    ingameRawJudgementsValue[currentTime] = judgement;
-    ingameRawJudgements.set(ingameRawJudgementsValue);
-
-    scoresString += ` -- ${JUDGEMENT_VISUALS[judgement].name}`;
-
-    testIngameScores.set(scoresString);
 
     // Update current judgement and judgement values if needed
     const startEndTime = GetVideoStartAndEndTimeFromMetadata(playGameMetadataValue);

@@ -41,7 +41,7 @@ export const GetCurrentTopXLastScores = (
     );
 
     if (last_scores_no_outliers.length == 0) {
-        return 0;
+        return all_scores_values[all_scores_values.length - 1]?.overall;
     }
     
     return last_scores_no_outliers.reduce((a, b) => a + b) /

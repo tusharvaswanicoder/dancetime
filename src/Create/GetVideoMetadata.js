@@ -69,7 +69,6 @@ export const GetVideoMetadataFromYouTube = async (video_link) => {
             // video_quality_features: Array []
             // duration: 382.23
 
-            console.log(metadata);
             Cleanup();
             resolve(metadata);
         })

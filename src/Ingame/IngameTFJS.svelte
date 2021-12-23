@@ -38,24 +38,24 @@
         const pose = await tfjs.detectFrame($ingameCameraCanvas);
         const playing = (await $ingameVideoPlayer.getPlayerState()) == 1;
 
-        if (pose) {
-            if (!personDetected) {
+        if (!personDetected) {
+            if (pose) {
                 const keypointsUnderThreshold = pose.keypoints.filter(
                     (keypoint) =>
                         keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
                 );
                 personDetected = keypointsUnderThreshold.length == 0;
-            } else if (playing && $ingameShouldScore) {
-                AnalyzePose(
-                    pose,
-                    time,
-                    $playGameMetadata,
-                    $ingameRawScores,
-                    $ingameAdjustedScores,
-                    $ingameJudgementTotals,
-                    $ingameRawJudgements
-                );
             }
+        } else if (playing && $ingameShouldScore) {
+            AnalyzePose(
+                pose,
+                time,
+                $playGameMetadata,
+                $ingameRawScores,
+                $ingameAdjustedScores,
+                $ingameJudgementTotals,
+                $ingameRawJudgements
+            );
         }
 
         if (!$ingameEvalScreenShouldShow) {
