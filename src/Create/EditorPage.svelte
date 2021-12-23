@@ -24,16 +24,13 @@
     onMount(() => {
         // Load keypoints from IndexedDB
         if ($createProject) {
-            GetObjectFromDB(
-                $createProject.uuid,
-                DB_TABLES.LOCAL_KEYPOINTS,
-                (object) => {
+            GetObjectFromDB($createProject.uuid, DB_TABLES.LOCAL_KEYPOINTS)
+                .then((object) => {
                     if (object) {
                         $createProject.keypoints = JSON.parse(object);
                         $createProject = $createProject;
                     }
-                }
-            );
+            })
         }
     });
 

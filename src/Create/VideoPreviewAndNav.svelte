@@ -1,18 +1,15 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
     import Icon from '../Icon.svelte';
     import VideoPreview from './VideoPreview.svelte';
     import {
-        createCanvas,
-        createVideo,
-        createAudio,
-        createLoadingThumbnailsPercent,
         createProject,
         createEditorDisabled,
         createVideoPlayer,
-        createLoadingFinished
+        createLoadingFinished,
+        keyPress,
+        keyDown,
+        message
     } from '../stores';
-    import { keyPress, keyDown, createVideoFPS } from '../stores';
     import VideoPreviewSeeker from './VideoPreviewSeeker.svelte';
     import {
         CreateNavToBeginning,
@@ -125,21 +122,15 @@
         }
     }
 
-    let listener;
-    onMount(() => {
-        listener = window.addEventListener('message', (evt) => {
-            if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
-                onYoutubeEvent(JSON.parse(evt.data));
-            }
-        })
-    })
-
-    onDestroy(() => {
-        if (listener) {
-            window.removeEventListener('message', listener);
+    const onMessage = (evt) => {
+        if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
+            onYoutubeEvent(JSON.parse(evt.data));
         }
-    })
+    }
 
+    $: {
+        onMessage($message)
+    }
 </script>
 
 {#if $createProject}

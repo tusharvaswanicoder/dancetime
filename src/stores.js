@@ -12,6 +12,7 @@ export const SelectedNavIdStore = writable(NAV_IDS.CREATE);
 
 export const keyPress = writable({});
 export const keyDown = writable({});
+export const message = writable({});
 
 import { GAMESTATE } from './constants';
 export const gameState = writable(GAMESTATE.NOT_INGAME);
@@ -51,7 +52,6 @@ export const createVideo = writable();
 export const createAudio = writable();
 export const createVideoCurrentTime = writable(0);
 export const createWaveSurfer = writable();
-export const createVideoFPS = writable(30);
 export const createLoadingThumbnailsPercent = writable(0);
 export const createLoadingMediaPercent = writable(0);
 export const createMediaLoaded = writable(false);
@@ -61,7 +61,6 @@ export const createProject = writable();
 export const createProjectUnsaved = writable(false);
 export const createAAInProgress = writable(false);
 export const createEditorDisabled = writable(false);
-export const createFramesAnalyzed = writable({});
 export const createTabState = writable();
 export const createSelectedComponent = writable({});
 export const createSelectedComponentIndex = writable(-1);

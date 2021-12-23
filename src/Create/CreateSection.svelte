@@ -3,14 +3,12 @@
     import EditorPage from "./EditorPage.svelte";
     import LoadingEditorPage from './LoadingEditorPage.svelte';
     import { onMount } from "svelte";
-    import { GetVideoMetadataFromYouTube } from './GetVideoMetadata';
     import {
         createCanvas,
         createVideo,
         createAudio,
         createVideoCurrentTime,
         createWaveSurfer,
-        createVideoFPS,
         createLoadingThumbnailsPercent,
         createThumbnailURLs,
         createProject,
@@ -18,12 +16,13 @@
         createProjectUnsaved,
         createAAInProgress,
         createEditorDisabled,
-        createFramesAnalyzed,
         createTabState,
         createMediaLoaded,
         createLoadingFinished,
         createLoadingMediaPercent,
-        createVideoPlayer
+        createVideoPlayer,
+        createSelectedComponent,
+        createSelectedComponentIndex
     } from "../stores";
     
     const CREATE_STATE = {
@@ -32,86 +31,44 @@
         LOADING_EDITOR_VIEW: 3
     }
     
-    // import YouTubePlayer from 'youtube-player';
-    // let player;
-    
-    onMount(() => {
+    const ResetCreateStateProject = () => {
         $createCanvas = null;
+        $createCTX = null;
+        $createVideoPlayer = null;
         $createVideo = null;
         $createAudio = null;
-        $createVideoCurrentTime = null;
+        $createVideoCurrentTime = 0;
         $createWaveSurfer = null;
-        $createVideoFPS = 30;
         $createLoadingThumbnailsPercent = 0;
         $createLoadingMediaPercent = 0;
         $createMediaLoaded = false;
-        $createThumbnailURLs = {};
         $createLoadingFinished = false;
-        $createVideoPlayer = null;
+        $createThumbnailURLs = {};
+        $createProject = null;
+        $createProjectUnsaved = false;
+        $createAAInProgress = false;
+        $createEditorDisabled = false;
+        $createTabState = null;
+        $createSelectedComponent = {};
+        $createSelectedComponentIndex = -1;
+    }
 
-    // player = YouTubePlayer('video-player', {
-    //     playerVars: {
-    //         controls: 0,
-    //         disablekb: 1,
-    //         autoplay: 1,
-    //         enablejsapi: 1,
-    //         fs: 0,
-    //         modestbranding: 1,
-    //         origin: document.domain,
-    //         rel: 0,
-    //         showinfo: 0,
-    //         autoplay: 0,
-    //         frameborder: 0,
-    //         iv_load_policy: 3
-    //     }
-    // });
-    
-    // player.loadVideoById('mQiHypmwLzQ');
-
-    //     window.addEventListener("message", (event) => {
-    //         console.log('got message in svelte')
-    //         // console.log(event.origin); // Always verify identity using origin and source
-    //         console.log(event);
-    //     }, false);
+    onMount(() => {
+        ResetCreateStateProject();
     })
     
     let createState = CREATE_STATE.PROJECTS_VIEW;
 
     const OpenProject = (project) => {
-        if ($createProject) {
-            return;
-        }
-        
+        ResetCreateStateProject();
         $createProject = project;
-        $createLoadingFinished = false;
-        $createLoadingThumbnailsPercent = 0;
-        $createThumbnailURLs = {};
-        $createLoadingMediaPercent = 0;
         createState = CREATE_STATE.LOADING_EDITOR_VIEW;
     }
     
     const ExitEditor = () => {
         createState = CREATE_STATE.PROJECTS_VIEW;
         setTimeout(() => {
-            $createCanvas = null;
-            $createCTX = null;
-            $createVideo = null;
-            $createAudio = null;
-            $createVideoCurrentTime = 0;
-            $createWaveSurfer = null;
-            $createVideoFPS = 30;
-            $createLoadingThumbnailsPercent = 0;
-            $createLoadingMediaPercent = 0;
-            $createThumbnailURLs = {};
-            $createProject = null;
-            $createProjectUnsaved = false;
-            $createAAInProgress = false;
-            $createEditorDisabled = false;
-            $createFramesAnalyzed = {};
-            $createTabState = null;
-            $createProject = null;
-            $createMediaLoaded = false;
-            $createLoadingFinished = false;
+            ResetCreateStateProject();
         }, 500);
     }
     
@@ -128,16 +85,6 @@
         }
     }
 
-
-
-    // const TestClickButton = async () => {
-    //     if (await player.getPlayerState() == 1) {
-    //         player.pauseVideo();
-    //     } else {
-    //         player.playVideo();
-    //     }
-    // }
-    
 </script>
 
 <main>

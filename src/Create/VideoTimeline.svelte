@@ -8,15 +8,11 @@
     import { THUMBNAIL_INTERVAL, COMPONENT_TYPE } from '../constants';
     import {
         createWaveSurfer,
-        createVideo,
-        createAudio,
         createVideoCurrentTime,
-        createVideoFPS,
         createLoadingThumbnailsPercent,
         createThumbnailURLs,
         createProject,
         createEditorDisabled,
-        createSelectedComponent,
         createVideoPlayer
     } from '../stores';
     import { ConvertDurationToNiceStringWithDecimal } from '../utils';

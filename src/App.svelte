@@ -3,7 +3,7 @@
     import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
     import { onMount } from "svelte";
     import { GAMESTATE } from "./constants";
-    import { keyPress, keyDown, settingsOpen, gameState } from "./stores";
+    import { keyPress, keyDown, message, settingsOpen, gameState } from "./stores";
     
     import {getUserInfo, USER} from "./Auth"
     
@@ -23,10 +23,14 @@
             loaded = true;
         });
     })
+
+    const handleMessage = (e) => {
+        $message = e;
+    }
     
 </script>
 
-<svelte:window on:keypress={handleKeyPress} on:keydown={handleKeyDown}/>
+<svelte:window on:keypress={handleKeyPress} on:keydown={handleKeyDown} on:message={handleMessage}/>
 
 {#if loaded}
     <main>

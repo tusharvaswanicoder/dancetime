@@ -34,17 +34,19 @@ export function StoreObject(object, uuid, db_name, cb) {
         });
 }
 
-export function GetObjectFromDB(uuid, db_name, cb) {
+export function GetObjectFromDB(uuid, db_name) {
     const db = GetDB();
 
-    db[db_name]
-        .get({ uuid: uuid })
-        .then((object_data) => {
-            cb(object_data ? object_data.object : null);
-        })
-        .catch(function (error) {
-            console.error(`GetObjectFromDB error: ${error}`);
-        });
+    return new Promise((resolve, reject) => {
+        db[db_name]
+            .get({ uuid: uuid })
+            .then((object_data) => {
+                resolve(object_data ? object_data.object : null);
+            })
+            .catch(function (error) {
+                reject(`GetObjectFromDB error: ${error}`);
+            });
+    })
 }
 
 export function DeleteObjectInDB(uuid, db_name, cb) {

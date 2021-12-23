@@ -10,6 +10,7 @@
         createProjectUnsaved,
         createProject,
         createVideoPlayer,
+        message
     } from "../stores";
     import { CreateNavToBeginning } from "../utils";
     import { GetAnalysisSummary, SEVERITY } from "./AnalysisSummary";
@@ -51,13 +52,17 @@
     };
 
     const StopAA = async () => {
-        $createAAInProgress = false;
-        await $createVideoPlayer.pauseVideo();
-        await $createVideoPlayer.unMute();
-        window.postMessage({
-            source: "dancetime",
-            event_name: "dancetime-message:stop-analysis"
-        });
+        try {
+            $createAAInProgress = false;
+            await $createVideoPlayer.pauseVideo();
+            await $createVideoPlayer.unMute();
+            window.postMessage({
+                source: "dancetime",
+                event_name: "dancetime-message:stop-analysis"
+            });
+        } catch (e) {
+            console.warn(e);
+        }
     };
 
     const clickAnalyzeButton = async () => {
@@ -145,8 +150,31 @@
         }
     }
 
+    const onMessage = (evt) => {
+        if (evt.origin == "https://youtube.com") {
+            onYoutubeMessage(JSON.parse(evt.data));
+            return;
+        }
+
+        if (
+            evt.origin != "http://localhost:3001" &&
+            evt.origin != "https://dancetime.io"
+        ) {
+            return;
+        }
+
+        if (evt.data.source != "dancetime-yt-iframe") {
+            return;
+        }
+
+        onYoutubeIframeMessage(evt.data);
+    }
+
+    $: {
+        onMessage($message)
+    }
+
     let extensionCheckInterval;
-    let extensionEventsListener;
     onMount(() => {
         extensionCheckInterval = setInterval(() => {
             window.postMessage({
@@ -154,34 +182,12 @@
                 source: "dancetime",
             });
         }, 200);
-
-        extensionEventsListener = window.addEventListener("message", (evt) => {
-            if (evt.origin == "https://youtube.com") {
-                onYoutubeMessage(JSON.parse(evt.data));
-                return;
-            }
-
-            if (
-                evt.origin != "http://localhost:3001" &&
-                evt.origin != "https://dancetime.io"
-            ) {
-                return;
-            }
-
-            if (evt.data.source != "dancetime-yt-iframe") {
-                return;
-            }
-
-            onYoutubeIframeMessage(evt.data);
-        });
     });
 
     onDestroy(() => {
         if (extensionCheckInterval) {
             clearInterval(extensionCheckInterval);
         }
-
-        window.removeEventListener('message', extensionEventsListener);
     });
 </script>
 
