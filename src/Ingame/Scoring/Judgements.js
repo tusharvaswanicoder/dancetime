@@ -53,22 +53,28 @@ export const JUDGEMENT_SCORE_VALUES = {
 };
 
 // Returns the current judgement for a judgement index taking the top judgement from the past period
-export const GetCurrentTopJudgementFromPastPeriodWithoutOutliers = (all_judgements, current_frame, fps) => {
-    const num_frames_to_lookback = Math.ceil(fps * JUDGEMENT_FREQUENCY);
+export const GetCurrentTopJudgementFromPastPeriodWithoutOutliers = (all_judgements, currentTime) => {
+    const time_to_lookback = JUDGEMENT_FREQUENCY;
     
     let last_judgements = [];
-    for (
-        let frame = current_frame;
-        frame > current_frame - num_frames_to_lookback && frame > 0;
-        frame--
-    ) {
-        const frame_judgement = all_judgements[frame];
+    const all_scores_keys = Object.keys(all_judgements).map((k) => parseFloat(k));
+    const all_scores_values = Object.values(all_judgements);
+    const closest_key = all_scores_keys.reduce((a, b) => {
+        return Math.abs(b - currentTime) < Math.abs(a - currentTime) ? b : a;
+    })
+    const closest_key_index = all_scores_keys.indexOf(closest_key);
 
-        if (frame_judgement) {
-            last_judgements.push(parseInt(frame_judgement));
+    for (let index = closest_key_index; index > 0; index--) {
+        if (all_scores_keys[index] < currentTime - time_to_lookback) {
+            break;
+        }
+
+        const time_score = all_scores_values[index];
+        if (time_score) {
+            last_judgements.push(time_score);
         }
     }
-    
+
     if (last_judgements.length == 0) {
         return JUDGEMENTS.MISS;
     }

@@ -46,15 +46,15 @@
                 );
                 personDetected = keypointsUnderThreshold.length == 0;
             } else if (playing && $ingameShouldScore) {
-                // AnalyzePose(
-                //     pose,
-                //     time,
-                //     $playGameMetadata,
-                //     $ingameRawScores,
-                //     $ingameAdjustedScores,
-                //     $ingameJudgementTotals,
-                //     $ingameRawJudgements
-                // );
+                AnalyzePose(
+                    pose,
+                    time,
+                    $playGameMetadata,
+                    $ingameRawScores,
+                    $ingameAdjustedScores,
+                    $ingameJudgementTotals,
+                    $ingameRawJudgements
+                );
             }
         }
 

@@ -17,7 +17,7 @@
     const refreshJudgementAnim = async () => {
         // if (($ingameVideoPlayer && $ingameVideo.ended) || refreshTimeout) {
         // TODO: update this
-        if ($ingameVideoPlayer || refreshTimeout) {
+        if (!$ingameVideoPlayer || refreshTimeout) {
             return;
         }
         

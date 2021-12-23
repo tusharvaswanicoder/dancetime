@@ -15,10 +15,7 @@ import {
     GetJudgementFromScore,
     GetCurrentJudgementIndex,
     GetCurrentTopJudgementFromPastPeriodWithoutOutliers,
-    GetTotalFinalScore,
     JUDGEMENT_VISUALS,
-    JUDGEMENT_SCORE_VALUES,
-    JUDGEMENTS,
     GetScoringCurrentTime
 } from './Judgements';
 import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
@@ -96,17 +93,13 @@ export const AnalyzePose = async (
         return;
     }
 
-    const frame = xx(
-        currentTime,
-        playGameMetadataValue.fps
-    );
     const groups = SplitPoseByGroupXY(pose.keypoints);
 
     const PoseComparisonFunc =
         POSE_COMPARISON_BY_GROUPS_FUNC.NoOutliersTopScore;
     const group_scores = PoseComparisonFunc(
         groups,
-        frame,
+        currentTime,
         playGameMetadataValue
     );
     if (!group_scores) {
@@ -114,19 +107,18 @@ export const AnalyzePose = async (
     }
 
     const raw_score = GetScoreFromGroups(group_scores);
-    ingameRawScoresValue[frame] = raw_score;
+    ingameRawScoresValue[currentTime] = raw_score;
     ingameRawScores.set(ingameRawScoresValue);
 
-    const thisFrameScore = GetCurrentTopXLastScores(
+    const thisTimeScore = GetCurrentTopXLastScores(
         ingameRawScoresValue,
-        frame,
-        playGameMetadataValue.fps
+        currentTime
     );
 
-    ingameAdjustedScoresValue[frame] = thisFrameScore;
+    ingameAdjustedScoresValue[currentTime] = thisTimeScore;
     ingameAdjustedScores.set(ingameAdjustedScoresValue);
 
-    let scoresString = `${thisFrameScore.toFixed(2)}`;
+    let scoresString = `${thisTimeScore.toFixed(2)}`;
 
     for (const group_name in raw_score.groups) {
         scoresString += `   ${group_name}: ${raw_score.groups[
@@ -134,8 +126,8 @@ export const AnalyzePose = async (
         ].toFixed(2)}`;
     }
 
-    const judgement = GetJudgementFromScore(thisFrameScore);
-    ingameRawJudgementsValue[frame] = judgement;
+    const judgement = GetJudgementFromScore(thisTimeScore);
+    ingameRawJudgementsValue[currentTime] = judgement;
     ingameRawJudgements.set(ingameRawJudgementsValue);
 
     scoresString += ` -- ${JUDGEMENT_VISUALS[judgement].name}`;
@@ -149,8 +141,7 @@ export const AnalyzePose = async (
     if (!ingameJudgementTotalsValue[judgement_index]) {
         const top_judgement = GetCurrentTopJudgementFromPastPeriodWithoutOutliers(
             ingameRawJudgementsValue,
-            frame,
-            playGameMetadataValue.fps
+            currentTime
         );
         ingameJudgementTotalsValue[judgement_index] = top_judgement;
         ingameJudgementTotals.set(ingameJudgementTotalsValue);
