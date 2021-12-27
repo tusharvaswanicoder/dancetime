@@ -80,8 +80,12 @@
         --color-yellow-dark: hsla(35deg, 100%, 50%, 1);
         --color-blue-light: hsl(227, 96%, 77%, 1);
         --color-blue-dark: hsl(234, 83%, 58%, 1);
-        --color-red-light: hsl(0, 67%, 62%);
-        --color-red-dark: hsl(22, 78%, 45%);
+        --color-red-dark: hsla(360, 83%, 58%, 1);
+        --color-red-light: hsla(360, 96%, 77%, 1);
+        --color-turquoise-dark: hsla(187, 76%, 45%, 1);
+        --color-turquoise-light: hsla(173, 75%, 70%, 1);
+        --color-purple-dark: hsla(306, 81%, 61%, 1);
+        --color-purple-light: hsla(266, 87%, 80%, 1);
         --color-green-light: hsla(108, 92%, 73%);
         --color-green-dark: hsla(108, 56%, 53%);
     }

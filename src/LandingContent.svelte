@@ -5,6 +5,7 @@
     import IngameContent from "./Ingame/IngameContent.svelte";
     import { GAMESTATE } from "./constants";
     import { settingsOpen, gameState } from "./stores";
+    import PlayModes from "./MainNavigation/PlayModes.svelte";
     
     // Score screen testing
     // import IngameEvaluationScreen from "./Ingame/IngameEvaluationScreen.svelte";
@@ -26,6 +27,7 @@
     {#if $settingsOpen}
         <SettingsScreen />
     {/if}
+    <PlayModes />
     <!-- <IngameEvaluationScreen /> -->
 </main>
 
