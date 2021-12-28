@@ -1,6 +1,6 @@
 <script>
     import PlayModes from "./PlayModes.svelte";
-    import { modeStateStore, gamemodeStateStore } from '../stores';
+    import { modeStateStore, gamemodeStateStore, selectedInitialGamemode } from '../stores';
     import { MODE_STATE } from '../constants';
 
     const modes = [
@@ -19,11 +19,19 @@
             $modeStateStore = MODE_STATE.PLAY;
         } else if (section.title == 'Create') {
             $modeStateStore = MODE_STATE.CREATE;
+
+            setTimeout(() => {
+                $selectedInitialGamemode = true;
+            }, 1000);
         }
     }
 
     const selectPlayMode = (section) => {
         // check section.title
+
+        setTimeout(() => {
+            $selectedInitialGamemode = true;
+        }, 1000);
     }
 </script>
 

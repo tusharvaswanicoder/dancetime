@@ -1,6 +1,6 @@
 <script>
     import Icon from './Icon.svelte';
-    export const onClick = () => {};
+    export let onClick = () => {};
     export const color = 'var(--color-gray-300)';
     export const hoverColor = 'var(--color-gray-300)';
 </script>

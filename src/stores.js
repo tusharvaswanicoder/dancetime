@@ -9,6 +9,7 @@ export const gradientIdStore = writable(0);
 
 export const modeStateStore = writable();
 export const gamemodeStateStore = writable();
+export const selectedInitialGamemode = writable(false);
 
 export const keyPress = writable({});
 export const keyDown = writable({});
