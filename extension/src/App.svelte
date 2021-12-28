@@ -1,4 +1,4 @@
 <main>
     DanceTime extension is ready! <br /><br />You can analyze YouTube videos on
-    dancetime.io now.
+    <a href='https://dancetime.io' target='_blank'>dancetime.io</a> now.
 </main>

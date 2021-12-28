@@ -7,6 +7,7 @@
     import { fade, fly } from 'svelte/transition'
     import { cubicOut } from 'svelte/easing';
     import { onMount } from 'svelte';
+    import BackArrow from '../BackArrow.svelte';
     
     export let OpenProject = () => {};
     
@@ -144,6 +145,7 @@ out:fly|local={{x: -500, duration: 200}}>
             {/each}
         </div>
     </section>
+    <BackArrow />
 </main>
 
 <style>

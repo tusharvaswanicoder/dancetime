@@ -7,8 +7,8 @@ export const cameraCanvasStoreVideo = writable(null);
 export const playerStore = writable(null);
 export const gradientIdStore = writable(0);
 
-import { NAV_IDS } from './constants';
-export const SelectedNavIdStore = writable(NAV_IDS.CREATE);
+export const modeStateStore = writable();
+export const gamemodeStateStore = writable();
 
 export const keyPress = writable({});
 export const keyDown = writable({});
