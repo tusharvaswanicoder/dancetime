@@ -14,11 +14,11 @@
         ingameAdjustedScores,
         ingameFinalScore,
         ingameRawJudgements,
-        ingameVideo,
         ingameShouldScore,
         ingameNumStars,
-    } from '../stores';
-    import { GetFrameNumberFromTime, sleep, GetVideoStartAndEndTimeFromMetadata } from '../utils';
+        ingameVideoPlayer
+    } from '../stores';$ingameTime
+    import { sleep, GetVideoStartAndEndTimeFromMetadata } from '../utils';
     import { AnalyzePose } from './Scoring/Scoring';
     import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring/Defaults';
     import { GetNumStarsFromPerfectPercentage } from './Scoring/Stars';
@@ -34,26 +34,28 @@
     let personDetected = false;
 
     const onFrame = async () => {
+        const time = $ingameTime;
         const pose = await tfjs.detectFrame($ingameCameraCanvas);
+        const playing = (await $ingameVideoPlayer.getPlayerState()) == 1;
 
-        if (pose) {
-            if (!personDetected) {
+        if (!personDetected) {
+            if (pose) {
                 const keypointsUnderThreshold = pose.keypoints.filter(
                     (keypoint) =>
                         keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
                 );
                 personDetected = keypointsUnderThreshold.length == 0;
-            } else if (!$ingameVideo.paused && $ingameShouldScore) {
-                AnalyzePose(
-                    pose,
-                    $ingameTime,
-                    $playGameMetadata,
-                    $ingameRawScores,
-                    $ingameAdjustedScores,
-                    $ingameJudgementTotals,
-                    $ingameRawJudgements
-                );
             }
+        } else if (playing && $ingameShouldScore) {
+            AnalyzePose(
+                pose,
+                time,
+                $playGameMetadata,
+                $ingameRawScores,
+                $ingameAdjustedScores,
+                $ingameJudgementTotals,
+                $ingameRawJudgements
+            );
         }
 
         if (!$ingameEvalScreenShouldShow) {

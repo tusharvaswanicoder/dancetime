@@ -1,16 +1,10 @@
 const PORT = process.env.PORT || 3001;
 require('dotenv').config();
 
-const { EnsurePythonIsInstalledLinux } = require('./PythonManager');
-EnsurePythonIsInstalledLinux();
 const rateLimit = require("express-rate-limit");
 
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const { YTDL } = require('./YouTubeDL');
-YTDL.init();
-
-const { mediaManager } = require('./MediaManager');
 
 function isAuthenticated(req, res, next) {
     if (req.user) {
@@ -22,7 +16,7 @@ function isAuthenticated(req, res, next) {
 
 const apiLimiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 500
+    max: 5000
 });
 
 const createAccountLimiter = rateLimit({
@@ -59,17 +53,6 @@ app.post('/api/chart/new', apiLimiter, isAuthenticated, (req, res) => {
     // res.send({name: 'bob'})
     // get query params: req.query.[param]
     // res.end()
-});
-
-// id is a uuid
-app.post('/api/video/', apiLimiter, isAuthenticated, (req, res) => {
-    // See what the current download status of a video is.
-    // If it does not exist, begin downloading and return status.
-    console.log(req.body);
-    mediaManager.getMedia(req.body.media_id).then((media_info) => {
-        res.send(media_info);
-        res.end();
-    });
 });
 
 // User arrives here with a magic link

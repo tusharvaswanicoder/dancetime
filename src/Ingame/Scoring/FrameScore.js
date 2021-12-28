@@ -5,24 +5,29 @@ const OUTLIER_THRESHOLD = 0.1;
 
 export const GetCurrentTopXLastScores = (
     all_scores,
-    current_frame,
-    fps,
+    currentTime,
     num_scores
 ) => {
     const num_scores_to_lookat = num_scores || NUM_TOP_SCORES;
-    const num_frames_to_lookback = DEFAULT_SCORE_AVG_FRAME_LOOKBACK(fps);
+    const time_to_lookback = DEFAULT_SCORE_AVG_FRAME_LOOKBACK();
 
     const last_scores = [];
-    // TODO: optimize with a stack and store last X frame scores in memory or something to avoid this loop every time
-    for (
-        let frame = current_frame;
-        frame > current_frame - num_frames_to_lookback && frame > 0;
-        frame--
-    ) {
-        const frame_score = all_scores[frame];
+    
+    const all_scores_keys = Object.keys(all_scores).map((k) => parseFloat(k));
+    const all_scores_values = Object.values(all_scores);
+    const closest_key = all_scores_keys.reduce((a, b) => {
+        return Math.abs(b - currentTime) < Math.abs(a - currentTime) ? b : a;
+    })
+    const closest_key_index = all_scores_keys.indexOf(closest_key);
 
-        if (frame_score) {
-            last_scores.push(frame_score.overall);
+    for (let index = closest_key_index; index > 0; index--) {
+        if (currentTime - all_scores_keys[index] > time_to_lookback) {
+            break;
+        }
+
+        const time_score = all_scores_values[index];
+        if (time_score) {
+            last_scores.push(time_score.overall);
         }
     }
 
@@ -36,8 +41,7 @@ export const GetCurrentTopXLastScores = (
     );
 
     if (last_scores_no_outliers.length == 0) {
-        console.warn('No top x scores found');
-        return 0;
+        return all_scores_values[all_scores_values.length - 1]?.overall;
     }
     
     return last_scores_no_outliers.reduce((a, b) => a + b) /

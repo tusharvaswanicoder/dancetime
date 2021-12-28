@@ -4,13 +4,13 @@ export const ConvertDurationToNiceString = (duration) => {
     if (!duration) {
         return '--';
     }
-    return `${Math.floor(duration / 60)}:${(duration % 60)
+    return `${Math.floor(duration / 60)}:${Math.round(duration % 60)
         .toString()
         .padStart(2, '0')}`;
 };
 
-export const ConvertDurationToNiceStringWithFPS = (duration, fps) => {
-    if (!duration || !fps) {
+export const ConvertDurationToNiceStringWithDecimal = (duration) => {
+    if (!duration) {
         return '00:00:00';
     }
     const minutes = Math.floor(duration / 60)
@@ -21,21 +21,13 @@ export const ConvertDurationToNiceStringWithFPS = (duration, fps) => {
         .toFixed(0)
         .toString()
         .padStart(2, '0');
-    const frames = Math.floor(((duration % 60) % 1) * fps)
+    const decimal = ((duration % 1) * 100)
         .toFixed(0)
         .toString()
         .padStart(2, '0');
 
-    return `${minutes}:${seconds}:${frames}`;
+    return `${minutes}:${seconds}.${decimal}`;
 };
-
-export const GetFrameNumberFromTime = (time, fps) => {
-    return Math.floor(time * fps);
-}
-
-export const GetTimeFromFrameNumber = (frame, fps) => {
-    return frame / fps;
-}
 
 export const GetFormattedDate = (_date) => {
     const date = new Date(_date);
@@ -49,65 +41,51 @@ const interp = (a, b, t) => {
 }
 
 /**
- * Returns the keypoints for a specific frame, or an interpolated keyframe set between the closest frames
+ * Returns the keypoints for a specific timestamp, or an interpolated keyframe set between the closest times
  * @param {*} keypoints 
- * @param {*} frame 
+ * @param {*} time 
  */
-export const GetKeypointsForFrame = (keypoints, frame) => {
+export const GetKeypointsForTime = (keypoints, time) => {
     
-    if (!frame || isNaN(frame)) {
+    if (!time || isNaN(time)) {
+        return;
+    }
+
+    // If there is a matching frame, return it
+    if (keypoints[time]) {
+        return keypoints[time];
+    }
+    
+    const time_val = parseFloat(time);
+    if (!time_val || isNaN(time_val)) {
         return;
     }
     
-    // If there is a matching frame, return it
-    if (keypoints[frame]) {
-        return keypoints[frame];
-    }
-    
-    const close_keypoint_threshold = 1; // If a keypoint is found within this many frames, just use that
     const keypoints_values = Object.values(keypoints);
-    const search_amount = 10; // Look this many frames forwards and backwards for a frame with keypoint data
-    let start_keypoints, end_keypoints;
-    
-    // Get closest starting keypoint within range
-    let start_frame = frame;
-    for (start_frame; start_frame > frame - search_amount; start_frame--) {
-        if (keypoints[start_frame]) {
-            start_keypoints = keypoints[start_frame];
-            break;
-        }
+    const keypoints_keys = Object.keys(keypoints).map((v) => parseFloat(v));
+    const closest_key = keypoints_keys.reduce((a, b) => {
+        return Math.abs(b - time_val) < Math.abs(a - time_val) ? b : a;
+    })
+    const closest_key_index = keypoints_keys.indexOf(closest_key);
+
+    let start_index, end_index;
+
+    if (time_val - closest_key > 0) {
+        // Closest value found is BEFORE the time provided
+        start_index = closest_key_index;
+        end_index = Math.min(keypoints_keys.length - 1, closest_key_index + 1);
+    } else {
+        // Closest value found is AFTER the time provided
+        end_index = closest_key_index;
+        start_index = Math.max(0, closest_key_index - 1);
     }
-    
-    if (!start_keypoints) {
-        // console.warn(`No start keypoint found within range for frame ${frame}`);
-        start_keypoints = keypoints_values[0];
-    }
-    
-    if (frame - start_frame <= close_keypoint_threshold) {
-        return start_keypoints;
-    }
-    
-    // Get closest ending keypoint within range
-    let end_frame = frame;
-    for (end_frame; end_frame < frame + search_amount; end_frame++) {
-        if (keypoints[end_frame]) {
-            end_keypoints = keypoints[end_frame];
-            break;
-        }
-    }
-    
-    if (!end_keypoints) {
-        // console.warn(`No end keypoint found within range for frame ${frame}`);
-        end_keypoints = keypoints_values[keypoints_values.length - 1];
-    }
-    
-    if (end_frame - frame <= close_keypoint_threshold) {
-        return end_keypoints;
-    }
-    
+
     // Percentage of interpolation between the two frames we found
-    const t = (frame - start_frame) / (end_frame - start_frame);
+    const t = (time_val - keypoints_keys[start_index]) / (keypoints_keys[end_index] - keypoints_keys[start_index]);
     
+    const start_keypoints = keypoints_values[start_index];
+    const end_keypoints = keypoints_values[end_index];
+
     if (!start_keypoints.keypoints || !end_keypoints.keypoints) {
         return;
     }
@@ -132,7 +110,7 @@ export const GetKeypointsForFrame = (keypoints, frame) => {
 }
 
 // Navigation
-export const CreateNavToTime = (time, video, audio, disabled) => {
+export const CreateNavToTime = (time, video, disabled) => {
     if (!video) {
         return;
     }
@@ -141,11 +119,10 @@ export const CreateNavToTime = (time, video, audio, disabled) => {
         return;
     }
 
-    video.currentTime = time;
-    audio.currentTime = time;
+    video.seekTo(time, true);
 };
 
-export const CreateNavToBeginning = (video, audio, disabled) => {
+export const CreateNavToBeginning = (video, disabled) => {
     if (!video) {
         return;
     }
@@ -154,11 +131,10 @@ export const CreateNavToBeginning = (video, audio, disabled) => {
         return;
     }
 
-    video.currentTime = 0;
-    audio.currentTime = 0;
+    video.seekTo(0, true);
 };
 
-export const CreateNavToEnd = (video, audio, disabled) => {
+export const CreateNavToEnd = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -167,11 +143,11 @@ export const CreateNavToEnd = (video, audio, disabled) => {
         return;
     }
 
-    video.currentTime = video.duration;
-    audio.currentTime = audio.duration;
+    const duration = await video.getDuration();
+    video.seekTo(duration, true);
 };
 
-export const CreateNavToPrevFrame = (video, audio, disabled, videoFPS) => {
+export const CreateNavToPrevFrame = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -180,12 +156,12 @@ export const CreateNavToPrevFrame = (video, audio, disabled, videoFPS) => {
         return;
     }
 
-    video.pause();
-    video.currentTime -= 1 / videoFPS;
-    audio.currentTime = video.currentTime;
+    const currentTime = await video.getCurrentTime();
+    video.pauseVideo();
+    video.seekTo(currentTime - 0.16, true);
 };
 
-export const CreateNavToNextFrame = (video, audio, disabled, videoFPS) => {
+export const CreateNavToNextFrame = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -194,12 +170,12 @@ export const CreateNavToNextFrame = (video, audio, disabled, videoFPS) => {
         return;
     }
 
-    video.pause();
-    video.currentTime += 1 / videoFPS;
-    audio.currentTime = video.currentTime;
+    const currentTime = await video.getCurrentTime();
+    video.pauseVideo();
+    video.seekTo(currentTime + 0.16, true);
 };
 
-export const CreatePlayOrPause = (video, audio, disabled) => {
+export const CreatePlayOrPause = async (video, disabled) => {
     if (!video) {
         return;
     }
@@ -208,12 +184,12 @@ export const CreatePlayOrPause = (video, audio, disabled) => {
         return;
     }
 
-    if (video.paused) {
-        video.play();
+    const state = await video.getPlayerState();
+    if (state != 1) {
+        video.playVideo();
     } else {
-        video.pause();
+        video.pauseVideo();
     }
-    audio.currentTime = video.currentTime;
 };
 
 // Sizeof object for debugging how large objects are
@@ -339,6 +315,10 @@ export const sleep = (ms) => {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
+}
+
+export const GetRoundedTimeFromTime = (time) => {
+    return time.toFixed(2);
 }
 
 export const GetVideoStartAndEndTimeFromMetadata = (metadata) => {

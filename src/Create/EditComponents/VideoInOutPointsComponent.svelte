@@ -1,8 +1,8 @@
 <script>
     import BasicComponent from "./BasicComponent.svelte";
     import DeleteRow from './DeleteRow.svelte';
-    import { createProject, createProjectUnsaved, createVideoFPS, createVideoCurrentTime, createSelectedComponent } from "../../stores";
-    import { ConvertDurationToNiceStringWithFPS } from "../../utils";
+    import { createProject, createProjectUnsaved, createVideoCurrentTime, createSelectedComponent } from "../../stores";
+    import { ConvertDurationToNiceStringWithDecimal } from "../../utils";
     import { COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
     import ClickableTimestampText from '../ClickableTimestampText.svelte';
     
@@ -28,6 +28,7 @@
         $createProjectUnsaved = true;
         $createSelectedComponent = $createSelectedComponent;
         $createProject.components = $createProject.components;
+        $createProject = $createProject;
     }
 </script>
 
@@ -35,10 +36,10 @@
     <div class='content-container'>
         <h2>Video In</h2>
         <div class='button' on:click={setIn}>Set In</div>
-        <h3><ClickableTimestampText>{ConvertDurationToNiceStringWithFPS(component.in, $createVideoFPS)}</ClickableTimestampText></h3>
+        <h3><ClickableTimestampText>{ConvertDurationToNiceStringWithDecimal(component.in)}</ClickableTimestampText></h3>
         <h2>Video Out</h2>
         <div class='button' on:click={setOut}>Set Out</div>
-        <h3><ClickableTimestampText>{ConvertDurationToNiceStringWithFPS(component.out, $createVideoFPS)}</ClickableTimestampText></h3>
+        <h3><ClickableTimestampText>{ConvertDurationToNiceStringWithDecimal(component.out)}</ClickableTimestampText></h3>
     </div>
     <DeleteRow {componentIndex} />
 </BasicComponent>

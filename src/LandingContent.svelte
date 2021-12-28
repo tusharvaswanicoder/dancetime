@@ -1,10 +1,10 @@
 <script>
-    import Sidebar from "./Sidebar.svelte"
+    import NavScreen from "./MainNavigation/NavScreen.svelte";
     import MainContent from "./MainContent.svelte"
     import SettingsScreen from "./SettingsScreen.svelte";
     import IngameContent from "./Ingame/IngameContent.svelte";
     import { GAMESTATE } from "./constants";
-    import { settingsOpen, gameState } from "./stores";
+    import { settingsOpen, gameState, selectedInitialGamemode } from "./stores";
     
     // Score screen testing
     // import IngameEvaluationScreen from "./Ingame/IngameEvaluationScreen.svelte";
@@ -15,14 +15,23 @@
     //     $ingameFinalScore = 95;
     // })
 
+    // Update with a new unique key when the toggle changes so it resets internal component state vars
+    let navScreenKey = {};
+    $: {
+        $selectedInitialGamemode,
+        navScreenKey = {}
+    }
+
 </script>
 
 <main>
     {#if $gameState == GAMESTATE.NOT_INGAME}
-        <section class='grid'>
-            <Sidebar />
-            <MainContent />
-        </section>
+        <MainContent />
+        {#key navScreenKey}
+            {#if !$selectedInitialGamemode}
+                <NavScreen />
+            {/if}
+        {/key}
     {:else if $gameState == GAMESTATE.INGAME}
         <IngameContent />
     {/if}
@@ -37,17 +46,6 @@
         position: relative;
         height: 100%;
         width: 100%;
-        overflow: hidden;
-    }
-
-    section.grid {
-        position: relative;
-        display: grid;
-        height: 100%;
-        width: 100%;
-        grid-template-columns: 250px 1fr;
-        grid-template-areas: 
-            'sidebar main';
         overflow: hidden;
     }
 </style>

@@ -2,15 +2,14 @@
     import Icon from '../Icon.svelte';
     import VideoPreview from './VideoPreview.svelte';
     import {
-        createCanvas,
-        createVideo,
-        createAudio,
-        createLoadingPercent,
         createProject,
         createEditorDisabled,
+        createVideoPlayer,
+        createLoadingFinished,
+        keyPress,
+        keyDown,
+        message
     } from '../stores';
-    import { dlManager } from '../Downloads/DownloadManager';
-    import { keyPress, keyDown, createVideoFPS } from '../stores';
     import VideoPreviewSeeker from './VideoPreviewSeeker.svelte';
     import {
         CreateNavToBeginning,
@@ -21,12 +20,14 @@
     } from '../utils';
 
     const isLoadingFinished = () => {
-        return $createLoadingPercent >= 1;
+        return $createLoadingFinished;
     };
 
-    const updatePausePlayIcons = () => {
-        icons['video_play_icon'].display = $createVideo.paused;
-        icons['video_pause_icon'].display = !$createVideo.paused;
+    const updatePausePlayIcons = async () => {
+        const playerState = await $createVideoPlayer.getPlayerState();
+        const paused = playerState == 2 || playerState == 0;
+        icons['video_play_icon'].display = paused;
+        icons['video_pause_icon'].display = !paused;
     };
 
     const onVideoPaused = () => {
@@ -73,21 +74,9 @@
     const ClickNavIcon = (icon_name) => {
         const icon = icons[icon_name];
         if (icon) {
-            icon.func($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
+            icon.func($createVideoPlayer, $createEditorDisabled);
+            updatePausePlayIcons();
         }
-    };
-
-    const RefreshFPS = (project) => {
-        if (!project) {
-            return;
-        }
-
-        const metadata = dlManager.metaData[project.media_id];
-        if (!metadata) {
-            return;
-        }
-
-        createVideoFPS.set(metadata.fps);
     };
 
     const onKeyPress = (e) => {
@@ -96,8 +85,9 @@
         }
 
         if (e.key == ' ') {
-            CreatePlayOrPause($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
+            CreatePlayOrPause($createVideoPlayer, $createEditorDisabled);
         }
+        updatePausePlayIcons();
     };
 
     const onKeyDown = (e) => {
@@ -106,14 +96,15 @@
         }
 
         if (e.key == 'ArrowLeft') {
-            CreateNavToPrevFrame($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
+            CreateNavToPrevFrame($createVideoPlayer, $createEditorDisabled);
         } else if (e.key == 'ArrowRight') {
-            CreateNavToNextFrame($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
+            CreateNavToNextFrame($createVideoPlayer, $createEditorDisabled);
         } else if (e.key == '[') {
-            CreateNavToBeginning($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
+            CreateNavToBeginning($createVideoPlayer, $createEditorDisabled);
         } else if (e.key == ']') {
-            CreateNavToEnd($createVideo, $createAudio, $createEditorDisabled, $createVideoFPS);
+            CreateNavToEnd($createVideoPlayer, $createEditorDisabled);
         }
+        updatePausePlayIcons();
     };
 
     $: {
@@ -124,8 +115,21 @@
         onKeyDown($keyDown);
     }
 
+    const onYoutubeEvent = (data) => {
+        if (data.event == "infoDelivery") {
+            // TODO: tween this
+            updatePausePlayIcons();
+        }
+    }
+
+    const onMessage = (evt) => {
+        if (evt.origin == "https://www.youtube.com" && evt.isTrusted) {
+            onYoutubeEvent(JSON.parse(evt.data));
+        }
+    }
+
     $: {
-        $dlManager, RefreshFPS($createProject);
+        onMessage($message)
     }
 </script>
 

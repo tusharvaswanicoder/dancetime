@@ -1,0 +1,41 @@
+{
+    "manifest_version": 2,
+    "name": "DanceTime",
+    "version": "1.0.0",
+    "permissions": [
+        "storage",
+        "tabs",
+        "*://*.dancetime.io/*",
+        "*://tfhub.dev/*",
+        "webRequest",
+        "webRequestBlocking",
+        "activeTab"
+    ],
+    "content_security_policy": "script-src 'self' https://tfhub.dev; object-src 'self' https://tfhub.dev; connect-src 'self' https://tfhub.dev https://storage.googleapis.com",
+    "browser_action": {
+        "default_popup": "index.html"
+    },
+    "background": {
+        "scripts": ["build/background.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.dancetime.io/*",
+                "*://localhost/**"
+            ],
+            "js": [
+                "build/content_script_main.js"
+            ]
+        },
+        {
+            "matches": [
+                "*://*.youtube.com/*"
+            ],
+            "js": [
+                "build/content_script_iframe.js"
+            ],
+            "all_frames": true
+        }
+    ]
+}

@@ -7,6 +7,8 @@
     import { fade, fly } from 'svelte/transition'
     import { cubicOut } from 'svelte/easing';
     import { onMount } from 'svelte';
+    import BackArrow from '../BackArrow.svelte';
+    import { gamemodeStateStore, selectedInitialGamemode, modeStateStore } from '../stores';
     
     export let OpenProject = () => {};
     
@@ -91,6 +93,12 @@
     const OnClickProjectDelete = (project) => {
         projectManager.deleteProject(project);
     };
+
+    const onClickExitBackArrow = () => {
+        $selectedInitialGamemode = false;
+        $modeStateStore = null;
+        $gamemodeStateStore = null;
+    }
     
     let projectNameElement;
     $: {
@@ -144,6 +152,7 @@ out:fly|local={{x: -500, duration: 200}}>
             {/each}
         </div>
     </section>
+    <BackArrow onClick={onClickExitBackArrow} />
 </main>
 
 <style>

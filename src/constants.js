@@ -1,7 +1,12 @@
-export const NAV_IDS = {
+export const MODE_STATE = {
     PLAY: 1,
-    CREATE: 2,
-    DOWNLOADS: 3
+    CREATE: 2
+}
+
+export const GAMEMODE_STATE = {
+    SOLO: 1,
+    COUPLE: 2,
+    PARTY: 3
 }
 
 export const GAMESTATE = {

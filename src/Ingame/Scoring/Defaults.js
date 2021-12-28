@@ -4,8 +4,8 @@ import { GROUP_TYPE } from './KeypointGroupSplits';
 export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.5;
 
 // Amount of frames to lookback and average scores over to the the "current" frame's score
-export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = (fps) => {
-    return fps;
+export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = () => {
+    return 0.5;
 };
 
 // Default weighting for each group. Scores are averaged based on these weights - should add to 1
@@ -46,6 +46,6 @@ export const DEFAULT_SCORE_SCALING_FUNCTION = (_value, _min, _max) => {
     return Math.min(1, Math.pow(score_percentage, 1.2) + score_percentage / 10);
 };
 
-export const GROUP_SCORE_FRAME_LOOKBACK = (fps) => {
-    return Math.ceil(fps / 2);
+export const GROUP_SCORE_TIME_LOOKBACK = () => {
+    return 0.5;
 };

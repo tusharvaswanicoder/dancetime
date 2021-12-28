@@ -10,16 +10,12 @@
         playGameMetadata,
         playGameKeypoints,
         playGameCameraStream,
-        ingameVideo,
-        ingameVideoURL,
-        ingameAudio,
-        ingameAudioURL,
-        ingameCanvas,
         ingameScreenShouldShow,
         ingameErrorMessage,
         ingameIsLoading,
         TFJSReady,
-        ingameShouldScore
+        ingameShouldScore,
+        ingameVideoPlayer
     } from "../stores";
     import { HasCameraAccess, RequestCameraAccess, sleep, GetVideoStartTimeFromMetadata } from "../utils";
 
@@ -93,12 +89,10 @@
             $ingameIsLoading = false;
             
             const startTime = GetVideoStartTimeFromMetadata($playGameMetadata);
-            $ingameVideo.currentTime = startTime;
-            $ingameAudio.currentTime = startTime;
+            // TODO?: set current time of video to actual start time
                 
             setTimeout(() => {
-                $ingameVideo.play();
-                $ingameAudio.play();
+                $ingameVideoPlayer.playVideo();
                 $ingameShouldScore = true;
             }, 2000);
         }

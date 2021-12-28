@@ -1,3 +1,7 @@
+<script>
+    import BackArrow from '../BackArrow.svelte';
+</script>
+
 <main>
     <nav>
         <div>HOME</div>

@@ -1,7 +1,7 @@
 <script>
     import { fly } from 'svelte/transition';
-    import { createProject, createProjectUnsaved, createVideoDuration } from '../stores';
-    import { ConvertDurationToNiceStringWithFPS } from '../utils';
+    import { createProject, createProjectUnsaved } from '../stores';
+    import { ConvertDurationToNiceStringWithDecimal } from '../utils';
     import { VISIBILITY } from '../constants';
     import Icon from '../Icon.svelte';
     import Dropdown from '../Dropdown.svelte';
@@ -30,10 +30,10 @@
         <h3>{$createProject.difficulty}</h3>
         <div class='hr' />
         <h2>Length</h2>
-        <h3>{$createVideoDuration == 0 ? '--' : ConvertDurationToNiceStringWithFPS($createVideoDuration, $createProject.fps)}</h3>
+        <h3>{$createProject.duration == 0 ? '--' : ConvertDurationToNiceStringWithDecimal($createProject.duration)}</h3>
         <h2>Video ID</h2>
-        {#if $createProject.video_link && $createProject.media_id}
-            <h3><a href={$createProject.video_link} target="_blank">{$createProject.media_id}</a></h3>
+        {#if $createProject.video_link && $createProject.video_id}
+            <h3><a href={$createProject.video_link} target="_blank">{$createProject.video_id}</a></h3>
         {:else}
             <h3>--</h3>
         {/if}

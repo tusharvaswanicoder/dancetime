@@ -1,7 +1,6 @@
 import {
-    GetFrameNumberFromTime,
-    GetTimeFromFrameNumber,
-    ConvertDurationToNiceStringWithFPS,
+    ConvertDurationToNiceStringWithDecimal,
+    GetRoundedTimeFromTime
 } from '../utils';
 
 export const PROBLEM_TYPE = {
@@ -23,7 +22,7 @@ export const SEVERITY = {
 export const GetAnalysisSummary = (project, keypoint_score_threshold) => {
     return [
         GetAvgKeypointFrequency(project),
-        ...GetKeypointsUnderScoreThreshold(project, keypoint_score_threshold),
+        // ...GetKeypointsUnderScoreThreshold(project, keypoint_score_threshold),
     ];
 };
 
@@ -33,25 +32,22 @@ export const GetAnalysisSummary = (project, keypoint_score_threshold) => {
 // TODO: make this dependent on FPS
 const GetAvgKeypointFrequency = (project) => {
     // Get all frames with _will_ be used for scoring
-    const total_scoring_frames = GetFrameNumberFromTime(
-        project.duration,
-        project.fps
-    );
+    const total_scoring_time = project.duration;
     let num_frames_with_keypoints = Object.keys(project.keypoints).length;
-    const keypoints_percent = num_frames_with_keypoints / total_scoring_frames;
+    const keypoints_percent = total_scoring_time / num_frames_with_keypoints;
     const one_per_x_kp = Math.ceil(1 / keypoints_percent);
 
     const frame_severities = [
-        { max_frames: project.fps / 10, sev: SEVERITY.NONE },
-        { max_frames: project.fps / 7, sev: SEVERITY.LOW },
-        { max_frames: project.fps / 4, sev: SEVERITY.MEDIUM },
-        { max_frames: project.fps / 3, sev: SEVERITY.HIGH },
+        { percent: 0.05, sev: SEVERITY.NONE },
+        { percent: 0.1, sev: SEVERITY.LOW },
+        { percent: 0.2, sev: SEVERITY.MEDIUM },
+        { percent: 0.4, sev: SEVERITY.HIGH },
     ];
 
     let severity = SEVERITY.NONE;
 
     for (let sev_data of frame_severities) {
-        if (one_per_x_kp <= sev_data.max_frames) {
+        if (keypoints_percent <= sev_data.percent) {
             severity = sev_data.sev;
             break;
         } else if (sev_data.sev == SEVERITY.HIGH) {
@@ -61,9 +57,9 @@ const GetAvgKeypointFrequency = (project) => {
 
     return {
         title: PROBLEM_TYPE.AVG_KEYPOINT_FREQUENCY,
-        message: `1 out of every ${one_per_x_kp} frames has keypoint data.`,
+        message: `Every second has an average of ${one_per_x_kp} frame${one_per_x_kp == 1 ? '' : 's'} with keypoint data.`,
         severity: severity,
-        impact: `Having a larger gap between frames with keypoint data will decrease accuracy of scoring.`,
+        impact: `Having less frames with keypoint data per second will decrease the accuracy of scoring.`,
         resolution: `Re-run Automatic Analysis with a lower Video Playback Rate. Make sure to keep this tab open while analyzing for best results.`,
     };
 };
@@ -96,13 +92,11 @@ const GetKeypointsUnderScoreThreshold = (project, keypoint_score_threshold) => {
         const group_keys = Object.keys(group).map((key) => parseInt(key));
         const max_frame = group_keys.reduce((prev, cur) => prev > cur ? prev : cur);
         const min_frame = group_keys.reduce((prev, cur) => prev < cur ? prev : cur);
-        const start_time = ConvertDurationToNiceStringWithFPS(
-            GetTimeFromFrameNumber(min_frame, project.fps),
-            project.fps
+        const start_time = ConvertDurationToNiceStringWithDecimal(
+            xx(min_frame, project.fps)
         );
-        const end_time = ConvertDurationToNiceStringWithFPS(
-            GetTimeFromFrameNumber(max_frame, project.fps),
-            project.fps
+        const end_time = ConvertDurationToNiceStringWithDecimal(
+            xx(max_frame, project.fps)
         );
         
         let severity = SEVERITY.NONE;
@@ -128,7 +122,7 @@ const GetKeypointsUnderScoreThreshold = (project, keypoint_score_threshold) => {
 
 const GetKeypointSpacingProblems = (project) => {
     // Get all frames with _will_ be used for scoring
-    const total_scoring_frames = GetFrameNumberFromTime(
+    const total_scoring_frames = xx(
         project.duration,
         project.fps
     );
