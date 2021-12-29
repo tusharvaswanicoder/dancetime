@@ -26,16 +26,27 @@
         }
     }
 
+    const timeBetweenMoves = 100;
+    let lastMoveTime = new Date().getTime();
+
     const clickImage = (i) => {
         current_image_index = i;
     }
 
     const onKeyDown = (evt) => {
+        const timeNow = new Date().getTime();
+
+        if (timeNow - lastMoveTime < timeBetweenMoves) {
+            return;
+        }
+
         if (evt.key == 'ArrowLeft') {
             Navigate(-1);
         } else if (evt.key == 'ArrowRight') {
             Navigate(1);
         }
+
+        lastMoveTime = timeNow;
     }
 
     $: {

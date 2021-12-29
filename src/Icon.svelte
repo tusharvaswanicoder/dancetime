@@ -8,6 +8,7 @@
 </script>
 
 <script>
+    export let style = '';
     export let name;
     export let direction = 'n';
     export let stops = [];
@@ -34,7 +35,7 @@
     viewBox="0 0 25 25"
     fill-rule="evenodd"
     clip-rule="evenodd"
-    style={`transform: rotate(${rotation}deg)`}
+    style={`transform: rotate(${rotation}deg); ${style}`}
     on:click={() => OnClick(name)}
 >
     {#if has_gradient}
