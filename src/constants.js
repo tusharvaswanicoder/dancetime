@@ -3,11 +3,21 @@ export const MODE_STATE = {
     CREATE: 2
 }
 
-export const GAMEMODE_STATE = {
+export const GROUP_STATE = {
     SOLO: 1,
     COUPLE: 2,
     PARTY: 3
 }
+
+export const modes = [
+    {title: 'Create', state: MODE_STATE.PLAY, colors: ['var(--color-yellow-dark)', 'var(--color-yellow-light)']},
+    {title: 'Play', state: MODE_STATE.CREATE, colors: ['var(--color-pink-dark)', 'var(--color-pink-light)']}
+];
+export const groupmodes = [
+    // {title: 'Party', colors: ['var(--color-purple-dark)', 'var(--color-purple-light)']},
+    {title: 'Couple', state: GROUP_STATE.COUPLE, colors: ['var(--color-turquoise-dark)', 'var(--color-turquoise-light)']},
+    {title: 'Solo', state: GROUP_STATE.SOLO, colors: ['var(--color-red-dark)', 'var(--color-red-light)']}
+]
 
 export const GAMESTATE = {
     NOT_INGAME: 1,

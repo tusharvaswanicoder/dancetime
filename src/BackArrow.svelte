@@ -1,11 +1,12 @@
 <script>
     import Icon from './Icon.svelte';
     export let onClick = () => {};
-    export const color = 'var(--color-gray-300)';
-    export const hoverColor = 'var(--color-gray-300)';
+    export let color = 'var(--color-gray-300)';
+    export let hoverColor = 'var(--color-gray-200)';
+    export let style = '';
 </script>
 
-<main on:click={onClick} style={`--icon-color: ${color}; --icon-hovercolor: ${hoverColor};`}>
+<main on:click={onClick} style={`--icon-color: ${color}; --icon-hovercolor: ${hoverColor}; ${style}`}>
     <Icon name={'create_publish_arrow'} direction={'w'} />
 </main>
 

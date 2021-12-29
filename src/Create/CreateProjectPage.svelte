@@ -8,7 +8,7 @@
     import { cubicOut } from 'svelte/easing';
     import { onMount } from 'svelte';
     import BackArrow from '../BackArrow.svelte';
-    import { gamemodeStateStore, selectedInitialGamemode, modeStateStore } from '../stores';
+    import { groupmodeStateStore, selectedInitialGamemode, modeStateStore } from '../stores';
     
     export let OpenProject = () => {};
     
@@ -97,7 +97,7 @@
     const onClickExitBackArrow = () => {
         $selectedInitialGamemode = false;
         $modeStateStore = null;
-        $gamemodeStateStore = null;
+        $groupmodeStateStore = null;
     }
     
     let projectNameElement;
@@ -152,7 +152,7 @@ out:fly|local={{x: -500, duration: 200}}>
             {/each}
         </div>
     </section>
-    <BackArrow onClick={onClickExitBackArrow} />
+    <BackArrow onClick={onClickExitBackArrow} hoverColor={'var(--color-gray-300)'} color={'var(--color-gray-500)'} />
 </main>
 
 <style>

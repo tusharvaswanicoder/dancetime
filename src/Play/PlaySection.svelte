@@ -1,17 +1,35 @@
 <script>
     import BackArrow from '../BackArrow.svelte';
+    import SongPreviewSection from './SongPreviewSection.svelte';
+    import SongSelectWheel from './SongSelectWheel.svelte';
+    import { selectedInitialGamemode, modeStateStore, groupmodeStateStore } from '../stores';
+    import { groupmodes } from '../constants';
+
+    const onClickBackArrow = () => {
+        $selectedInitialGamemode = false;
+        $modeStateStore = null;
+        $groupmodeStateStore = null;
+    }
+
+    let currentGroupMode;
+    $: currentGroupMode = groupmodes.find((v) => v.state == $groupmodeStateStore);
 </script>
 
 <main>
-    <nav>
-        <div>HOME</div>
-        <div>FAVORITES</div>
-        <div>SEARCH</div>
-    </nav>
-    <section class='popular'>
-        <h1>Popular</h1>
-        <div class='songs-container'></div>
-    </section>
+    <div class='top-bar'>
+        {#if currentGroupMode}
+            <BackArrow onClick={onClickBackArrow} style={'position: relative; margin: 0; width: fit-content;'} color={'var(--color-gray-200)'} hoverColor={'var(--color-gray-300)'} />
+            <h1 style={`--text-color1: ${currentGroupMode.colors[0]}; --text-color2: ${currentGroupMode.colors[1]};`}>{currentGroupMode.title}</h1>
+            <div></div>
+        {/if}
+    </div>
+    <div class='middle-section'>
+        <SongPreviewSection />
+    </div>
+    <div class='song-select-wheel'>
+        <SongSelectWheel />
+        <h3>Press Enter to Play</h3>
+    </div>
 </main>
 
 <style>
@@ -19,36 +37,55 @@
         position: relative;
         width: 100%;
         height: 100%;
-        border: 2px dashed red;
+        display: grid;
+        grid-template-rows: 10% 1fr max-content;
     }
-    
-    nav {
-        display: flex;
-        justify-content: space-evenly;
-        font-size: 1.5rem;
-        padding-top: 32px;
+
+    main div.top-bar {
+        position: relative;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        justify-items: stretch;
+        align-items: center;
+        margin-top: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        gap: 20px;
     }
-    
-    section {
-        margin-left: 60px;
-        margin-right: 60px;
-    }
-    
-    section.popular {
-        margin-top: 80px;
-    }
-    
-    section.popular h1 {
-        font-size: 2.5rem;
-        text-transform: uppercase;
+
+    main div.top-bar h1 {
+        font-size: 5rem;
         font-weight: 900;
-        background: linear-gradient(45deg, var(--color-pink-dark) 0%, var(--color-pink-light) 100%);
+        text-transform: uppercase;
+        text-align: center;
+        background: linear-gradient(
+            45deg,
+            var(--text-color1) 0%,
+            var(--text-color2) 100%
+        );
         background-clip: text;
         -webkit-text-fill-color: transparent;
-        display: inline;
+        cursor: default;
     }
-    
-    div.songs-container {
-        border: 2px dashed darkgoldenrod;
+
+    main > * {
+        border: 2px dashed red;
     }
+
+    div.song-select-wheel {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    div.song-select-wheel h3 {
+        color: var(--color-gray-300);
+        text-transform: uppercase;
+        text-align: center;
+        font-size: 1.5rem;
+        margin: 10px;
+        cursor: default;
+    }
+
 </style>
