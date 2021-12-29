@@ -99,3 +99,21 @@ export function GetDefaultComponentData (project, component_type) {
     default_data.type = component_type;
     return default_data;
 } 
+
+export const SONG_WHEEL_CATEGORIES = {
+    // PLAYLISTS: 1,
+    NEWEST: 2,
+    HOT: 3,
+    POPULAR: 4,
+    FAVORITES: 5,
+    RECENT: 6
+}
+
+export const SONG_WHEEL_CATEGORY_INFO = {
+    [SONG_WHEEL_CATEGORIES.PLAYLISTS]: {title: 'Playlists', colors: ['var(--color-pink-dark)', 'var(--color-pink-light)']},
+    [SONG_WHEEL_CATEGORIES.NEWEST]: {title: 'Newest', colors: ['var(--color-turquoise-dark)', 'var(--color-turquoise-light)']},
+    [SONG_WHEEL_CATEGORIES.HOT]: {title: 'Hot', colors: ['var(--color-yellow-dark)', 'var(--color-yellow-light)']},
+    [SONG_WHEEL_CATEGORIES.POPULAR]: {title: 'Popular', colors: ['var(--color-pink-dark)', 'var(--color-pink-light)']},
+    [SONG_WHEEL_CATEGORIES.FAVORITES]: {title: 'Favorites', colors: ['var(--color-blue-dark)', 'var(--color-blue-light)']},
+    [SONG_WHEEL_CATEGORIES.RECENT]: {title: 'Recent', colors: ['var(--color-purple-dark)', 'var(--color-purple-light)']},
+}

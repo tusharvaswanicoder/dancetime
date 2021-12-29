@@ -1,5 +1,7 @@
 <script>
+    import { keyDown } from '../stores';
     export let images = [];
+    export let style = '';
 
     const gap = 20;
     const image_size = 150;
@@ -10,13 +12,6 @@
     const center_image_index = Math.floor(images.length / 2);
     let current_image_index = center_image_index;
     let base_transform = `-50% + ${even_offset}px`;
-    let carouselWidth = 0;
-
-    let transform;
-    $: transform = `${base_transform} + ${(center_image_index - current_image_index + (is_even ? -1 : 0)) * total_image_size_with_gap}px`;
-
-    let num_images_on_screen;
-    $: num_images_on_screen = Math.ceil(carouselWidth / total_image_size_with_gap);
 
     const Navigate = (direction) => {
         if (direction > 0) {
@@ -31,14 +26,32 @@
         }
     }
 
+    const clickImage = (i) => {
+        current_image_index = i;
+    }
+
+    const onKeyDown = (evt) => {
+        if (evt.key == 'ArrowLeft') {
+            Navigate(-1);
+        } else if (evt.key == 'ArrowRight') {
+            Navigate(1);
+        }
+    }
+
+    $: {
+        onKeyDown($keyDown)
+    }
+
+    let transform;
+    $: transform = `${base_transform} + ${(center_image_index - current_image_index + (is_even ? -1 : 0)) * total_image_size_with_gap}px`;
+
 </script>
 
-<main on:click={() => Navigate(1)} on:contextmenu|preventDefault={() => Navigate(-1)} style={`--gap: ${gap}px;`}>
-    <div class='images-container' bind:clientWidth={carouselWidth} style={`transform: translateX(calc(${transform}));`}>
+<main style={`--gap: ${gap}px; ${style}`}>
+    <div class='images-container' style={`transform: translateX(calc(${transform}));`}>
         {#each images as image_url, i}
-            <div class='image-container' class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
-                <!-- svelte-ignore a11y-missing-attribute -->
-                <img src={image_url} />
+            <div class='image-container' on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
+                <img src={image_url} alt={'Song thumbnail'} />
             </div>
         {/each}
     </div>
@@ -52,8 +65,8 @@
         padding-bottom: 20px;
         background: linear-gradient(
             45deg,
-            var(--color-pink-dark) 0%,
-            var(--color-pink-light) 100%
+            var(--color1) 0%,
+            var(--color2) 100%
         );
         overflow: hidden;
         display: flex;
@@ -79,8 +92,9 @@
         border-radius: 12px;
         overflow: hidden;
         background-color: var(--color-gray-300);
-        transition: border 0.1s ease-in-out 0.05s, 0.1s ease-in-out box-shadow 0.05s, 0.1s ease-in-out transform 0.05s;
+        transition: border 0.1s ease-in-out, 0.1s ease-in-out box-shadow, 0.1s ease-in-out transform 0.05s;
         border: 0px solid white;
+        cursor: pointer;
     }
 
     main div.image-container.selected {

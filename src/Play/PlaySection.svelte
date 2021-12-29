@@ -69,9 +69,9 @@
         cursor: default;
     }
 
-    main > * {
+    /* main > * {
         border: 2px dashed red;
-    }
+    } */
 
     div.song-select-wheel {
         position: relative;
