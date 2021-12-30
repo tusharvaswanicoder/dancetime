@@ -12,7 +12,6 @@ yt-dlp
 
 .deployment
 /.vscode/
-ssl
 
 # Logs
 logs
