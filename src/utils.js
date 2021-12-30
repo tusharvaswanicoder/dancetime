@@ -1,4 +1,4 @@
-import { COMPONENT_TYPE } from './constants';
+import { COMPONENT_TYPE, SONG_WHEEL_CATEGORY_INFO } from './constants';
 
 export const ConvertDurationToNiceString = (duration) => {
     if (!duration) {
@@ -332,4 +332,8 @@ export const GetVideoStartTimeFromMetadata = (metadata) => {
 
 export const GetVideoEndTimeFromMetadata = (metadata) => {
     return GetVideoStartAndEndTimeFromMetadata(metadata).end;
+}
+
+export const getCategoryColorVars = (category) => {
+    return `--color1: ${SONG_WHEEL_CATEGORY_INFO[category].colors[0]}; --color2: ${SONG_WHEEL_CATEGORY_INFO[category].colors[1]}`;
 }

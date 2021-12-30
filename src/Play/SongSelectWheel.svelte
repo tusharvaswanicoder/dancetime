@@ -4,6 +4,9 @@
         SONG_WHEEL_CATEGORIES,
         SONG_WHEEL_CATEGORY_INFO,
     } from "../constants";
+    import { onMount } from "svelte";
+    import { songWheelSelectedCategory } from '../stores';
+    import { getCategoryColorVars } from '../utils';
 
     const images = [
         "https://images.unsplash.com/photo-1540324155974-7523202daa3f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
@@ -15,15 +18,13 @@
         "https://images.unsplash.com/photo-1586211070543-61ae1ad4a665?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
     ];
 
-    let selected_category = SONG_WHEEL_CATEGORIES.POPULAR;
-
-    const getCategoryColorVars = (category) => {
-        return `--color1: ${SONG_WHEEL_CATEGORY_INFO[category].colors[0]}; --color2: ${SONG_WHEEL_CATEGORY_INFO[category].colors[1]}`;
-    }
-
     const onClickCategory = (category) => {
-        selected_category = category;
+        $songWheelSelectedCategory = category;
     }
+
+    onMount(() => {
+        $songWheelSelectedCategory = SONG_WHEEL_CATEGORIES.POPULAR;
+    })
 </script>
 
 <main>
@@ -31,7 +32,7 @@
         {#each Object.values(SONG_WHEEL_CATEGORIES) as category}
             <div
                 class="category"
-                class:selected={category == selected_category}
+                class:selected={category == $songWheelSelectedCategory}
                 style={getCategoryColorVars(category)}
                 on:click={() => onClickCategory(category)}
             >
@@ -39,7 +40,7 @@
             </div>
         {/each}
     </div>
-    <PlayCarousel style={getCategoryColorVars(selected_category)} {images} />
+    <PlayCarousel style={getCategoryColorVars($songWheelSelectedCategory)} {images} />
 </main>
 
 <style>

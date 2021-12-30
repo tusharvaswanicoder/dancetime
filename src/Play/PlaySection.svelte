@@ -83,7 +83,8 @@
         color: var(--color-gray-300);
         text-transform: uppercase;
         text-align: center;
-        font-size: 1.5rem;
+        font-size: 1rem;
+        letter-spacing: 0.25rem;
         margin: 10px;
         cursor: default;
     }
