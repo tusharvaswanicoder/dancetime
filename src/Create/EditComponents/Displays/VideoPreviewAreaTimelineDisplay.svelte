@@ -1,5 +1,5 @@
 <script>
-    import { createProject } from '../../../stores';
+    import { createProject, createSelectedComponent } from '../../../stores';
     import { COMPONENT_TYPE } from '../../../constants';
     
     let component;
@@ -20,15 +20,24 @@
         }
     }
 
+    let selected = false;
+    $: selected = $createSelectedComponent.type == COMPONENT_TYPE.PREVIEW_AREA;
+
 </script>
 
 {#if component}
-    <div class='section filled' style={`--start-percent: ${startPercent}; --end-percent: ${endPercent};`}></div>
-    <div class='section start' style={`--left-percent: ${startPercent}`}></div>
-    <div class='section end' style={`--left-percent: ${endPercent}`}></div>
+    <main class:selected>
+        <div class='section filled' style={`--start-percent: ${startPercent}; --end-percent: ${endPercent};`}></div>
+        <div class='section start' style={`--left-percent: ${startPercent}`}></div>
+        <div class='section end' style={`--left-percent: ${endPercent}`}></div>
+    </main>
 {/if}
 
 <style>
+    main:not(.selected) {
+        opacity: 0.25;
+    }
+
     div.section {
         position: absolute;
         left: 0;
