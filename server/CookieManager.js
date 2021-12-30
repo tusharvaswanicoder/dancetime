@@ -1,5 +1,5 @@
 const JWT = require('./JWT');
-const { AzTableManager } = require('./AzTableManager');
+const azMySQLManager = require('./AzMySQLManager');
 const secondsInADay = 86400;
 
 /**
@@ -50,7 +50,7 @@ function CookieCheck(req, res, next) {
 
 async function RefreshToken (req, res, email) {
     // Ensure that they are still whitelisted before refreshing token
-    const isWhitelisted = await AzTableManager.emailIsWhitelisted(email);
+    const isWhitelisted = await azMySQLManager.emailIsWhitelisted(email);
     
     if (isWhitelisted) {
         const token = JWT.makeToken(email, '90d');
@@ -101,7 +101,7 @@ function TryRegister (req, res) {
     if (req.body.email) {
         // TODO: check if email is in db
         // If so, send magic link with token
-        AzTableManager.emailIsWhitelisted(req.body.email).then((result) => {
+        azMySQLManager.emailIsWhitelisted(req.body.email).then((result) => {
             if (result == true) {
                 const token = JWT.makeToken(req.body.email, '1h');
                 SendMagicLinkEmail(req.body.email, token).then(() => {
