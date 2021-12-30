@@ -3,13 +3,15 @@
     import AddNewComponent from './EditComponents/AddNewComponent.svelte';
     import VideoInOutPointsComponent from './EditComponents/VideoInOutPointsComponent.svelte';
     import ScoringAreasComponent from './EditComponents/ScoringAreasComponent.svelte';
+    import PreviewAreaComponent from './EditComponents/PreviewAreaComponent.svelte';
     import { COMPONENT_TYPE } from '../constants';
     import { fly } from 'svelte/transition';
     import { createProject } from "../stores";
     
     const COMPONENT_TYPE_MAP = {
         [COMPONENT_TYPE.VIDEO_IN_OUT_POINTS]: VideoInOutPointsComponent,
-        [COMPONENT_TYPE.SCORING_AREAS]: ScoringAreasComponent
+        [COMPONENT_TYPE.SCORING_AREAS]: ScoringAreasComponent,
+        [COMPONENT_TYPE.PREVIEW_AREA]: PreviewAreaComponent
     }
     
 </script>

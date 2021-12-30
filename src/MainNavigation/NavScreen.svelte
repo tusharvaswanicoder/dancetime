@@ -16,7 +16,7 @@
         }
     }
 
-    const selectPlayMode = (section) => {
+    const selectGroupType = (section) => {
         // check section.title
         $groupmodeStateStore = section.state;
 
@@ -26,15 +26,15 @@
     }
 
     // For testing only
-    onMount(() => {
-        selectMode(modes.find((v) => v.state == MODE_STATE.PLAY));
-        selectPlayMode(groupmodes.find((v) => v.state == GROUP_STATE.SOLO));
-    })
+    // onMount(() => {
+    //     selectMode(modes.find((v) => v.state == MODE_STATE.PLAY));
+    //     selectPlayMode(groupmodes.find((v) => v.state == GROUP_STATE.SOLO));
+    // })
 </script>
 
 <main>
     {#if $modeStateStore == MODE_STATE.PLAY}
-        <PlayModes sections={groupmodes} onClick={selectPlayMode} />
+        <PlayModes sections={groupmodes} onClick={selectGroupType} />
     {/if}
     <PlayModes sections={modes} onClick={selectMode} />
 </main>

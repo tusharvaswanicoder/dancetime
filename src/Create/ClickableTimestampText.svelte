@@ -1,5 +1,5 @@
 <script>
-    import { createProject, createVideo, createAudio, createEditorDisabled } from '../stores';
+    import { createVideoPlayer, createEditorDisabled } from '../stores';
     import { CreateNavToTime } from '../utils';
     
     const onClick = (e) => {
@@ -10,11 +10,10 @@
         
         const split = timestamp.split(':');
         const minutes = parseInt(split[0]);
-        const seconds = parseInt(split[1]);
-        const frames = parseInt(split[2]);
-        
-        const time = (minutes * 60) + seconds + (frames / $createProject.fps);
-        CreateNavToTime(time, $createVideo, $createAudio, $createEditorDisabled);
+        const seconds = parseFloat(split[1]);
+
+        const time = (minutes * 60) + seconds;
+        CreateNavToTime(time, $createVideoPlayer, $createEditorDisabled);
     }
 </script>
 

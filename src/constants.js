@@ -10,8 +10,8 @@ export const GROUP_STATE = {
 }
 
 export const modes = [
-    {title: 'Create', state: MODE_STATE.PLAY, colors: ['var(--color-yellow-dark)', 'var(--color-yellow-light)']},
-    {title: 'Play', state: MODE_STATE.CREATE, colors: ['var(--color-pink-dark)', 'var(--color-pink-light)']}
+    {title: 'Create', state: MODE_STATE.CREATE, colors: ['var(--color-yellow-dark)', 'var(--color-yellow-light)']},
+    {title: 'Play', state: MODE_STATE.PLAY, colors: ['var(--color-pink-dark)', 'var(--color-pink-light)']}
 ];
 export const groupmodes = [
     // {title: 'Party', colors: ['var(--color-purple-dark)', 'var(--color-purple-light)']},
@@ -58,7 +58,8 @@ export const COMPONENT_TYPE = {
     ADD_NEW: 2,
     VIDEO_IN_OUT_POINTS: 3,
     SCORING_AREAS: 4,
-    BLOCKED_AREA: 5
+    BLOCKED_AREA: 5,
+    PREVIEW_AREA: 6
 }
 
 export const COMPONENT_DATA = {
@@ -68,6 +69,12 @@ export const COMPONENT_DATA = {
         return {
             in: 0,
             out: project.duration
+        }
+    }},
+    [COMPONENT_TYPE.PREVIEW_AREA]:   {name: 'Preview Area', limit: 1, get_default_data: (project) => {
+        return {
+            in: 0,
+            out: Math.min(10, project.duration)
         }
     }},
     [COMPONENT_TYPE.SCORING_AREAS]:         {name: 'Scoring Areas', limit: 1, get_default_data: (project) => {

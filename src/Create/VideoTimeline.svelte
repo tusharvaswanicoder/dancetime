@@ -18,6 +18,7 @@
     import { ConvertDurationToNiceStringWithDecimal } from '../utils';
     import Icon from '../Icon.svelte';
     import VideoInOutPointsTimelineDisplay from './EditComponents/Displays/VideoInOutPointsTimelineDisplay.svelte';
+    import VideoPreviewAreaTimelineDisplay from './EditComponents/Displays/VideoPreviewAreaTimelineDisplay.svelte';
 
     let timelineWidth = 0;
     let timelineHeight = 0;
@@ -226,6 +227,9 @@
             <!-- All overlay elements go here -->
             {#if hasComponentOfType(COMPONENT_TYPE.VIDEO_IN_OUT_POINTS, $createProject)}
                 <VideoInOutPointsTimelineDisplay />
+            {/if}
+            {#if hasComponentOfType(COMPONENT_TYPE.PREVIEW_AREA, $createProject)}
+                <VideoPreviewAreaTimelineDisplay />
             {/if}
         </div>
         <div class="seeker" style={`left: ${seekerProgressPercent}`}>
