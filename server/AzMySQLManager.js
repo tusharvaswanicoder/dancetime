@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const DATABASE_NAME = process.env.NODE_ENV == 'production' ?
-    'dancetime_prod' : 'dancetime_dev';
+    process.env.MYSQL_DB_PROD : process.env.MYSQL_DB_DEV;
 
 const conn = mysql.createConnection({ 
     host: process.env.MYSQL_DB_HOST, 
