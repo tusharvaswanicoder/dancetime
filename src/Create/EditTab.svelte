@@ -6,13 +6,18 @@
     import PreviewAreaComponent from './EditComponents/PreviewAreaComponent.svelte';
     import { COMPONENT_TYPE } from '../constants';
     import { fly } from 'svelte/transition';
-    import { createProject } from "../stores";
+    import { createProject, createSelectedComponent } from "../stores";
+    import { onDestroy } from 'svelte';
     
     const COMPONENT_TYPE_MAP = {
         [COMPONENT_TYPE.VIDEO_IN_OUT_POINTS]: VideoInOutPointsComponent,
         [COMPONENT_TYPE.SCORING_AREAS]: ScoringAreasComponent,
         [COMPONENT_TYPE.PREVIEW_AREA]: PreviewAreaComponent
     }
+
+    onDestroy(() => {
+        $createSelectedComponent = {};
+    })
     
 </script>
 

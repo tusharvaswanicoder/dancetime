@@ -62,6 +62,7 @@
             <div class="label">Submit</div>
         </div>
     </div>
+    <h3 in:fly={{delay: 8000, y: -30, duration: 1500}}>Don't have an invitation?<br><a href='https://forms.gle/nxfAB56nTarZ18MP9' target="_blank">Apply here for an invite.</a></h3>
 </main>
 
 <style>
@@ -103,6 +104,20 @@
         font-style: italic;
         text-align: center;
         cursor: default;
+    }
+
+    h3 {
+        font-size: 18px;
+        font-style: italic;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+        margin: 20px;
+    }
+
+    h3 a {
+        color: #4F85ED;
     }
 
     input {

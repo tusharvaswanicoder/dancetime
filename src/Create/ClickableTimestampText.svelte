@@ -18,7 +18,7 @@
 </script>
 
 <!-- svelte-ignore a11y-missing-attribute -->
-<a on:click={onClick}>
+<a on:click={onClick} title="Click to goto time">
     <slot></slot>
 </a>
 
