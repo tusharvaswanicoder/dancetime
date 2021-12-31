@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 class JWT {
     constructor() {}
@@ -21,4 +21,4 @@ class JWT {
 
 const _jwt = new JWT();
 
-module.exports = _jwt;
+export default _jwt;

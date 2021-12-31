@@ -1,10 +1,14 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 const PORT = process.env.PORT || 3001;
-require('dotenv').config();
 
-const rateLimit = require("express-rate-limit");
+import rateLimit from "express-rate-limit";
 
-const express = require('express');
-const cookieParser = require('cookie-parser');
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import { SetUser, GetUser } from './User.js';
+import { CookieCheck, MagicLinkLogin, TryRegister } from './CookieManager.js';
 
 function isAuthenticated(req, res, next) {
     if (req.user) {
@@ -16,7 +20,7 @@ function isAuthenticated(req, res, next) {
 
 const apiLimiter = rateLimit({
     windowMs: 10 * 60 * 1000, // 10 minutes
-    max: 5000
+    max: 1000
 });
 
 const createAccountLimiter = rateLimit({
@@ -30,12 +34,10 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-// Look for user cookies to see if they are already logged in
-app.use(require('./CookieManager').CookieCheck)
-
 app.use(express.static('public'));
 
-// TODO: check if authenticated before allowing access to the endpoint
+// Look for user cookies to see if they are already logged in on API or AUTH calls
+app.all(["/auth/*", "/api/*"], CookieCheck);
 
 // User is querying an existing chart in the db
 app.get('/api/chart/:id', apiLimiter, isAuthenticated, (req, res) => {
@@ -56,20 +58,16 @@ app.post('/api/chart/new', apiLimiter, isAuthenticated, (req, res) => {
 });
 
 // User arrives here with a magic link
-app.get('/login', createAccountLimiter, require('./CookieManager').MagicLinkLogin);
+app.get('/auth/login', createAccountLimiter, MagicLinkLogin);
 
 // User goes to site, enters email, and posts request with email to see if they can get a magic link
-app.post('/register', createAccountLimiter, require('./CookieManager').TryRegister);
+app.post('/auth/register', createAccountLimiter, TryRegister);
+
+// User goes to site, enters email, and posts request with email to see if they can get a magic link
+app.post('/api/user/set', apiLimiter, SetUser);
 
 // User queries this on page load to get their info and load the authenticated screen(s)
-app.get('/getMyInfo', (req, res) => {
-    if (req.user) {
-        // TODO: query from DB or something for more detailed info
-        res.send(req.user);
-    } else {
-        return res.status(403).end();
-    }
-});
+app.get('/api/user/get', apiLimiter, GetUser);
 
 app.get('*', (req, res) => {
     res.redirect('/');

@@ -1,8 +1,8 @@
-const https = require('https');
-const path = require('path');
+import { request } from 'https';
+import path from 'path';
 
 const MAGIC_LINK_URL = process.env.NODE_ENV == 'production' ? 
-    process.env.MAGIC_LINK_URL : 'http://localhost:3001/login';
+    'https://dancetime.io/auth/login' : 'http://localhost:3001/auth/login';
 
 async function SendMagicLinkEmail(email, token) {
     return post(process.env.EMAIL_POST_ENDPOINT, {
@@ -34,7 +34,7 @@ async function post(url, data) {
             reject();
         }
         
-        const req = https.request(url, options, (res) => {
+        const req = request(url, options, (res) => {
             if (res.statusCode < 200 || res.statusCode > 299) {
                 return reject(new Error(`HTTP status code ${res.statusCode}`));
             }
@@ -61,4 +61,4 @@ async function post(url, data) {
     });
 }
 
-module.exports = SendMagicLinkEmail;
+export default SendMagicLinkEmail;

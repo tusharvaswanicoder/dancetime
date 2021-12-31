@@ -1,22 +1,32 @@
 <script>
+    import { tick } from 'svelte';
     import { flip } from 'svelte/animate';
     import { fade, fly } from 'svelte/transition';
+    import { USER } from './Auth';
     
     let input_value = '';
     let submitted = false;
+    let error;
+    let display_error = false;
+
+    $: input_value = input_value.trim().replace(' ', '');
 
     function ClickSubmitButton(e) {
+        if (submitted) {
+            return;
+        }
+
         input_value = input_value.trim();
 
-        if (input_value.trim().length < 4) {
+        if (input_value.length < 3) {
             return;
         }
 
-        if (!validateEmail(input_value)) {
+        if (!validateUsername(input_value)) {
             return;
         }
 
-        fetch('/auth/register', {
+        fetch('/api/user/set', {
             method: 'post',
             headers: {
                 Accept: 'application/json',
@@ -25,44 +35,68 @@
 
             //make sure to serialize your JSON body
             body: JSON.stringify({
-                email: input_value
+                username: input_value
             }),
-        }).then((response) => {
-            // Nothing
-        });
+        }).then(async (response) => {
+            response = await response.json();
+            if (response.error) {
+                // Handle error
+                submitted = false;
+                error = response.error;
+                display_error = true;
+
+                setTimeout(() => {
+                    display_error = false;
+                }, 5000);
+            } else if (response.user) {
+                $USER = {...$USER, ...response.user};
+            }
+        }).catch((error) => {
+            submitted = false;
+            error = 'An error occurred.';
+            display_error = true;
+
+            setTimeout(() => {
+                display_error = false;
+            }, 5000);
+        })
         
-        input_value = '';
         submitted = true;
     }
 
-    function validateEmail(email) {
-        const re =
-            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(String(email).toLowerCase());
+    function validateUsername(username) {
+        const re =/^[a-z0-9]+$/i;
+        return re.test(String(username).toLowerCase());
     }
 </script>
 
-<main in:fade>
+<main in:fade out:fade>
     <div class="container">
         <h1 in:fly={{delay: 400, y: -30, duration: 800}}>Dance Time</h1>
         <h2 in:fly={{delay: 1000, y: 30, duration: 800}}>
-            {#if !submitted}
-                Got an invitation? Enter your email below and we'll send you a magic
-                link to login.
-            {:else}
-                Thanks! You should receive an email from us momentarily if you were invited.
-            {/if}
+            Welcome! It looks like this is your first time here, so let's get you set up with a sweet username.
         </h2>
-        <input in:fade={{delay: 1600, duration: 600}} class:hidden={submitted} placeholder="bob@example.com" bind:value={input_value} />
+        <input in:fade={{delay: 1600, duration: 600}} placeholder="SuperDancer123" bind:value={input_value} />
         <div
-            class={`button ${validateEmail(input_value.trim()) ? 'visible' : ''}`}
+            class={`button ${validateUsername(input_value.trim()) && input_value.trim().length >= 3 ? 'visible' : ''}`}
             on:click={ClickSubmitButton}
+            class:disabled={submitted}
         >
             <div class="background" />
-            <div class="label">Submit</div>
+            <div class="label">
+                {#if !submitted}
+                    Let's Go
+                {:else}
+                    Loading...
+                {/if}
+            </div>
         </div>
+        {#if display_error}
+            <div class='error-container' in:fly={{y: -30}} out:fade>
+                <div class='error'>{error}</div>
+            </div>
+        {/if}
     </div>
-    <h3 in:fly={{delay: 8000, y: -30, duration: 1500}}>Don't have an invitation?<br><a href='https://forms.gle/nxfAB56nTarZ18MP9' target="_blank">Apply here for an invite.</a></h3>
 </main>
 
 <style>
@@ -73,8 +107,8 @@
         overflow: hidden;
         background-image: linear-gradient(
             45deg,
-            var(--color-pink-dark) 0%,
-            var(--color-pink-light) 100%
+            var(--color-blue-dark) 0%,
+            var(--color-blue-light) 100%
         );
         grid-column: 1 / 3;
         display: flex;
@@ -84,6 +118,7 @@
     }
 
     div.container {
+        position: relative;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -106,20 +141,6 @@
         cursor: default;
     }
 
-    h3 {
-        font-size: 18px;
-        font-style: italic;
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        text-align: center;
-        margin: 20px;
-    }
-
-    h3 a {
-        color: #4F85ED;
-    }
-
     input {
         margin-top: 60px;
         background-color: transparent;
@@ -135,12 +156,6 @@
         transition: 0.2s ease-in-out border;
     }
     
-    input.hidden {
-        user-select: none;
-        cursor: default;
-        opacity: 0;
-    }
-
     input:focus {
         border-bottom: 2px solid rgba(255, 255, 255, 1);
     }
@@ -168,8 +183,8 @@
         display: inline-block;
         background: linear-gradient(
             45deg,
-            var(--color-pink-dark) 0%,
-            var(--color-pink-light) 100%
+            var(--color-blue-dark) 0%,
+            var(--color-blue-light) 100%
         );
         background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -177,5 +192,37 @@
         text-transform: uppercase;
         font-size: 18px;
         user-select: none;
+    }
+
+    div.button.disabled {
+        opacity: 0.75;
+        cursor: default;
+    }
+
+    div.error-container {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        display: grid;
+        place-items: center;
+    }
+
+    div.error {
+        background-image: linear-gradient(
+            45deg,
+            var(--color-red-dark) 0%,
+            var(--color-red-light) 100%
+        );
+        color: white;
+        font-weight: 700;
+        padding: 30px;
+        width: 100%;
+        text-align: center;
+        font-size: 1.5rem;
+        margin: 40px;
+        border-radius: 12px;
+        user-select: none;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
     }
 </style>

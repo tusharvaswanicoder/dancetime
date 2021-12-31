@@ -1,6 +1,6 @@
-const { BlobServiceClient } = require('@azure/storage-blob');
-const { v1: uuidv1 } = require('uuid');
-const path = require('path');
+import { BlobServiceClient } from '@azure/storage-blob';
+import { v1 as uuidv1 } from 'uuid';
+import path from 'path';
 
 // use uuidv1() to generate unique file names
 const AZURE_STORAGE_CONNECTION_STRING =
@@ -14,7 +14,7 @@ const CONTAINER_TYPE = {
     THUMBNAILS: 'thumbnails'
 };
 
-const urljoin = require('url-join');
+import urljoin from 'url-join';
 const DL_BASE_URL = process.env.DL_BASE_URL;
 
 class AzBlobManager {
@@ -164,7 +164,7 @@ class AzBlobManager {
 }
 
 const azBlobManager = new AzBlobManager();
-module.exports = 
+export default 
 {
     azBlobManager,
     CONTAINER_TYPE

@@ -161,6 +161,7 @@
         width: 100%;
         object-fit: cover;
         border-radius: 12px;
+        background-color: black;
     }
 
     div.play-button {

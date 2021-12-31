@@ -1,5 +1,5 @@
-const JWT = require('./JWT');
-const azMySQLManager = require('./AzMySQLManager');
+import JWT from './JWT.js';
+import azMySQLManager from './AzMySQLManager.js';
 const secondsInADay = 86400;
 
 /**
@@ -14,7 +14,7 @@ const secondsInADay = 86400;
 }
 
 // Look for user cookies to see if they are already logged in
-function CookieCheck(req, res, next) {
+export function CookieCheck(req, res, next) {
     // If a cookie is expired it will not show up in req.cookies
     new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
@@ -36,10 +36,20 @@ function CookieCheck(req, res, next) {
             // No await so we don't have to wait for the refresh to finish
             RefreshToken(req, res, decoded.email);
         }
-        
-        req.user = {
-            email: decoded.email
+
+        if (!req.user) {
+            req.user = {
+                email: decoded.email,
+            }
+
+            const user_details = await azMySQLManager.getUsernameFromEmail(decoded.email);
+            if (user_details) {
+                req.user.username = user_details.username;
+                req.user.user_id = user_details.user_id;
+            }
+            console.log(req.user);
         }
+
         resolve();
     }).catch((err) => {
         console.log(err);
@@ -62,8 +72,9 @@ async function RefreshToken (req, res, email) {
     }
 }
 
-function MagicLinkLogin (req, res) {
+export function MagicLinkLogin (req, res) {
     // No token
+    console.log('magic link')
     if (!req.query.token) {
         res.redirect('/');
         return;
@@ -89,9 +100,9 @@ function MagicLinkLogin (req, res) {
     }
 }
 
-const SendMagicLinkEmail = require('./SendMagicLinkEmail');
+import SendMagicLinkEmail from './SendMagicLinkEmail.js';
 
-function TryRegister (req, res) {
+export function TryRegister (req, res) {
     // User is already logged in, do not allow them to login again
     if (req.user) {
         res.status(403).end();
@@ -114,10 +125,4 @@ function TryRegister (req, res) {
     }
 
     res.status(200).end();
-}
-
-module.exports = {
-    CookieCheck,
-    MagicLinkLogin,
-    TryRegister
 }

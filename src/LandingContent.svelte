@@ -3,8 +3,10 @@
     import MainContent from "./MainContent.svelte"
     import SettingsScreen from "./SettingsScreen.svelte";
     import IngameContent from "./Ingame/IngameContent.svelte";
+    import CreateUsernamePage from "./CreateUsernamePage.svelte";
     import { GAMESTATE } from "./constants";
     import { settingsOpen, gameState, selectedInitialGamemode } from "./stores";
+    import { USER } from './Auth';
     
     // Score screen testing
     // import IngameEvaluationScreen from "./Ingame/IngameEvaluationScreen.svelte";
@@ -25,18 +27,22 @@
 </script>
 
 <main>
-    {#if $gameState == GAMESTATE.NOT_INGAME}
-        <MainContent />
-        {#key navScreenKey}
-            {#if !$selectedInitialGamemode}
-                <NavScreen />
-            {/if}
-        {/key}
-    {:else if $gameState == GAMESTATE.INGAME}
-        <IngameContent />
-    {/if}
-    {#if $settingsOpen}
-        <SettingsScreen />
+    {#if !$USER.username}
+        <CreateUsernamePage />
+    {:else}
+        {#if $gameState == GAMESTATE.NOT_INGAME}
+            <MainContent />
+            {#key navScreenKey}
+                {#if !$selectedInitialGamemode}
+                    <NavScreen />
+                {/if}
+            {/key}
+        {:else if $gameState == GAMESTATE.INGAME}
+            <IngameContent />
+        {/if}
+        {#if $settingsOpen}
+            <SettingsScreen />
+        {/if}
     {/if}
     <!-- <IngameEvaluationScreen /> -->
 </main>

@@ -1,3 +1,30 @@
+import dotenv from 'dotenv';
+dotenv.config();
+import fetch from 'node-fetch';
+
+export async function IsReviewRecommended(text) {
+    const response = await fetch(process.env.CONTENT_MOD_ENDPOINT,
+        {
+            method: 'post',
+            body: text,
+            headers: {
+                'Ocp-Apim-Subscription-Key': process.env.CONTENT_MOD_KEY,
+                'Content-Type': 'text/plain'
+            }
+        });
+    const data = await response.json();
+    let avg_score = data.Classification.Category1.Score 
+                    + data.Classification.Category2.Score 
+                    + data.Classification.Category3.Score;
+    const reviewRecommended = (avg_score / 3) > 0.5 || 
+        data.Classification.Category1.Score > 0.8 ||
+        data.Classification.Category2.Score > 0.8 ||
+        data.Classification.Category3.Score > 0.8;
+    return reviewRecommended;
+}
+
+
+
 // POST https://dancetime-content-moderator.cognitiveservices.azure.com/contentmoderator/moderate/v1.0/ProcessText/Screen?classify=True
 // with HEADER: Ocp-Apim-Subscription-Key = key, Content-Type: text/plain
 // body as just the text to query
