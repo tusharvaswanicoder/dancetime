@@ -1,6 +1,5 @@
 <script>
-import { onMount } from 'svelte';
-
+    import Icon from '../Icon.svelte';
     import { songWheelCategoryCurrentIndex, songWheelSelectedCategory } from '../stores';
     import { keyDown } from '../stores';
     export let images = [];
@@ -16,6 +15,11 @@ import { onMount } from 'svelte';
     $: center_image_index = Math.floor(images.length / 2);
     let current_image_index = 0;
     $: base_transform = `-50% + ${even_offset}px`;
+
+    const play_icon_stops = [
+        { color: "var(--color-pink-dark)", offset: "0" },
+        { color: "var(--color-pink-light)", offset: "1" },
+    ];
 
     const Navigate = (direction) => {
         if (images.length == 0) {
@@ -57,6 +61,10 @@ import { onMount } from 'svelte';
         lastMoveTime = timeNow;
     }
 
+    const clickPlayButton = () => {
+        // Play chart
+    }
+
     $: {
         onKeyDown($keyDown)
     }
@@ -79,6 +87,13 @@ import { onMount } from 'svelte';
                 <div class='image-container' on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
                     <!-- svelte-ignore a11y-missing-attribute -->
                     <img src={image_url} />
+                    {#if i == current_image_index}
+                        <div class='playtest-icon-container'>
+                            <span class="playtest-icon" on:click={clickPlayButton}>
+                                <Icon name="video_play_icon" stops={play_icon_stops} />
+                            </span>
+                        </div>
+                    {/if}
                 </div>
             {/each}
         {:else}
@@ -150,4 +165,37 @@ import { onMount } from 'svelte';
         width: 100%;
         object-fit: cover;
     }
+
+    div.playtest-icon-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: grid;
+        place-items: center;
+        transition: 0.05s ease-in-out transform;
+    }
+
+    span.playtest-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        width: 2.75rem;
+        height: 2.75rem;
+        background-color: var(--color-gray-100);
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    div.playtest-icon-container:hover {
+        transform: scale(1.05);
+    }
+
+    div.playtest-icon-container:active {
+        transform: scale(0.9);
+    }
+
 </style>

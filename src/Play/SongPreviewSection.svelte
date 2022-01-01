@@ -120,7 +120,7 @@
 
                     // Wrong video embedded
                     const video_url = await previewVideoPlayer.getVideoUrl();
-                    if (!video_url.includes(selectedSongMetadata.video_id)) {
+                    if (video_url && !video_url.includes(selectedSongMetadata.video_id)) {
                         refreshYoutubeEmbed();
                     }
                 }
@@ -149,6 +149,7 @@
     <section>
         <div class='visual-preview' style={getCategoryColorVars($songWheelSelectedCategory)}>
             <div class='inner-content' id={video_div_id} />
+            <div class='content-block-container' />
             <div class='clipped upvotes' style={`--text-height: ${upvotes_height}px; --text-width: ${upvotes_width}px;`}>
                 <h3 bind:clientWidth={upvotes_width} bind:clientHeight={upvotes_height}>
                     <Icon name={'create_publish_arrow'} direction={'n'} style={'display: inline; font-size: 1rem;'} />
@@ -328,6 +329,14 @@
 
     div.view-details:hover {
         text-decoration: underline;
+    }
+
+    div.content-block-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
 
 </style>
