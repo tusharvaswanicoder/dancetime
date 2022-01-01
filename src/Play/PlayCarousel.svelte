@@ -1,4 +1,7 @@
 <script>
+import { onMount } from 'svelte';
+
+    import { songWheelCategoryCurrentIndex, songWheelSelectedCategory } from '../stores';
     import { keyDown } from '../stores';
     export let images = [];
     export let style = '';
@@ -7,13 +10,18 @@
     const image_size = 150;
     const total_image_size_with_half_gap = image_size + gap / 2;
     const total_image_size_with_gap = image_size + gap;
-    const is_even = images.length % 2 == 0;
-    const even_offset = is_even ? total_image_size_with_half_gap / 2 : 0;
-    const center_image_index = Math.floor(images.length / 2);
-    let current_image_index = center_image_index;
-    let base_transform = `-50% + ${even_offset}px`;
+    let is_even;
+    $: is_even = images.length % 2 == 0;
+    $: even_offset = is_even ? total_image_size_with_half_gap / 2 : 0;
+    $: center_image_index = Math.floor(images.length / 2);
+    let current_image_index = 0;
+    $: base_transform = `-50% + ${even_offset}px`;
 
     const Navigate = (direction) => {
+        if (images.length == 0) {
+            return;
+        }
+
         if (direction > 0) {
             current_image_index += direction;
             current_image_index = current_image_index % images.length;
@@ -55,16 +63,31 @@
 
     let transform;
     $: transform = `${base_transform} + ${(center_image_index - current_image_index + (is_even ? -1 : 0)) * total_image_size_with_gap}px`;
+    
 
+    $: {
+        if ($songWheelSelectedCategory) {
+            $songWheelCategoryCurrentIndex[$songWheelSelectedCategory] = current_image_index;
+        }
+    }
 </script>
 
 <main style={`--gap: ${gap}px; ${style}`}>
     <div class='images-container' style={`transform: translateX(calc(${transform}));`}>
-        {#each images as image_url, i}
-            <div class='image-container' on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
-                <img src={image_url} alt={'Song thumbnail'} />
-            </div>
-        {/each}
+        {#if images.length > 0}
+            {#each images as image_url, i}
+                <div class='image-container' on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
+                    <!-- svelte-ignore a11y-missing-attribute -->
+                    <img src={image_url} />
+                </div>
+            {/each}
+        {:else}
+            {#each {length: 11} as _, _}
+                <div class='image-container placeholder' style={`--image-size: ${image_size}px;`}>
+                    <div class='image-placeholder' />
+                </div>
+            {/each}
+        {/if}
     </div>
 </main>
 
@@ -102,7 +125,7 @@
         aspect-ratio: 1 / 1;
         border-radius: 12px;
         overflow: hidden;
-        background-color: var(--color-gray-300);
+        background-color: var(--color-gray-200);
         transition: border 0.1s ease-in-out, 0.1s ease-in-out box-shadow, 0.1s ease-in-out transform 0.05s;
         border: 0px solid white;
         cursor: pointer;
@@ -118,7 +141,11 @@
                     0px 0px 4px 0px hsla(0, 0%, 100%, 0.75);
     }
 
-    img {
+    main div.image-container.placeholder {
+        cursor: default;
+    }
+
+    img, div.image-placeholder {
         height: 100%;
         width: 100%;
         object-fit: cover;

@@ -1,5 +1,6 @@
 import { createConnection, createPool } from 'promise-mysql';
 import { default_tables } from './DatabaseConfig.js';
+import snappy from 'snappy';
 
 const DATABASE_NAME = process.env.NODE_ENV == 'production' ?
     process.env.MYSQL_DB_PROD : process.env.MYSQL_DB_DEV;
@@ -37,6 +38,14 @@ class AzMySQLManager {
         }
     }
 
+    jsonToCompressedString (json) {
+        return snappy.compressSync(JSON.stringify(json));
+    }
+
+    compressedStringToJSON (str) {
+        return JSON.parse(snappy.uncompressSync(str));
+    }
+
     /**
      * Called when a user presses the "PUBLISH" button to publish their chart (new or updated version).
      * @param {*} chart 
@@ -47,7 +56,7 @@ class AzMySQLManager {
         try {
             let existing_chart = null;
             if (chart.chart_id) {
-                const result = await this.pool.query('SELECT * FROM charts WHERE id = ? AND user_id = ? LIMIT 1', [chart.chart_id, user.id]);
+                const result = await this.pool.query('SELECT * FROM charts WHERE chart_id = ? AND user_id = ? LIMIT 1', [chart.chart_id, user.user_id]);
                 existing_chart = result[0];
             }
 
@@ -56,24 +65,24 @@ class AzMySQLManager {
                 chart.version = 1;
                 chart.user_id = user.id;
                 const query = `INSERT INTO charts (title, song_artist, choreography, difficulty, last_edited, video_link, video_id, duration, visibility, version, tags, components, keypoints, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-                const result = await this.pool.query(query, [chart.title, chart.song_artist, chart.choreography, chart.difficulty, new Date().toISOString(), chart.video_link, chart.video_id, chart.duration, chart.visibility, chart.version, chart.tags, chart.components, chart.keypoints, user.user_id]);
-                // TODO: get chart_id from auto increment and assign to chart variable for the return at the end
-                console.log(result);
+                const result = await this.pool.query(query, [chart.title, chart.song_artist, chart.choreography, chart.difficulty, new Date(), chart.video_link, chart.video_id, chart.duration, chart.visibility, chart.version, this.jsonToCompressedString(chart.tags), this.jsonToCompressedString(chart.components), this.jsonToCompressedString(chart.keypoints), user.user_id]);
+                chart.chart_id = result.insertId;
             } else {
                 // Chart has been published, so just update it
                 existing_chart.version++;
                 const query = `UPDATE charts SET title = ?, song_artist = ?, choreography = ?, difficulty = ?, last_edited = ?, visibility = ?, version = ?, tags = ?, components = ?, keypoints = ? WHERE chart_id = ? AND user_id = ?`;
-                await this.pool.query(query, [chart.title, chart.song_artist, chart.choreography, chart.difficulty, new Date().toISOString(), chart.visibility, existing_chart.version, chart.tags, chart.components, chart.keypoints, existing_chart.chart_id, user.user_id]);
+                await this.pool.query(query, [chart.title, chart.song_artist, chart.choreography, chart.difficulty, new Date(), chart.visibility, existing_chart.version, this.jsonToCompressedString(chart.tags), this.jsonToCompressedString(chart.components), this.jsonToCompressedString(chart.keypoints), existing_chart.chart_id, user.user_id]);
             }
 
             // Query again to get latest version of the chart
-            const result = await this.pool.query('SELECT * FROM charts WHERE id = ? AND user_id = ? LIMIT 1', [chart.chart_id, user.id]);
+            const result = await this.pool.query('SELECT * FROM charts WHERE chart_id = ? AND user_id = ? LIMIT 1', [chart.chart_id, user.user_id]);
             chart = result[0];
 
             // Delete extra info not needed to send back
             delete chart.tags;
             delete chart.components;
             delete chart.keypoints;
+            chart = JSON.parse(JSON.stringify(chart));
 
             // Return chart info with updated version and user_id
             return chart;

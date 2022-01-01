@@ -5,18 +5,12 @@
         SONG_WHEEL_CATEGORY_INFO,
     } from "../constants";
     import { onMount } from "svelte";
-    import { songWheelSelectedCategory } from '../stores';
+    import { songWheelSelectedCategory, songWheelChartMetadata } from '../stores';
     import { getCategoryColorVars } from '../utils';
+    import { getAvailableThumbnails } from './YoutubeThumbnails';
 
-    const images = [
-        "https://images.unsplash.com/photo-1540324155974-7523202daa3f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1547153760-18fc86324498?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1535525153412-5a42439a210d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1546427660-eb346c344ba5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1536129808005-fae894214c73?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1523450001312-faa4e2e37f0f?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-        "https://images.unsplash.com/photo-1586211070543-61ae1ad4a665?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8ZGFuY2V8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60",
-    ];
+    const thumbnails = {};
+    let images_to_display = [];
 
     const onClickCategory = (category) => {
         $songWheelSelectedCategory = category;
@@ -25,6 +19,42 @@
     onMount(() => {
         $songWheelSelectedCategory = SONG_WHEEL_CATEGORIES.POPULAR;
     })
+
+    const refreshChartThumbnails = async () => {
+        for (const category_id in $songWheelChartMetadata) {
+            if (!thumbnails[category_id]) {
+                thumbnails[category_id] = {};
+            }
+
+            for (const index in $songWheelChartMetadata[category_id]) {
+                const chart_metadata = $songWheelChartMetadata[category_id][index];
+
+                if (!thumbnails[category_id][chart_metadata.video_id]) {
+                    const thumbnail_links = await getAvailableThumbnails(chart_metadata.video_id);
+                    thumbnails[category_id][chart_metadata.video_id] = {thumbnail_link: thumbnail_links[thumbnail_links.length - 1], index};
+                }
+
+            }
+        }
+
+        refreshImagesToDisplay();
+    }
+
+    const refreshImagesToDisplay = () => {
+        if (!$songWheelSelectedCategory || !thumbnails[$songWheelSelectedCategory]) {
+            return;
+        }
+
+        images_to_display = Object.values(thumbnails[$songWheelSelectedCategory])
+            .sort((a, b) => a.index - b.index)
+            .map((entry) => entry.thumbnail_link);
+    }
+
+    $: {
+        $songWheelChartMetadata,
+        $songWheelSelectedCategory,
+        refreshChartThumbnails()
+    }
 </script>
 
 <main>
@@ -40,7 +70,7 @@
             </div>
         {/each}
     </div>
-    <PlayCarousel style={getCategoryColorVars($songWheelSelectedCategory)} {images} />
+    <PlayCarousel style={getCategoryColorVars($songWheelSelectedCategory)} images={images_to_display} />
 </main>
 
 <style>

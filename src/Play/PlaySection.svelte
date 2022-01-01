@@ -1,32 +1,84 @@
 <script>
-    import BackArrow from '../BackArrow.svelte';
-    import SongPreviewSection from './SongPreviewSection.svelte';
-    import SongSelectWheel from './SongSelectWheel.svelte';
-    import { selectedInitialGamemode, modeStateStore, groupmodeStateStore } from '../stores';
-    import { groupmodes } from '../constants';
+    import BackArrow from "../BackArrow.svelte";
+    import SongPreviewSection from "./SongPreviewSection.svelte";
+    import SongSelectWheel from "./SongSelectWheel.svelte";
+    import {
+        selectedInitialGamemode,
+        modeStateStore,
+        groupmodeStateStore,
+        songWheelSelectedCategory,
+        songWheelChartMetadata,
+        songWheelCategoryCurrentIndex
+    } from "../stores";
+    import { groupmodes, SONG_WHEEL_CATEGORIES, SONG_WHEEL_CATEGORY_INFO } from "../constants";
+    import { onMount } from "svelte";
 
     const onClickBackArrow = () => {
         $selectedInitialGamemode = false;
         $modeStateStore = null;
         $groupmodeStateStore = null;
-    }
+    };
 
     let currentGroupMode;
-    $: currentGroupMode = groupmodes.find((v) => v.state == $groupmodeStateStore);
+    $: currentGroupMode = groupmodes.find(
+        (v) => v.state == $groupmodeStateStore
+    );
+
+    // Every time the song category changes, the charts are fetched from the server
+    const refreshSongCategoryCharts = (category_id) => {
+        if (typeof category_id == 'undefined') {
+            return;
+        }
+
+        if ($songWheelChartMetadata[category_id] && $songWheelChartMetadata[category_id].length > 0) {
+            return;
+        }
+
+        const category_name = SONG_WHEEL_CATEGORY_INFO[category_id].title;
+
+        fetch(`/api/charts/category/${category_name}`)
+            .then((res) => res.json())
+            .then((res) => {
+                $songWheelChartMetadata[category_id] = res.charts;
+                $songWheelCategoryCurrentIndex[category_id] = 0;
+                $songWheelCategoryCurrentIndex = $songWheelCategoryCurrentIndex;
+
+                for (const category_id of Object.values(SONG_WHEEL_CATEGORIES)) {
+                    if (!$songWheelChartMetadata[category_id]) {
+                        $songWheelChartMetadata[category_id] = [];
+                    }
+                }
+                $songWheelChartMetadata = $songWheelChartMetadata;
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    $: refreshSongCategoryCharts($songWheelSelectedCategory);
 </script>
 
 <main>
-    <div class='top-bar'>
+    <div class="top-bar">
         {#if currentGroupMode}
-            <BackArrow onClick={onClickBackArrow} style={'position: relative; margin: 0; width: fit-content;'} color={'var(--color-gray-200)'} hoverColor={'var(--color-gray-300)'} />
-            <h1 style={`--text-color1: ${currentGroupMode.colors[0]}; --text-color2: ${currentGroupMode.colors[1]};`}>{currentGroupMode.title}</h1>
-            <div></div>
+            <BackArrow
+                onClick={onClickBackArrow}
+                style={"position: relative; margin: 0; width: fit-content;"}
+                color={"var(--color-gray-200)"}
+                hoverColor={"var(--color-gray-300)"}
+            />
+            <h1
+                style={`--text-color1: ${currentGroupMode.colors[0]}; --text-color2: ${currentGroupMode.colors[1]};`}
+            >
+                {currentGroupMode.title}
+            </h1>
+            <div />
         {/if}
     </div>
-    <div class='middle-section'>
+    <div class="middle-section">
         <SongPreviewSection />
     </div>
-    <div class='song-select-wheel'>
+    <div class="song-select-wheel">
         <SongSelectWheel />
         <h3>Press Enter to Play</h3>
     </div>
@@ -88,5 +140,4 @@
         margin: 10px;
         cursor: default;
     }
-
 </style>

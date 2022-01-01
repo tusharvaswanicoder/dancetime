@@ -1,6 +1,22 @@
 import { IsReviewRecommended } from './AzContentModerator.js';
 import azMySQLManager from './AzMySQLManager.js';
 
+/**
+ * Returns true if the user is fully signed in with an email, username, and user_id.
+ * @param {*} req Request from user
+ */
+ export const IsUserFullySignedIn = (req) => {
+    return typeof req.user != 'undefined' && typeof req.user.username != 'undefined' && typeof req.user.user_id != 'undefined';
+}
+
+export function UserFullyAuthenticated (req, res, next) {
+    if (IsUserFullySignedIn(req)) {
+        next();
+    } else {
+        res.status(403).end();
+    }
+}
+
 export function GetUser (req, res, next) {
     if (req.user) {
         res.send(req.user);

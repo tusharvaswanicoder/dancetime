@@ -1,7 +1,7 @@
 <script>
     import { onMount, onDestroy } from 'svelte';
-    import { songWheelSelectedCategory } from '../stores';
-    import { getCategoryColorVars } from '../utils';
+    import { songWheelSelectedCategory, songWheelChartMetadata, songWheelCategoryCurrentIndex } from '../stores';
+    import { getCategoryColorVars, GetVideoPreviewTimesFromMetadata } from '../utils';
     import Icon from '../Icon.svelte';
     import YouTubePlayer from 'youtube-player';
 
@@ -12,12 +12,86 @@
 
     const video_div_id = 'preview-youtube-video';
     let previewVideoPlayer;
+    let selectedSongMetadata;
+
+    const refreshSelectedSongMetadata = () => {
+        const category = $songWheelSelectedCategory;
+        if (typeof category == 'undefined' || !$songWheelChartMetadata[category] ||
+            typeof $songWheelCategoryCurrentIndex[category] == 'undefined') {
+            return;
+        }
+
+        const metadata = $songWheelChartMetadata[category][$songWheelCategoryCurrentIndex[category]];
+        if (!metadata) {
+            return;
+        }
+
+        selectedSongMetadata = metadata;
+    }
+
+    let last_refresh_time = new Date().getTime();
+    const refreshYoutubeEmbed = () => {
+        if (!selectedSongMetadata) {
+            return;
+        }
+
+        // Only allow refreshing once a second max
+        const current_time = new Date().getTime();
+        if (current_time - last_refresh_time < 1000) {
+            return;
+        }
+        last_refresh_time = new Date().getTime();
+
+        if (!previewVideoPlayer) {
+            return;
+        }
+
+        if (!document.getElementById(video_div_id)) {
+            return;
+        }
+
+        const previewTime = GetVideoPreviewTimesFromMetadata(selectedSongMetadata);
+        previewVideoPlayer.loadVideoById({
+            videoId: selectedSongMetadata.video_id,
+            startSeconds: previewTime.start,
+            endSeconds: previewTime.end
+        })
+    }
+
+    $: {
+        $songWheelSelectedCategory,
+        $songWheelChartMetadata,
+        $songWheelCategoryCurrentIndex,
+        refreshSelectedSongMetadata();
+    }
+    
+    $: {
+        selectedSongMetadata,
+        refreshYoutubeEmbed();
+    }
+
+    let raf;
+    const onFrame = async () => {
+        raf = window.requestAnimationFrame(onFrame);
+
+        // Restart the preview area of the video if it finished playing
+        if (previewVideoPlayer && previewVideoPlayer.getCurrentTime && selectedSongMetadata) {
+            const previewTime = GetVideoPreviewTimesFromMetadata(selectedSongMetadata);
+            const currentTime = await previewVideoPlayer.getCurrentTime();
+
+            if (currentTime >= previewTime.end) {
+                previewVideoPlayer.seekTo(previewTime.start);
+            }
+        }
+    }
+
+    let youtubeEmbedCheckInterval;
     onMount(() => {
-        // Get preview time
-        // const startEndTime =
-        //     GetVideoStartAndEndTimeFromMetadata($playGameMetadata);
+        onFrame();
+
         previewVideoPlayer = YouTubePlayer(video_div_id, {
             playerVars: {
+                autoplay: 1,
                 controls: 0,
                 disablekb: 1,
                 enablejsapi: 1,
@@ -28,21 +102,45 @@
                 showinfo: 0,
                 frameborder: 0,
                 iv_load_policy: 3,
-                volume: 0.1,
-                // start: Math.floor(startEndTime.start),
-                // end: Math.ceil(startEndTime.end)
-            },
-            videoId: 'YZvbwWOhNEg'
+                volume: 3
+            }
         });
         previewVideoPlayer.setVolume(3);
+
+        // Refresh the youtube player if it failed to load
+        youtubeEmbedCheckInterval = setInterval(async () => {
+            if (previewVideoPlayer && selectedSongMetadata) {
+                const timeout = setTimeout(() => {
+                    refreshYoutubeEmbed();
+                }, 400);
+
+                if (previewVideoPlayer && previewVideoPlayer.getCurrentTime) {
+                    await previewVideoPlayer.getCurrentTime();
+                    clearTimeout(timeout);
+
+                    // Wrong video embedded
+                    const video_url = await previewVideoPlayer.getVideoUrl();
+                    if (!video_url.includes(selectedSongMetadata.video_id)) {
+                        refreshYoutubeEmbed();
+                    }
+                }
+            } else {
+                refreshYoutubeEmbed();
+            }
+        }, 500);
     })
 
     onDestroy(() => {
         if (previewVideoPlayer) {
             previewVideoPlayer.destroy();
         }
+        if (raf) {
+            window.cancelAnimationFrame(raf);
+        }
+        if (youtubeEmbedCheckInterval) {
+            youtubeEmbedCheckInterval = clearInterval(youtubeEmbedCheckInterval);
+        }
     })
-
 
 </script>
 
@@ -57,16 +155,20 @@
                     43
                 </h3>
             </div>
-            <div class='clipped difficulty' style={`--text-height: ${difficulty_height}px; --text-width: ${difficulty_width}px;`}>
-                <h3 bind:clientWidth={difficulty_width} bind:clientHeight={difficulty_height}>Hard</h3>
-            </div>
+            {#if selectedSongMetadata}
+                <div class='clipped difficulty' style={`--text-height: ${difficulty_height}px; --text-width: ${difficulty_width}px;`}>
+                    <h3 bind:clientWidth={difficulty_width} bind:clientHeight={difficulty_height}>{selectedSongMetadata.difficulty}</h3>
+                </div>
+            {/if}
         </div>
         <div class='play-button'>Play<Icon name={'video_play_icon'} /></div>
     </section>
     <section>
-        <div class='details song-title'>Levitating</div>
-        <div class='details song-artist'>Dua Lipa (ft. DaBaby)</div>
-        <div class='view-details'>View Details<Icon name={'create_publish_arrow'} style={'font-size: 0.75rem;'} direction={'e'} /></div>
+        {#if selectedSongMetadata}
+            <div class='details song-title'>{selectedSongMetadata.title}</div>
+            <div class='details song-artist'>{selectedSongMetadata.song_artist}</div>
+            <div class='view-details'>View Details<Icon name={'create_publish_arrow'} style={'font-size: 0.75rem;'} direction={'e'} /></div>
+        {/if}
     </section>
 </main>
 
@@ -131,7 +233,7 @@
 
     div.visual-preview div.difficulty {
         --top: 0%;
-        --right: 0%;
+        --right: -1px;
         --bottom: calc(100% - var(--text-height) - 4px);
         --left: calc(100% - var(--text-width) - 4px);
         clip-path: inset(var(--top) var(--right) var(--bottom) var(--left) round 0 0 0 8px);

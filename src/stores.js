@@ -21,6 +21,8 @@ export const playGameMetadata = writable({});
 export const playGameKeypoints = writable({});
 export const playGameCameraStream = writable();
 export const songWheelSelectedCategory = writable();
+export const songWheelChartMetadata = writable({});
+export const songWheelCategoryCurrentIndex = writable({});
 
 export const ingameVideoPlayer = writable();
 export const ingameIsLoading = writable(true);

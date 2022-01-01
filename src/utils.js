@@ -326,6 +326,11 @@ export const GetVideoStartAndEndTimeFromMetadata = (metadata) => {
     return in_out_component ? {start: in_out_component.in, end: in_out_component.out} : {start: 0, end: metadata.duration};
 }
 
+export const GetVideoPreviewTimesFromMetadata = (metadata) => {
+    const component = metadata.components.find((component) => component.type == COMPONENT_TYPE.PREVIEW_AREA);
+    return component ? {start: component.in, end: component.out} : {start: 0, end: 10};
+}
+
 export const GetVideoStartTimeFromMetadata = (metadata) => {
     return GetVideoStartAndEndTimeFromMetadata(metadata).start;
 }

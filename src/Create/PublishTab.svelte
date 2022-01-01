@@ -5,7 +5,7 @@
     import { VISIBILITY } from '../constants';
     import Icon from '../Icon.svelte';
     import Dropdown from '../Dropdown.svelte';
-    import { onMount } from 'svelte';
+    import projectManager from './ProjectManager';
     
     const publish_icon_stops = [
         { color: 'var(--color-pink-dark)', offset: '0' },
@@ -16,6 +16,37 @@
     
     const onVisibilityChanged = (visibility) => {
         vb = visibility;
+    }
+
+    const publishChart = () => {
+        if (vb == VISIBILITY.DRAFT) {
+            return;
+        }
+
+        fetch('/api/chart/publish', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+
+            //make sure to serialize your JSON body
+            body: JSON.stringify({
+                chart: {...$createProject, visibility: vb}
+            }),
+        }).then(async (response) => {
+            // Nothing
+            response = await response.json();
+
+            if (response.error) {
+                // Handle error
+            } else if (response.chart) {
+                $createProject = {...$createProject, ...response.chart};
+                console.log($createProject);
+                projectManager.saveProject($createProject);
+                $createProjectUnsaved = false;
+            }
+        });
     }
 </script>
 
@@ -51,7 +82,7 @@
     </div>
     <div class='title-flex' class:disabled={vb == VISIBILITY.DRAFT}>
         <h1 class='publish-title'>Publish</h1>
-        <div class='publish-icon'>
+        <div class='publish-icon' on:click={publishChart}>
             <Icon name='create_publish_arrow' stops={publish_icon_stops} />
         </div>
     </div>

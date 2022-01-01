@@ -47,7 +47,6 @@ export function CookieCheck(req, res, next) {
                 req.user.username = user_details.username;
                 req.user.user_id = user_details.user_id;
             }
-            console.log(req.user);
         }
 
         resolve();
@@ -74,7 +73,6 @@ async function RefreshToken (req, res, email) {
 
 export function MagicLinkLogin (req, res) {
     // No token
-    console.log('magic link')
     if (!req.query.token) {
         res.redirect('/');
         return;
