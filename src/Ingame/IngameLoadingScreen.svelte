@@ -56,7 +56,7 @@
         // No keypoints, try to get them from server
         if (!$playGameKeypoints && $playGameMetadata.chart_id && !requestedChartKeypoints) {
             requestedChartKeypoints = true;
-            $ingameErrorMessage = 'Downloading keypoints...';
+            // $ingameErrorMessage = 'Downloading keypoints...';
             
             downloadingKeypoints = true;
             let keypoints_result = await fetch(`/api/chart/${$playGameMetadata.chart_id}/keypoints`);
@@ -64,6 +64,7 @@
 
             if (keypoints_result.keypoints) {
                 $playGameKeypoints = keypoints_result.keypoints;
+                $ingameErrorMessage = null;
                 // TODO: cache these keypoints somewhere so if they play again they don't have to wait for download
             } else if (keypoints_result.error) {
                 $ingameErrorMessage = keypoints_result.error;
@@ -174,7 +175,7 @@
         </h3>
     </div>
     {#if $ingameErrorMessage}
-        <h2 in:fly={{ duration: 1200, y: 50 }} class='error-msg'>{$ingameErrorMessage}</h2>
+        <h2 in:fly={{ duration: 1200, y: 50 }} out:fade class='error-msg'>{$ingameErrorMessage}</h2>
     {/if}
 </main>
 

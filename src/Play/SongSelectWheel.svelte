@@ -11,8 +11,10 @@
 
     const thumbnails = {};
     let images_to_display = [];
+    let loading_images = false;
 
     const onClickCategory = (category) => {
+        loading_images = true;
         $songWheelSelectedCategory = category;
     }
 
@@ -21,6 +23,7 @@
     })
 
     const refreshChartThumbnails = async () => {
+        loading_images = true;
         for (const category_id in $songWheelChartMetadata) {
             if (!thumbnails[category_id]) {
                 thumbnails[category_id] = {};
@@ -38,6 +41,7 @@
         }
 
         refreshImagesToDisplay();
+        loading_images = false;
     }
 
     const refreshImagesToDisplay = () => {
@@ -70,7 +74,7 @@
             </div>
         {/each}
     </div>
-    <PlayCarousel style={getCategoryColorVars($songWheelSelectedCategory)} images={images_to_display} />
+    <PlayCarousel style={getCategoryColorVars($songWheelSelectedCategory)} {loading_images} images={images_to_display} />
 </main>
 
 <style>

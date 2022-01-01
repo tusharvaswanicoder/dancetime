@@ -1,33 +1,46 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
-    import { songWheelSelectedCategory, songWheelChartMetadata, songWheelCategoryCurrentIndex } from '../stores';
-    import { getCategoryColorVars, GetVideoPreviewTimesFromMetadata } from '../utils';
-    import { PlayChart } from '../Ingame/PlayChart';
-    import Icon from '../Icon.svelte';
-    import YouTubePlayer from 'youtube-player';
+    import { onMount, onDestroy } from "svelte";
+    import {
+        songWheelSelectedCategory,
+        songWheelChartMetadata,
+        songWheelCategoryCurrentIndex,
+        songWheelSelectedChartMetadata,
+    } from "../stores";
+    import {
+        getCategoryColorVars,
+        GetVideoPreviewTimesFromMetadata,
+    } from "../utils";
+    import { PlayChart } from "../Ingame/PlayChart";
+    import Icon from "../Icon.svelte";
+    import YouTubePlayer from "youtube-player";
 
     let upvotes_width = 0;
     let upvotes_height = 0;
     let difficulty_width = 0;
     let difficulty_height = 0;
 
-    const video_div_id = 'preview-youtube-video';
+    const video_div_id = "preview-youtube-video";
     let previewVideoPlayer;
-    let selectedSongMetadata;
 
     const refreshSelectedSongMetadata = () => {
         const category = $songWheelSelectedCategory;
-        if (typeof category == 'undefined' || !$songWheelChartMetadata[category] ||
-            typeof $songWheelCategoryCurrentIndex[category] == 'undefined') {
+        if (
+            typeof category == "undefined" ||
+            !$songWheelChartMetadata[category] ||
+            typeof $songWheelCategoryCurrentIndex[category] == "undefined"
+        ) {
             return;
         }
 
-        selectedSongMetadata = $songWheelChartMetadata[category][$songWheelCategoryCurrentIndex[category]];
-    }
+        $songWheelSelectedChartMetadata =
+            $songWheelChartMetadata[category][
+                $songWheelCategoryCurrentIndex[category]
+            ];
+    };
 
     let last_refresh_time = new Date().getTime();
     const refreshYoutubeEmbed = async () => {
-        if (!selectedSongMetadata) {
+        if (!$songWheelSelectedChartMetadata) {
             if (previewVideoPlayer) {
                 previewVideoPlayer.stopVideo();
             }
@@ -49,24 +62,25 @@
             return;
         }
 
-        const previewTime = GetVideoPreviewTimesFromMetadata(selectedSongMetadata);
+        const previewTime = GetVideoPreviewTimesFromMetadata(
+            $songWheelSelectedChartMetadata
+        );
         previewVideoPlayer.loadVideoById({
-            videoId: selectedSongMetadata.video_id,
+            videoId: $songWheelSelectedChartMetadata.video_id,
             startSeconds: previewTime.start,
-            endSeconds: previewTime.end
-        })
-    }
+            endSeconds: previewTime.end,
+        });
+    };
 
     $: {
         $songWheelSelectedCategory,
-        $songWheelChartMetadata,
-        $songWheelCategoryCurrentIndex,
-        refreshSelectedSongMetadata();
+            $songWheelChartMetadata,
+            $songWheelCategoryCurrentIndex,
+            refreshSelectedSongMetadata();
     }
-    
+
     $: {
-        selectedSongMetadata,
-        refreshYoutubeEmbed();
+        $songWheelSelectedChartMetadata, refreshYoutubeEmbed();
     }
 
     let raf;
@@ -74,15 +88,21 @@
         raf = window.requestAnimationFrame(onFrame);
 
         // Restart the preview area of the video if it finished playing
-        if (previewVideoPlayer && previewVideoPlayer.getCurrentTime && selectedSongMetadata) {
-            const previewTime = GetVideoPreviewTimesFromMetadata(selectedSongMetadata);
+        if (
+            previewVideoPlayer &&
+            previewVideoPlayer.getCurrentTime &&
+            $songWheelSelectedChartMetadata
+        ) {
+            const previewTime = GetVideoPreviewTimesFromMetadata(
+                $songWheelSelectedChartMetadata
+            );
             const currentTime = await previewVideoPlayer.getCurrentTime();
 
             if (currentTime >= previewTime.end) {
                 previewVideoPlayer.seekTo(previewTime.start);
             }
         }
-    }
+    };
 
     let youtubeEmbedCheckInterval;
     onMount(() => {
@@ -101,14 +121,14 @@
                 showinfo: 0,
                 frameborder: 0,
                 iv_load_policy: 3,
-                volume: 3
-            }
+                volume: 3,
+            },
         });
         previewVideoPlayer.setVolume(3);
 
         // Refresh the youtube player if it failed to load
         youtubeEmbedCheckInterval = setInterval(async () => {
-            if (previewVideoPlayer && selectedSongMetadata) {
+            if (previewVideoPlayer && $songWheelSelectedChartMetadata) {
                 const timeout = setTimeout(() => {
                     refreshYoutubeEmbed();
                 }, 400);
@@ -119,7 +139,12 @@
 
                     // Wrong video embedded
                     const video_url = await previewVideoPlayer.getVideoUrl();
-                    if (video_url && !video_url.includes(selectedSongMetadata.video_id)) {
+                    if (
+                        video_url &&
+                        !video_url.includes(
+                            $songWheelSelectedChartMetadata.video_id
+                        )
+                    ) {
                         refreshYoutubeEmbed();
                     }
                 }
@@ -127,7 +152,7 @@
                 refreshYoutubeEmbed();
             }
         }, 500);
-    })
+    });
 
     onDestroy(() => {
         if (previewVideoPlayer) {
@@ -137,43 +162,77 @@
             window.cancelAnimationFrame(raf);
         }
         if (youtubeEmbedCheckInterval) {
-            youtubeEmbedCheckInterval = clearInterval(youtubeEmbedCheckInterval);
+            youtubeEmbedCheckInterval = clearInterval(
+                youtubeEmbedCheckInterval
+            );
         }
-    })
+    });
 
     const clickPlayButton = () => {
-        if (selectedSongMetadata) {
-            PlayChart(selectedSongMetadata);
+        if ($songWheelSelectedChartMetadata) {
+            PlayChart($songWheelSelectedChartMetadata);
         }
-    }
-
+    };
 </script>
 
 <main>
-    <section></section>
+    <section />
     <section>
-        <div class='visual-preview' style={getCategoryColorVars($songWheelSelectedCategory)}>
-            <div class='inner-content' id={video_div_id} />
-            <div class='content-block-container' />
-            <div class='clipped upvotes' style={`--text-height: ${upvotes_height}px; --text-width: ${upvotes_width}px;`}>
-                <h3 bind:clientWidth={upvotes_width} bind:clientHeight={upvotes_height}>
-                    <Icon name={'create_publish_arrow'} direction={'n'} style={'display: inline; font-size: 1rem;'} />
+        <div
+            class="visual-preview"
+            style={getCategoryColorVars($songWheelSelectedCategory)}
+        >
+            <div class="inner-content" id={video_div_id} />
+            <div class="content-block-container" />
+            <div
+                class="clipped upvotes"
+                style={`--text-height: ${upvotes_height}px; --text-width: ${upvotes_width}px;`}
+            >
+                <h3
+                    bind:clientWidth={upvotes_width}
+                    bind:clientHeight={upvotes_height}
+                >
+                    <Icon
+                        name={"create_publish_arrow"}
+                        direction={"n"}
+                        style={"display: inline; font-size: 1rem;"}
+                    />
                     43
                 </h3>
             </div>
-            {#if selectedSongMetadata}
-                <div class='clipped difficulty' style={`--text-height: ${difficulty_height}px; --text-width: ${difficulty_width}px;`}>
-                    <h3 bind:clientWidth={difficulty_width} bind:clientHeight={difficulty_height}>{selectedSongMetadata.difficulty}</h3>
+            {#if $songWheelSelectedChartMetadata}
+                <div
+                    class="clipped difficulty"
+                    style={`--text-height: ${difficulty_height}px; --text-width: ${difficulty_width}px;`}
+                >
+                    <h3
+                        bind:clientWidth={difficulty_width}
+                        bind:clientHeight={difficulty_height}
+                    >
+                        {$songWheelSelectedChartMetadata.difficulty}
+                    </h3>
                 </div>
             {/if}
         </div>
-        <div class='play-button' on:click={clickPlayButton}>Play<Icon name={'video_play_icon'} /></div>
+        <div class="play-button" on:click={clickPlayButton}>
+            Play<Icon name={"video_play_icon"} />
+        </div>
     </section>
     <section>
-        {#if selectedSongMetadata}
-            <div class='details song-title'>{selectedSongMetadata.title}</div>
-            <div class='details song-artist'>{selectedSongMetadata.song_artist}</div>
-            <div class='view-details'>View Details<Icon name={'create_publish_arrow'} style={'font-size: 0.75rem;'} direction={'e'} /></div>
+        {#if $songWheelSelectedChartMetadata}
+            <div class="details song-title">
+                {$songWheelSelectedChartMetadata.title}
+            </div>
+            <div class="details song-artist">
+                {$songWheelSelectedChartMetadata.song_artist}
+            </div>
+            <div class="view-details">
+                View Details<Icon
+                    name={"create_publish_arrow"}
+                    style={"font-size: 0.75rem;"}
+                    direction={"e"}
+                />
+            </div>
         {/if}
     </section>
 </main>
@@ -215,7 +274,8 @@
         border-radius: 16px;
         overflow: hidden;
         border: 8px solid transparent;
-        background: linear-gradient(45deg, var(--color1), var(--color2)) border-box;
+        background: linear-gradient(45deg, var(--color1), var(--color2))
+            border-box;
         align-self: flex-start;
     }
 
@@ -234,7 +294,9 @@
         --right: calc(100% - var(--text-width) - 4px);
         --bottom: calc(100% - var(--text-height) - 4px);
         --left: 0%;
-        clip-path: inset(var(--top) var(--right) var(--bottom) var(--left) round 0 0 8px 0);
+        clip-path: inset(
+            var(--top) var(--right) var(--bottom) var(--left) round 0 0 8px 0
+        );
     }
 
     div.visual-preview div.difficulty {
@@ -242,7 +304,9 @@
         --right: -1px;
         --bottom: calc(100% - var(--text-height) - 4px);
         --left: calc(100% - var(--text-width) - 4px);
-        clip-path: inset(var(--top) var(--right) var(--bottom) var(--left) round 0 0 0 8px);
+        clip-path: inset(
+            var(--top) var(--right) var(--bottom) var(--left) round 0 0 0 8px
+        );
     }
 
     div.visual-preview div.clipped h3 {
@@ -280,7 +344,11 @@
             calc(100% - var(--edge-pixels)) 100%,
             0% 100%
         );
-        background-image: linear-gradient(45deg, var(--color-pink-dark) 0%, var(--color-pink-light) 100%);
+        background-image: linear-gradient(
+            45deg,
+            var(--color-pink-dark) 0%,
+            var(--color-pink-light) 100%
+        );
         width: fit-content;
         padding: 20px;
         min-width: 50%;
@@ -320,7 +388,7 @@
 
     div.view-details {
         margin-top: 20px;
-        color: #4F85ED;
+        color: #4f85ed;
         font-size: 1rem;
         cursor: pointer;
         text-transform: uppercase;
@@ -343,5 +411,4 @@
         width: 100%;
         height: 100%;
     }
-
 </style>

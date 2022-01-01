@@ -1,9 +1,10 @@
 <script>
     import Icon from '../Icon.svelte';
     import { fade } from 'svelte/transition';
-    import { songWheelCategoryCurrentIndex, songWheelSelectedCategory } from '../stores';
+    import { songWheelCategoryCurrentIndex, songWheelSelectedCategory, songWheelSelectedChartMetadata } from '../stores';
     import { keyDown } from '../stores';
-import { tick } from 'svelte';
+    import { PlayChart } from '../Ingame/PlayChart';
+    export let loading_images = true;
     export let images = [];
     export let style = '';
 
@@ -67,7 +68,9 @@ import { tick } from 'svelte';
     }
 
     const clickPlayButton = () => {
-        // Play chart
+        if ($songWheelSelectedChartMetadata) {
+            PlayChart($songWheelSelectedChartMetadata);
+        }
     }
 
     $: {
@@ -112,6 +115,11 @@ import { tick } from 'svelte';
             </div>
         {/if}
     </div>
+    {#if loading_images}
+        <div class='no-charts-text'>Loading charts...</div>
+    {:else if images.length == 0}
+        <div class='no-charts-text'>No charts found for selected category.</div>
+    {/if}
 </main>
 
 <style>
@@ -208,6 +216,20 @@ import { tick } from 'svelte';
 
     div.playtest-icon-container:active {
         transform: scale(0.9);
+    }
+
+    div.no-charts-text {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: grid;
+        place-content: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: bold;
+        font-size: 1.5rem;
+        user-select: none;
     }
 
 </style>
