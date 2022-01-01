@@ -24,6 +24,10 @@
     };
 
     const updatePausePlayIcons = async () => {
+        if (!$createVideoPlayer) {
+            return;
+        }
+        
         const playerState = await $createVideoPlayer.getPlayerState();
         const paused = playerState == 2 || playerState == 0;
         icons['video_play_icon'].display = paused;

@@ -1,6 +1,6 @@
 <script>
     import { fly } from 'svelte/transition';
-    import { createProject, createProjectUnsaved } from '../stores';
+    import { createProject, createProjectUnsaved, createProjectPublishing } from '../stores';
     import { ConvertDurationToNiceStringWithDecimal } from '../utils';
     import { VISIBILITY } from '../constants';
     import Icon from '../Icon.svelte';
@@ -23,6 +23,11 @@
             return;
         }
 
+        if ($createProjectPublishing) {
+            return;
+        }
+
+        $createProjectPublishing = true;
         fetch('/api/chart/publish', {
             method: 'post',
             headers: {
@@ -46,7 +51,9 @@
                 projectManager.saveProject($createProject);
                 $createProjectUnsaved = false;
             }
-        });
+        }).finally(() => {
+            $createProjectPublishing = false;
+        })
     }
 </script>
 
@@ -78,12 +85,26 @@
         <h2>Version</h2>
         <h3>{$createProject.version}</h3>
         <h2>Visibility</h2>
-        <Dropdown options={Object.values(VISIBILITY)} onChanged={onVisibilityChanged} selectedOption={vb} />
+        {#if !$createProjectPublishing}
+            <Dropdown options={Object.values(VISIBILITY)} onChanged={onVisibilityChanged} selectedOption={vb} />
+        {:else}
+            <h3>{vb}</h3>
+        {/if}
     </div>
     <div class='title-flex' class:disabled={vb == VISIBILITY.DRAFT}>
-        <h1 class='publish-title'>Publish</h1>
-        <div class='publish-icon' on:click={publishChart}>
-            <Icon name='create_publish_arrow' stops={publish_icon_stops} />
+        <h1 class='publish-title'>
+        {#if !$createProjectPublishing}
+            Publish
+        {:else}
+            Publishing
+        {/if}
+        </h1>
+        <div class='publish-icon' class:progress={$createProjectPublishing} on:click={publishChart}>
+            {#if !$createProjectPublishing}
+                <Icon name='create_publish_arrow' stops={publish_icon_stops} />
+            {:else}
+                <div class='loader'></div>
+            {/if}
         </div>
     </div>
 </main>
@@ -162,6 +183,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        position: relative;
         font-size: 5rem;
         width: 9rem;
         height: 9rem;
@@ -176,8 +198,31 @@
         cursor: pointer;
     }
     
-    div.title-flex:not(.disabled) div.publish-icon:active {
+    div.title-flex:not(.disabled) div.publish-icon:not(.progress):active {
         transform: scale(1.1);
+    }
+
+    div.title-flex:not(.disabled) div.publish-icon.progress {
+        cursor: wait;
+    }
+
+    div.title-flex:not(.disabled) div.publish-icon div.loader {
+        width: 90%;
+        height: 90%;
+        animation: 1.25s linear loader-anim infinite;
+        border: 12px solid var(--color-pink-dark);
+        border-radius: 500px;
+        clip-path: polygon(
+            50% 0%,
+            100% 0%,
+            100% 50%,
+            50% 50%
+        );
+    }
+
+    @keyframes loader-anim {
+        0% {transform: rotate(0deg)}
+        100% {transform: rotate(360deg);}
     }
     
     div.title-flex.disabled {

@@ -1,4 +1,4 @@
-import { COMPONENT_TYPE, SONG_WHEEL_CATEGORY_INFO } from './constants';
+import { COMPONENT_TYPE, SONG_WHEEL_CATEGORY_INFO, MAX_PREVIEW_TIME } from './constants';
 
 export const ConvertDurationToNiceString = (duration) => {
     if (!duration) {
@@ -328,7 +328,7 @@ export const GetVideoStartAndEndTimeFromMetadata = (metadata) => {
 
 export const GetVideoPreviewTimesFromMetadata = (metadata) => {
     const component = metadata.components.find((component) => component.type == COMPONENT_TYPE.PREVIEW_AREA);
-    return component ? {start: component.in, end: component.out} : {start: 0, end: 10};
+    return component ? {start: component.in, end: component.out} : {start: 0, end: MAX_PREVIEW_TIME};
 }
 
 export const GetVideoStartTimeFromMetadata = (metadata) => {

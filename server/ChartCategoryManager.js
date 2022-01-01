@@ -24,7 +24,7 @@ class ChartCategoryManager {
      * Returns a list of chart metadata for the newest published charts.
      */
     async getChartsInCategoryNewest () {
-        return await azMySQLManager.pool.query('SELECT title, song_artist, choreography, difficulty, last_edited, video_link, video_id, duration, visibility, version, tags, components, user_id FROM charts ORDER BY last_edited LIMIT 50');
+        return await azMySQLManager.pool.query('SELECT chart_id, title, song_artist, choreography, difficulty, last_edited, video_link, video_id, duration, visibility, version, tags, components, user_id FROM charts ORDER BY last_edited DESC LIMIT 50');
     }
 
     async userRequestChartsInCategory (req, res) {

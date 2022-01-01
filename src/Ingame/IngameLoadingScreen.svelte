@@ -35,6 +35,8 @@
         }
     };
 
+    let requestedChartKeypoints = false;
+    let downloadingKeypoints = false;
     const PerformPlayChecks = async () => {
         // Check camera, setup TFJS, and check stores to make sure everything is in place
         $ingameErrorMessage = null;
@@ -50,9 +52,33 @@
             $ingameErrorMessage = 'No chart metadata.';
             return;
         }
+
+        // No keypoints, try to get them from server
+        if (!$playGameKeypoints && $playGameMetadata.chart_id && !requestedChartKeypoints) {
+            requestedChartKeypoints = true;
+            $ingameErrorMessage = 'Downloading keypoints...';
+            
+            downloadingKeypoints = true;
+            let keypoints_result = await fetch(`/api/chart/${$playGameMetadata.chart_id}/keypoints`);
+            keypoints_result = await keypoints_result.json();
+
+            if (keypoints_result.keypoints) {
+                $playGameKeypoints = keypoints_result.keypoints;
+                // TODO: cache these keypoints somewhere so if they play again they don't have to wait for download
+            } else if (keypoints_result.error) {
+                $ingameErrorMessage = keypoints_result.error;
+                return;
+            }
+
+            downloadingKeypoints = false;
+        }
+
+        if (downloadingKeypoints) {
+            return;
+        }
         
         // No chart keypoints
-        if (Object.keys($playGameKeypoints).length == 0) {
+        if (!$playGameKeypoints || Object.keys($playGameKeypoints).length == 0) {
             $ingameErrorMessage = 'No chart keypoints.';
             return;
         }
@@ -213,9 +239,9 @@
         right: 0;
         margin-left: auto;
         margin-right: auto;
-        font-weight: 200;
+        font-weight: 300;
         font-style: italic;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         width: fit-content;
     }
 

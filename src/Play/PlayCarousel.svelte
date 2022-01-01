@@ -1,7 +1,9 @@
 <script>
     import Icon from '../Icon.svelte';
+    import { fade } from 'svelte/transition';
     import { songWheelCategoryCurrentIndex, songWheelSelectedCategory } from '../stores';
     import { keyDown } from '../stores';
+import { tick } from 'svelte';
     export let images = [];
     export let style = '';
 
@@ -42,6 +44,7 @@
     let lastMoveTime = new Date().getTime();
 
     const clickImage = (i) => {
+        shouldTransition = true;
         current_image_index = i;
     }
 
@@ -51,6 +54,8 @@
         if (timeNow - lastMoveTime < timeBetweenMoves) {
             return;
         }
+
+        shouldTransition = true;
 
         if (evt.key == 'ArrowLeft') {
             Navigate(-1);
@@ -71,20 +76,25 @@
 
     let transform;
     $: transform = `${base_transform} + ${(center_image_index - current_image_index + (is_even ? -1 : 0)) * total_image_size_with_gap}px`;
-    
 
     $: {
         if ($songWheelSelectedCategory) {
             $songWheelCategoryCurrentIndex[$songWheelSelectedCategory] = current_image_index;
         }
     }
+    
+    let shouldTransition = true;
+    $: {
+        $songWheelSelectedCategory,
+        shouldTransition = false
+    }
 </script>
 
 <main style={`--gap: ${gap}px; ${style}`}>
-    <div class='images-container' style={`transform: translateX(calc(${transform}));`}>
+    <div class='images-container' class:transition={shouldTransition} style={`transform: translateX(calc(${transform}));`}>
         {#if images.length > 0}
             {#each images as image_url, i}
-                <div class='image-container' on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
+                <div class='image-container' in:fade={{delay: 100 * i}} on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
                     <!-- svelte-ignore a11y-missing-attribute -->
                     <img src={image_url} />
                     {#if i == current_image_index}
@@ -97,11 +107,9 @@
                 </div>
             {/each}
         {:else}
-            {#each {length: 11} as _, _}
-                <div class='image-container placeholder' style={`--image-size: ${image_size}px;`}>
-                    <div class='image-placeholder' />
-                </div>
-            {/each}
+            <div class='image-container placeholder' style={`--image-size: ${image_size}px;`}>
+                <div class='image-placeholder' />
+            </div>
         {/if}
     </div>
 </main>
@@ -132,6 +140,9 @@
         gap: var(--gap);
         transform: translateX(-50%);
         width: fit-content;
+    }
+
+    main div.images-container.transition {
         transition: 0.1s ease-in-out transform;
     }
 
@@ -158,6 +169,7 @@
 
     main div.image-container.placeholder {
         cursor: default;
+        opacity: 0;
     }
 
     img, div.image-placeholder {

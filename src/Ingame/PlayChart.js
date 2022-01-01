@@ -19,7 +19,7 @@ import {
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
-export const PlayChart = (metadata, keypoints) => {
+export const PlayChart = async (metadata, keypoints) => {
     ingameIsLoading.set(true);
     ingameScreenShouldShow.set(false);
     ingameErrorMessage.set(null);

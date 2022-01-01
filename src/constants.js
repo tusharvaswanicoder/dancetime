@@ -124,3 +124,5 @@ export const SONG_WHEEL_CATEGORY_INFO = {
     [SONG_WHEEL_CATEGORIES.FAVORITES]: {title: 'Favorites', colors: ['var(--color-blue-dark)', 'var(--color-blue-light)']},
     [SONG_WHEEL_CATEGORIES.RECENT]: {title: 'Recent', colors: ['var(--color-purple-dark)', 'var(--color-purple-light)']},
 }
+
+export const MAX_PREVIEW_TIME = 20;

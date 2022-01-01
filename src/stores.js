@@ -68,3 +68,4 @@ export const createEditorDisabled = writable(false);
 export const createTabState = writable();
 export const createSelectedComponent = writable({});
 export const createSelectedComponentIndex = writable(-1);
+export const createProjectPublishing = writable(false);

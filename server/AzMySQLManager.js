@@ -18,6 +18,13 @@ class AzMySQLManager {
         }
     }
 
+    async tryGetPublishedChartKeypoints (chart_id) {
+        const result = await this.pool.query('SELECT keypoints FROM charts WHERE chart_id = ? LIMIT 1', [chart_id]);
+        if (result[0]) {
+            return this.compressedStringToJSON(result[0].keypoints);
+        }
+    }
+
     async createNewUser (email, username) {
         try {
             const result = await this.pool.query('INSERT INTO users (username, email) VALUES (?, ?)', [username, email]);

@@ -10,7 +10,30 @@ class ChartManager {
      * @param {*} chart_id 
      */
     getChartMetadata (chart_id) {
-        
+
+    }
+
+    /**
+     * Tries to get the keypoints object of a published chart, if it exists.
+     * @param {*} chart_id 
+     */
+    async getChartKeypoints (req, res) {
+        // TODO: add these requests to a queue to prevent running out of memory with too many parallel ops
+        const chart_id = req.params.chart_id;
+
+        if (!chart_id) {
+            return res.status(400).end();
+        }
+
+        try {
+            const keypoints = await azMySQLManager.tryGetPublishedChartKeypoints(chart_id);
+            res.send({keypoints})
+        } catch (error) {
+            console.error(error);
+            res.send({
+                error: 'An error occurred while downloading keypoints.'
+            })
+        }
     }
     
     /**

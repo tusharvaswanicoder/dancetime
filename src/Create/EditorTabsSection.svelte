@@ -3,7 +3,7 @@
     import ReviewTab from './ReviewTab.svelte';
     import PublishTab from './PublishTab.svelte';
     import { EDITOR_TAB_STATE } from '../constants';
-    import { createAAInProgress, createTabState } from '../stores';
+    import { createAAInProgress, createTabState, createProjectPublishing } from '../stores';
     
     let tab_state = EDITOR_TAB_STATE.EDIT;
     
@@ -14,7 +14,7 @@
     }
     
     const clickTab = (tab_name) => {
-        if ($createAAInProgress) {
+        if ($createAAInProgress || $createProjectPublishing) {
             return;
         }
         
@@ -30,7 +30,7 @@
 <main>
     <section class='tab-controls'>
         {#each Object.entries(EDITOR_TAB_STATE) as [tab_name, tab_value]}
-            <div class='tab' class:disabled={$createAAInProgress} on:click={() => clickTab(tab_name)} class:selected={tab_state == tab_value}>{tab_name}</div>
+            <div class='tab' class:disabled={$createAAInProgress || $createProjectPublishing} on:click={() => clickTab(tab_name)} class:selected={tab_state == tab_value}>{tab_name}</div>
         {/each}
     </section>
     <section class='tab-content' >

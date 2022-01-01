@@ -3,28 +3,27 @@
     import DeleteRow from './DeleteRow.svelte';
     import { createProject, createProjectUnsaved, createVideoCurrentTime, createSelectedComponent } from "../../stores";
     import { ConvertDurationToNiceStringWithDecimal } from "../../utils";
-    import { COMPONENT_TYPE, COMPONENT_DATA } from "../../constants";
+    import { COMPONENT_TYPE, COMPONENT_DATA, MAX_PREVIEW_TIME } from "../../constants";
     import ClickableTimestampText from '../ClickableTimestampText.svelte';
     
     const type = COMPONENT_TYPE.PREVIEW_AREA;
     export let component = {};
     export let componentIndex;
-    const max_preview_time = 10;
     
     const setIn = () => {
         if ($createVideoCurrentTime < component.out) {
             component.in = $createVideoCurrentTime;
-            component.out = Math.min(component.out, component.in + max_preview_time);
+            component.out = Math.min(component.out, component.in + MAX_PREVIEW_TIME);
         } else {
             component.in = $createVideoCurrentTime;
-            component.out = component.in + max_preview_time;
+            component.out = component.in + MAX_PREVIEW_TIME;
         }
         metadataChanged();
     }
     
     const setOut = () => {
         if ($createVideoCurrentTime > component.in) {
-            component.out = Math.min(component.in + max_preview_time, $createVideoCurrentTime);
+            component.out = Math.min(component.in + MAX_PREVIEW_TIME, $createVideoCurrentTime);
             metadataChanged();
         }
     }

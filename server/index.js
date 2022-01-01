@@ -34,13 +34,9 @@ app.use(express.static('public'));
 // Look for user cookies to see if they are already logged in on API or AUTH calls
 app.all(["/auth/*", "/api/*"], CookieCheck);
 
-// User is querying an existing chart in the db
-app.get('/api/chart/:id', apiLimiter, UserFullyAuthenticated, (req, res) => {
-    // console.log(req.params.id);
-    // req.params.id for the :id param
-    // res.send({name: 'bob'})
-    // get query params: req.query.[param]
-    // res.end()
+// User is querying an existing chart in db to get its keypoints
+app.get('/api/chart/:chart_id/keypoints', apiLimiter, UserFullyAuthenticated, (req, res) => {
+    chartManager.getChartKeypoints(req, res);
 });
 
 // User is querying charts from a certain category

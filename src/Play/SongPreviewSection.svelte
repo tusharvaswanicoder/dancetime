@@ -2,6 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { songWheelSelectedCategory, songWheelChartMetadata, songWheelCategoryCurrentIndex } from '../stores';
     import { getCategoryColorVars, GetVideoPreviewTimesFromMetadata } from '../utils';
+    import { PlayChart } from '../Ingame/PlayChart';
     import Icon from '../Icon.svelte';
     import YouTubePlayer from 'youtube-player';
 
@@ -21,17 +22,15 @@
             return;
         }
 
-        const metadata = $songWheelChartMetadata[category][$songWheelCategoryCurrentIndex[category]];
-        if (!metadata) {
-            return;
-        }
-
-        selectedSongMetadata = metadata;
+        selectedSongMetadata = $songWheelChartMetadata[category][$songWheelCategoryCurrentIndex[category]];
     }
 
     let last_refresh_time = new Date().getTime();
-    const refreshYoutubeEmbed = () => {
+    const refreshYoutubeEmbed = async () => {
         if (!selectedSongMetadata) {
+            if (previewVideoPlayer) {
+                previewVideoPlayer.stopVideo();
+            }
             return;
         }
 
@@ -142,6 +141,12 @@
         }
     })
 
+    const clickPlayButton = () => {
+        if (selectedSongMetadata) {
+            PlayChart(selectedSongMetadata);
+        }
+    }
+
 </script>
 
 <main>
@@ -162,7 +167,7 @@
                 </div>
             {/if}
         </div>
-        <div class='play-button'>Play<Icon name={'video_play_icon'} /></div>
+        <div class='play-button' on:click={clickPlayButton}>Play<Icon name={'video_play_icon'} /></div>
     </section>
     <section>
         {#if selectedSongMetadata}
