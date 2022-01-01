@@ -78,7 +78,7 @@ export const COMPONENT_DATA = {
         }
     }},
     [COMPONENT_TYPE.SCORING_AREAS]:         {name: 'Scoring Areas', limit: 1, get_default_data: (project) => {
-        return {keyframes: []} // List of keyframes: {time: 0, enabled: true}
+        return {keyframes: {}} // Map of keyframes: keyframes[time] = enabled (true or false)
     }},
     [COMPONENT_TYPE.BLOCKED_AREA]:          {name: 'Blocked Area', limit: 10, get_default_data: (project) => {
         return {

@@ -13,12 +13,14 @@
         createThumbnailURLs,
         createProject,
         createEditorDisabled,
-        createVideoPlayer
+        createVideoPlayer,
+        createSelectedComponent
     } from '../stores';
     import { ConvertDurationToNiceStringWithDecimal } from '../utils';
     import Icon from '../Icon.svelte';
     import VideoInOutPointsTimelineDisplay from './EditComponents/Displays/VideoInOutPointsTimelineDisplay.svelte';
     import VideoPreviewAreaTimelineDisplay from './EditComponents/Displays/VideoPreviewAreaTimelineDisplay.svelte';
+    import KeyframeTimelineDisplay from './EditComponents/Displays/KeyframeTimelineDisplay.svelte';
 
     let timelineWidth = 0;
     let timelineHeight = 0;
@@ -189,7 +191,7 @@
     <div class="timeline-container">
         <div class='timeline-underlays'>
             <!-- All underlay elements go here -->
-            <div class='timeline-warning-text'>Thumbnails and waveform not available.</div>
+            <!-- <div class='timeline-warning-text'>Thumbnails and waveform not available.</div> -->
         </div>
         <div
             class="thumbnails"
@@ -230,6 +232,9 @@
             {/if}
             {#if hasComponentOfType(COMPONENT_TYPE.PREVIEW_AREA, $createProject)}
                 <VideoPreviewAreaTimelineDisplay />
+            {/if}
+            {#if $createSelectedComponent && $createSelectedComponent.keyframes}
+                <KeyframeTimelineDisplay keyframes={$createSelectedComponent.keyframes} />
             {/if}
         </div>
         <div class="seeker" style={`left: ${seekerProgressPercent}`}>

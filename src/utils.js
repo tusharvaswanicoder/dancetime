@@ -47,7 +47,7 @@ const interp = (a, b, t) => {
  */
 export const GetKeypointsForTime = (keypoints, time) => {
     
-    if (!time || isNaN(time)) {
+    if (typeof time == 'undefined' || isNaN(time)) {
         return;
     }
 
@@ -57,7 +57,7 @@ export const GetKeypointsForTime = (keypoints, time) => {
     }
     
     const time_val = parseFloat(time);
-    if (!time_val || isNaN(time_val)) {
+    if (typeof time_val == 'undefined' || isNaN(time_val)) {
         return;
     }
     
@@ -318,6 +318,9 @@ export const sleep = (ms) => {
 }
 
 export const GetRoundedTimeFromTime = (time) => {
+    if (typeof time == 'undefined' || time == null) {
+        return;
+    }
     return time.toFixed(2);
 }
 
@@ -337,6 +340,125 @@ export const GetVideoStartTimeFromMetadata = (metadata) => {
 
 export const GetVideoEndTimeFromMetadata = (metadata) => {
     return GetVideoStartAndEndTimeFromMetadata(metadata).end;
+}
+
+// Returns the next previous keyframe key from the time given
+export const GetScoringZoneEnabledPrevKeyframe = (time, keyframes, ignore_same_time) => {
+    if (!keyframes) {
+        return;
+    }
+
+    // Find closest keyframe at or before time given
+    // If no keyframe exists, assume scoring is enabled
+
+    const time_val = parseFloat(time);
+    if (typeof time_val == 'undefined' || isNaN(time_val)) {
+        return;
+    }
+
+    if (time == 0) {
+        return;
+    }
+
+    if (!ignore_same_time && keyframes[time]) {
+        return GetRoundedTimeFromTime(time_val);
+    }
+    
+    const keyframes_keys = Object.keys(keyframes).map((v) => parseFloat(v));
+    const closest_key_before = keyframes_keys.reduce((a, b) => {
+        if (typeof a == 'undefined') {
+            return b;
+        } else if (typeof b == 'undefined') {
+            return a;
+        }
+
+        const a_diff = a - time_val;
+        const b_diff = b - time_val;
+
+        if (a_diff > 0 && b_diff > 0) {
+            return;
+        }
+
+        if (ignore_same_time) {
+            if (a == time_val) {
+                return b;
+            } else if (b == time_val) {
+                return a;
+            }
+        }
+
+        // Return value with lowest negative difference
+        if (a_diff < 0 && b_diff < 0) {
+            return a_diff > b_diff ? a : b;
+        } else if (a_diff > 0 && b_diff < 0) {
+            return b;
+        } else if (a_diff < 0 && b_diff > 0) {
+            return a;
+        }
+    })
+    return GetRoundedTimeFromTime(closest_key_before);
+}
+
+// Returns the next closest keyframe key from the time given
+export const GetScoringZoneEnabledNextKeyframe = (time, keyframes, ignore_same_time) => {
+    if (!keyframes) {
+        return;
+    }
+
+    // Find closest keyframe at or before time given
+    // If no keyframe exists, assume scoring is enabled
+
+    const time_val = parseFloat(time);
+    if (typeof time_val == 'undefined' || isNaN(time_val)) {
+        return;
+    }
+
+    if (!ignore_same_time && keyframes[time]) {
+        return GetRoundedTimeFromTime(time_val);
+    }
+    
+    const keyframes_keys = Object.keys(keyframes).map((v) => parseFloat(v));
+    const closest_key_after = keyframes_keys.reduce((a, b) => {
+        if (typeof a == 'undefined') {
+            return b;
+        } else if (typeof b == 'undefined') {
+            return a;
+        }
+
+        const a_diff = a - time_val;
+        const b_diff = b - time_val;
+
+        if (a_diff < 0 && b_diff < 0) {
+            return;
+        }
+
+        if (ignore_same_time) {
+            if (a == time_val) {
+                return b_diff > 0 ? b : null;
+            } else if (b == time_val) {
+                return a_diff > 0 ? a : null;
+            }
+        }
+
+        // Return value with lowest positive difference
+        if (a_diff > 0 && b_diff < 0) {
+            return a;
+        } else if (a_diff < 0 && b_diff > 0) {
+            return b;
+        } else if (a_diff > 0 && b_diff > 0) {
+            return a_diff < b_diff ? a : b;
+        }
+    })
+    return GetRoundedTimeFromTime(closest_key_after);
+}
+
+export const GetScoringZoneEnabledAtTime = (time, keyframes) => {
+    const key = GetScoringZoneEnabledPrevKeyframe(time, keyframes);
+    if (key) {
+        return keyframes[key];
+    }
+
+    return true;
 }
 
 export const getCategoryColorVars = (category) => {

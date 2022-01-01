@@ -1,15 +1,18 @@
 <script>
     import Icon from '../../Icon.svelte';
+    export let onClickPrevKeyframe = () => {};
+    export let onClickNextKeyframe = () => {};
+    export let onClickNewKeyframe = () => {};
 </script>
 
 <main>
-    <div>
+    <div on:click={onClickPrevKeyframe}>
         <Icon name={'keyframe_arrow_up'} direction={'w'} />
     </div>
-    <div>
+    <div on:click={onClickNewKeyframe}>
         <Icon name={'keyframe'} />
     </div>
-    <div>
+    <div on:click={onClickNextKeyframe}>
         <Icon name={'keyframe_arrow_up'} direction={'e'} />
     </div>
 </main>

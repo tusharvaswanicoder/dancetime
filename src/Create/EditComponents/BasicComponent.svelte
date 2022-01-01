@@ -29,7 +29,7 @@
     $: {
         selected = $selectedComponent == contentElement
     }
-    
+
     $: {
         onComponentSelected(selected);
     }
@@ -38,6 +38,13 @@
         if (selected || $createSelectedComponentIndex == componentIndex) {
             $createSelectedComponent = selected ? component : {};
             $createSelectedComponentIndex = selected ? componentIndex : -1;
+        }
+    }
+
+    // If selected, refresh selected component when component changes
+    $: {
+        if (selected) {
+            $createSelectedComponent = component;
         }
     }
 </script>

@@ -59,6 +59,7 @@
             height: 1080,
             
         });
+        $createVideoPlayer.setVolume(3);
         ignoreIframeErrors();
         // loadVideoById automatically loads and plays the video
         // $createVideoPlayer.loadVideoById($createProject.video_id);

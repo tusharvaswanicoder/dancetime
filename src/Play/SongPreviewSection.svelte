@@ -242,7 +242,7 @@
         display: grid;
         width: 100%;
         height: 100%;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: 1fr 1.25fr 1fr;
         gap: 30px;
         padding-top: 20px;
     }

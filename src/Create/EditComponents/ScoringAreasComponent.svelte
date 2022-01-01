@@ -1,6 +1,6 @@
 <script>
     import BasicComponent from './BasicComponent.svelte';
-    import { createProject, createProjectUnsaved, createSelectedComponent, createSelectedComponentIndex } from '../../stores';
+    import { createProject, createProjectUnsaved, createVideoPlayer, createEditorDisabled, createVideoCurrentTime, createSelectedComponent, createSelectedComponentIndex } from '../../stores';
     import DeleteRow from './DeleteRow.svelte';
     import Dropdown from '../../Dropdown.svelte';
     import KeyframeControls from './KeyframeControls.svelte';
@@ -8,6 +8,7 @@
         COMPONENT_TYPE,
         COMPONENT_DATA
     } from '../../constants';
+    import { GetRoundedTimeFromTime, GetScoringZoneEnabledAtTime, GetScoringZoneEnabledNextKeyframe, GetScoringZoneEnabledPrevKeyframe, CreateNavToTime } from '../../utils';
 
     const type = COMPONENT_TYPE.SCORING_AREAS;
     let componentSelected = false;
@@ -16,11 +17,51 @@
 
     const options = ['Yes', 'No']
     let selectedOption = options[0];
+
+    const addNewKeyframeForCurrentTime = () => {
+        const currentTime = GetRoundedTimeFromTime($createVideoCurrentTime);
+        component.keyframes[currentTime] = selectedOption == 'Yes';
+        component = component;
+        $createProjectUnsaved = true;
+    }
     
     const onDropdownChanged = (new_val, old_val) => {
         selectedOption = new_val;
-        $createProjectUnsaved = true;
+        addNewKeyframeForCurrentTime();
     };
+
+    const onClickNewKeyframe = () => {
+        // Click keyframe to remove an existing one, otherwise add a new keyframe
+        const currentTime = GetRoundedTimeFromTime($createVideoCurrentTime);
+        if (typeof component.keyframes[currentTime] != 'undefined') {
+            delete component.keyframes[currentTime];
+            component = component;
+            $createProjectUnsaved = true;
+            return
+        }
+
+        addNewKeyframeForCurrentTime();
+    }
+
+    const onClickNextKeyframe = () => {
+        const next_keyframe_time = GetScoringZoneEnabledNextKeyframe($createVideoCurrentTime, component.keyframes, true);
+        if (next_keyframe_time) {
+            CreateNavToTime(parseFloat(next_keyframe_time), $createVideoPlayer, $createEditorDisabled);
+        }
+    }
+
+    const onClickPrevKeyframe = () => {
+        const prev_keyframe_time = GetScoringZoneEnabledPrevKeyframe($createVideoCurrentTime, component.keyframes, true);
+        if (prev_keyframe_time) {
+            CreateNavToTime(parseFloat(prev_keyframe_time), $createVideoPlayer, $createEditorDisabled);
+        }
+    }
+
+    // Update selected option as current time moves to reflect current scoring state
+    $: {
+        selectedOption = GetScoringZoneEnabledAtTime($createVideoCurrentTime, component.keyframes) ? 
+            'Yes' : 'No';
+    }
 </script>
 
 <BasicComponent selected={componentSelected} {component} {componentIndex} title={COMPONENT_DATA[type].name}>
@@ -33,7 +74,7 @@
                 {options}
             />
         </div>
-        <KeyframeControls />
+        <KeyframeControls {onClickPrevKeyframe} {onClickNewKeyframe} {onClickNextKeyframe} />
     </div>
     <DeleteRow {componentIndex} />
 </BasicComponent>
