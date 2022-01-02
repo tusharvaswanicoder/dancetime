@@ -1,7 +1,7 @@
 <script>
     import PlayModes from "./PlayModes.svelte";
     import { modeStateStore, groupmodeStateStore, selectedInitialGamemode } from '../stores';
-    import { MODE_STATE, modes, groupmodes, GROUP_STATE } from '../constants';
+    import { MODE_STATE, MODES, GROUP_MODES, GROUP_STATE } from '../constants';
     import { onMount } from "svelte";
 
     const selectMode = (section) => {
@@ -27,14 +27,14 @@
 
     // For testing only
     // onMount(() => {
-    //     selectMode(modes.find((v) => v.state == MODE_STATE.PLAY));
-    //     selectPlayMode(groupmodes.find((v) => v.state == GROUP_STATE.SOLO));
+    //     selectMode(MODES.find((v) => v.state == MODE_STATE.PLAY));
+    //     selectPlayMode(GROUP_MODES.find((v) => v.state == GROUP_STATE.SOLO));
     // })
 </script>
 
 <main>
     {#if $modeStateStore == MODE_STATE.PLAY}
-        <PlayModes sections={groupmodes} onClick={selectGroupType} />
+        <PlayModes sections={GROUP_MODES} onClick={selectGroupType} />
     {/if}
-    <PlayModes sections={modes} onClick={selectMode} />
+    <PlayModes sections={MODES} onClick={selectMode} />
 </main>

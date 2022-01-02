@@ -10,7 +10,7 @@
         songWheelChartMetadata,
         songWheelCategoryCurrentIndex
     } from "../stores";
-    import { groupmodes, SONG_WHEEL_CATEGORIES, SONG_WHEEL_CATEGORY_INFO } from "../constants";
+    import { GROUP_MODES, SONG_WHEEL_CATEGORIES, SONG_WHEEL_CATEGORY_INFO } from "../constants";
     import { onMount } from "svelte";
 
     const onClickBackArrow = () => {
@@ -20,7 +20,7 @@
     };
 
     let currentGroupMode;
-    $: currentGroupMode = groupmodes.find(
+    $: currentGroupMode = GROUP_MODES.find(
         (v) => v.state == $groupmodeStateStore
     );
 
