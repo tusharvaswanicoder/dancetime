@@ -1,9 +1,9 @@
 <script>
     import { onMount } from 'svelte';
     import { JUDGEMENT_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring/Judgements';
-    import { ingameVideoPlayer, ingameShouldScore, ingameNumStars } from '../stores';
+    import { ingameVideoPlayer, ingameShouldScore } from '../stores';
     import Icon from '../Icon.svelte';
-    export let player_data = { name: 'Unknown' };
+    export let player_data = { name: 'Unknown', num_stars: 0, judgement: null };
     
     let judgement_elem;
     let refreshTimeout;
@@ -58,11 +58,11 @@
     const starAudio = {}
     let num_stars = 0;
     $: {
-        if ($ingameNumStars > num_stars) {
-            num_stars = $ingameNumStars;
+        if (player_data.num_stars > num_stars) {
+            num_stars = player_data.num_stars;
             
-            if (starAudio[$ingameNumStars]) {
-                starAudio[$ingameNumStars].play();
+            if (starAudio[num_stars]) {
+                starAudio[num_stars].play();
             }
         }
     }

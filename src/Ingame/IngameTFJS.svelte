@@ -5,6 +5,7 @@
         testIngameScores,
         ingameCamera,
         ingameCameraCanvas,
+        groupmodeStateStore,
         TFJSReady,
         playGameMetadata,
         ingameTime,
@@ -12,11 +13,12 @@
         ingameEvalScreenShouldShow,
         ingameJudgementTotals,
         ingameAdjustedScores,
-        ingameFinalScore,
+        ingameFinalScores,
         ingameRawJudgements,
         ingameShouldScore,
         ingameNumStars,
-        ingameVideoPlayer
+        ingameVideoPlayer,
+        ingameCurrentJudgement
     } from '../stores';
     import { sleep, GetVideoStartAndEndTimeFromMetadata, GetScoringZoneEnabledAtTime } from '../utils';
     import { AnalyzePose } from './Scoring/Scoring';
@@ -27,12 +29,12 @@
         GetTotalFinalScore,
         GetScoringDurationFromInOutScoringAreas
     } from './Scoring/Judgements';
-    import { COMPONENT_TYPE } from '../constants';
+    import { COMPONENT_TYPE, GROUP_STATE, GROUP_MODES_MAX_PLAYERS } from '../constants';
     
     const shouldDisplayDebugScores = false;
 
     let raf;
-    let personDetected = false;
+    let first_frame_run = false;
     let scoring_areas_component;
     $: {
         scoring_areas_component = $playGameMetadata.components.find((component) => component.type == COMPONENT_TYPE.SCORING_AREAS)
@@ -40,7 +42,7 @@
 
     const onFrame = async () => {
         const time = $ingameTime;
-        const pose = await tfjs.detectFrame($ingameCameraCanvas);
+        const poses = await tfjs.detectFrame($ingameCameraCanvas);
         const playing = (await $ingameVideoPlayer.getPlayerState()) == 1;
 
         // If scoring areas component, check to see if scoring is enabled at this time
@@ -52,24 +54,23 @@
             }
         }
 
-        if (!personDetected) {
-            if (pose) {
-                const keypointsUnderThreshold = pose.keypoints.filter(
-                    (keypoint) =>
-                        keypoint.score < DEFAULT_ACCURACY_SCORE_THRESHOLD
+        // Iterate through the number of poses per the current group mode
+        const max_poses = GROUP_MODES_MAX_PLAYERS[$groupmodeStateStore];
+        for (let i = 0; i < max_poses; i++) {
+            const pose = poses[i];
+
+            if (playing && $ingameShouldScore) {
+                await AnalyzePose(
+                    pose,
+                    time,
+                    $playGameMetadata,
+                    $ingameRawScores,
+                    $ingameAdjustedScores,
+                    $ingameJudgementTotals,
+                    $ingameRawJudgements,
+                    $ingameCurrentJudgement
                 );
-                personDetected = keypointsUnderThreshold.length == 0;
             }
-        } else if (playing && $ingameShouldScore) {
-            AnalyzePose(
-                pose,
-                time,
-                $playGameMetadata,
-                $ingameRawScores,
-                $ingameAdjustedScores,
-                $ingameJudgementTotals,
-                $ingameRawJudgements
-            );
         }
 
         if (!$ingameEvalScreenShouldShow) {
@@ -83,11 +84,16 @@
                 startEndTime.end,
                 scoring_areas_component
             );
-            $ingameFinalScore = GetTotalFinalScore(
-                $ingameJudgementTotals,
-                scoringDuration
-            );
+
+            for (const player_id in Object.keys($ingameJudgementTotals)) {
+                $ingameFinalScores[player_id] = GetTotalFinalScore(
+                    $ingameJudgementTotals[player_id],
+                    scoringDuration
+                );
+            }
         }
+
+        first_frame_run = true;
     };
 
     const startTFJS = async () => {
@@ -99,18 +105,26 @@
             await sleep(500);
         }
 
-        await tfjs.initialize();
+        // Use multipose model if this is not solo mode
+        const modelType = $groupmodeStateStore == GROUP_STATE.SOLO ?
+            tfjs.modelTypes.SINGLEPOSE_LIGHTNING : 
+            tfjs.modelTypes.MULTIPOSE_LIGHTNING;
+
+        await tfjs.initialize(modelType, DEFAULT_ACCURACY_SCORE_THRESHOLD);
         await onFrame();
     };
 
     $: {
-        if (!$TFJSReady && personDetected) {
+        if (!$TFJSReady && first_frame_run) {
             $TFJSReady = true;
-            // Only become ready when a person is detected
         }
     }
 
     const UpdateNumStars = (judgementTotals) => {
+        if (typeof judgementTotals == 'undefined') {
+            return 0;
+        }
+
         const startEndTime =
             GetVideoStartAndEndTimeFromMetadata($playGameMetadata);
         const scoringDuration = GetScoringDurationFromInOutScoringAreas(
@@ -124,8 +138,11 @@
         );
     };
 
+    // Update stars as judgements change
     $: {
-        $ingameNumStars = UpdateNumStars($ingameJudgementTotals);
+        for (const player_id in Object.keys($ingameJudgementTotals)) {
+            $ingameNumStars[player_id] = UpdateNumStars($ingameJudgementTotals[player_id]);
+        }
     }
 
     onMount(() => {

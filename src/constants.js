@@ -19,6 +19,12 @@ export const GROUP_MODES = [
     {title: 'Solo', state: GROUP_STATE.SOLO, colors: ['var(--color-red-dark)', 'var(--color-red-light)']}
 ]
 
+export const GROUP_MODES_MAX_PLAYERS = {
+    [GROUP_STATE.SOLO]: 1,
+    [GROUP_STATE.COUPLE]: 2,
+    [GROUP_STATE.PARTY]: 6
+}
+
 export const GAMESTATE = {
     NOT_INGAME: 1,
     INGAME: 2

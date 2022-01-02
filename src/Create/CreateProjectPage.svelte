@@ -1,7 +1,7 @@
 <script>
     import { v1 } from 'uuid';
     import ProjectCard from './ProjectCard.svelte';
-    import { VISIBILITY } from "../constants"
+    import { GROUP_STATE } from "../constants"
     import Icon from '../Icon.svelte';
     import projectManager from "./ProjectManager"
     import { fade, fly } from 'svelte/transition'
@@ -99,6 +99,11 @@
         $modeStateStore = null;
         $groupmodeStateStore = null;
     }
+
+    onMount(() => {
+        // Assign default groupmode state to SOLO for testing charts
+        $groupmodeStateStore = GROUP_STATE.SOLO;
+    })
     
     let projectNameElement;
     $: {

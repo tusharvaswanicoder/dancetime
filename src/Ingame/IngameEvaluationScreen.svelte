@@ -1,60 +1,16 @@
 <script>
-    import { scale } from "svelte/transition";
-    import { onMount } from "svelte";
-    import { tweened } from 'svelte/motion';
-	import { cubicOut } from 'svelte/easing';
-    import { ingameFinalScore } from '../stores';
+    import { ingameFinalScores } from '../stores';
+    import IngameEvaluationScore from "./IngameEvaluationScore.svelte";
     // import IngameEvaluationScreenParticles from './IngameEvaluationScreenParticles.svelte';
     
-    let score_reveal_time = 4000;
-    let counterAudio;
-    let endFanfare;
-    let audienceCheer;
-    let wowAudio;
-    let score = tweened(0, {
-		duration: score_reveal_time
-	});
-    
-    const delay = 1200;
-    
-    onMount(() => {
-        setTimeout(() => {
-            score.set($ingameFinalScore);
-            counterAudio.volume = 0.5;
-            counterAudio.play();
-            
-            setTimeout(() => {
-                endFanfare.volume = 0.5;
-                endFanfare.play();
-                
-                if ($ingameFinalScore >= 70) {
-                    audienceCheer.volume = 0.25;
-                    audienceCheer.play();
-                }
-                
-                setTimeout(() => {
-                    if ($ingameFinalScore >= 90) {
-                        wowAudio.volume = 0.75;
-                        wowAudio.play();
-                    }
-                }, 500);
-                
-            }, score_reveal_time);
-        }, delay);
-    })
 </script>
-
-<audio bind:this={counterAudio} src='../sfx/score_counter_2_long.ogg' />
-<audio bind:this={endFanfare} src='../sfx/end_fanfare_short.ogg' />
-<audio bind:this={audienceCheer} src='../sfx/audience_cheering.ogg' />
-<audio bind:this={wowAudio} src='../sfx/crowd_wow.ogg' />
 
 <main>
     <!-- <IngameEvaluationScreenParticles /> -->
     <div class="content">
-        <h1 in:scale={{ delay: delay, easing: cubicOut, duration: score_reveal_time, start: 0, opacity: 1 }}>
-            {($score).toFixed(2)}
-        </h1>
+        {#each Object.keys($ingameFinalScores) as player_id}
+            <IngameEvaluationScore finalScore={$ingameFinalScores[player_id]} />
+        {/each}
     </div>
 </main>
 
@@ -93,14 +49,8 @@
         place-items: center;
         gap: 30px;
         width: fit-content;
-        max-width: 50%;
+        max-width: 75%;
         height: fit-content;
-    }
-
-    div.content > h1 {
-        font-weight: 900;
-        text-transform: uppercase;
-        font-size: 12rem;
     }
 
 </style>
