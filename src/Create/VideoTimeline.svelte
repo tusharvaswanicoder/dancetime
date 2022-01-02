@@ -20,6 +20,7 @@
     import Icon from '../Icon.svelte';
     import VideoInOutPointsTimelineDisplay from './EditComponents/Displays/VideoInOutPointsTimelineDisplay.svelte';
     import VideoPreviewAreaTimelineDisplay from './EditComponents/Displays/VideoPreviewAreaTimelineDisplay.svelte';
+    import ScoringAreasTimelineDisplay from './EditComponents/Displays/ScoringAreasTimelineDisplay.svelte';
     import KeyframeTimelineDisplay from './EditComponents/Displays/KeyframeTimelineDisplay.svelte';
 
     let timelineWidth = 0;
@@ -232,6 +233,9 @@
             {/if}
             {#if hasComponentOfType(COMPONENT_TYPE.PREVIEW_AREA, $createProject)}
                 <VideoPreviewAreaTimelineDisplay />
+            {/if}
+            {#if hasComponentOfType(COMPONENT_TYPE.SCORING_AREAS, $createProject)}
+                <ScoringAreasTimelineDisplay />
             {/if}
             {#if $createSelectedComponent && $createSelectedComponent.keyframes}
                 <KeyframeTimelineDisplay keyframes={$createSelectedComponent.keyframes} />

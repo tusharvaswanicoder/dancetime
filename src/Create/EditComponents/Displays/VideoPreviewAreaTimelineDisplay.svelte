@@ -38,6 +38,10 @@
         opacity: 0.25;
     }
 
+    main.selected {
+        z-index: 1;
+    }
+
     div.section {
         position: absolute;
         left: 0;

@@ -1,37 +1,48 @@
 <script>
     import { createProject, createSelectedComponent } from '../../../stores';
     import { COMPONENT_TYPE } from '../../../constants';
+    import { GetScoringZoneEnabledNextKeyframe, GetScoringZoneEnabledPrevKeyframe } from '../../../utils';
     
     let component;
     $: {
         component = $createProject.components.find((component) => component.type == COMPONENT_TYPE.SCORING_AREAS)
     }
     
-    let startPercent = '0%';
-    let endPercent = '0%';
-    $: {
-        if (component) {
-            startPercent = `${
-                (component.in / $createProject.duration) * 100
-            }%`,
-            endPercent = `${
-                (component.out / $createProject.duration) * 100
-            }%`;
-        }
+    const getTimestampPercentComplete = (time) => {
+        const time_float = parseFloat(time);
+        return time_float / $createProject.duration;
     }
+
+    const shouldRenderKeyframeArea = (keyframe_time) => {
+        return component.keyframes[keyframe_time] === false;
+    }
+
+    const getLeftOffset = (keyframe_time) => {
+        return `${getTimestampPercentComplete(keyframe_time) * 100}%`;
+    }
+
+    const getRightOffset = (keyframe_time) => {
+        let next_keyframe_time = GetScoringZoneEnabledNextKeyframe(keyframe_time, component.keyframes, true);
+        const keyframe_end_time = next_keyframe_time || $createProject.duration;
+        return `${getTimestampPercentComplete(keyframe_end_time) * 100}%`;
+    }
+
 
     let selected = false;
     $: selected = $createSelectedComponent.type == COMPONENT_TYPE.SCORING_AREAS;
 
 </script>
 
-{#if component}
+{#if component && component.keyframes}
     <main class:selected>
-        <div class='section filled' style={`--start-percent: ${startPercent}; --end-percent: ${endPercent};`}></div>
-        <div class='section start' style={`--left-percent: ${startPercent}`}></div>
-        <div class='section end' style={`--left-percent: ${endPercent}`}></div>
+        {#each Object.keys(component.keyframes) as keyframe_time}
+            {#if shouldRenderKeyframeArea(keyframe_time)}
+                <div class='section filled' style={`--left-offset: ${getLeftOffset(keyframe_time)}; --right-offset: ${getRightOffset(keyframe_time)};`}></div>
+                <div class='section start' style={`--left-offset: ${getLeftOffset(keyframe_time)}`}></div>
+                <div class='section end' style={`--right-offset: ${getRightOffset(keyframe_time)}`}></div>
+            {/if}
+        {/each}
     </main>
-    <!-- TODO: create general keyframe display component -->
 {/if}
 
 <style>
@@ -39,30 +50,31 @@
         opacity: 0.25;
     }
 
+    main.selected {
+        z-index: 1;
+    }
+
     div.section {
         position: absolute;
-        left: 0;
+        left: var(--left-offset);
         height: 100%;
-        width: var(--left-percent);
         transform: translateX(-1px);
-        --color: var(--color-purple-light);
+        --color: var(--color-red-light);
     }
 
     div.section.filled {
-        left: var(--start-percent);
-        width: calc(var(--end-percent) - var(--start-percent));
-        background-color: var(--color-purple-dark);
+        width: calc(var(--right-offset) - var(--left-offset));
+        background-color: var(--color-red-dark);
         opacity: 0.25;
     }
     
     div.section.start {
-        width: var(--left-percent);
+        left: var(--left-offset);
         border-right: 2px solid var(--color);
     }
     
     div.section.end {
-        left: var(--left-percent);
-        width: calc(100% - var(--left-percent));
+        left: var(--right-offset);
         border-left: 2px solid var(--color);
     }
 </style>

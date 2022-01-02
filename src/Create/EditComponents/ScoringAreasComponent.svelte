@@ -22,6 +22,7 @@
         const currentTime = GetRoundedTimeFromTime($createVideoCurrentTime);
         component.keyframes[currentTime] = selectedOption == 'Yes';
         component = component;
+        $createProject = $createProject;
         $createProjectUnsaved = true;
     }
     
@@ -36,6 +37,7 @@
         if (typeof component.keyframes[currentTime] != 'undefined') {
             delete component.keyframes[currentTime];
             component = component;
+            $createProject = $createProject;
             $createProjectUnsaved = true;
             return
         }

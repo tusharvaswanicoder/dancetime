@@ -5,7 +5,7 @@
 
     const getTimestampPercentComplete = (time) => {
         const time_float = parseFloat(time);
-        return time / $createProject.duration;
+        return time_float / $createProject.duration;
     }
 
     const getKeyframeLeftOffset = (time) => {
@@ -32,6 +32,7 @@
         top: 0;
         left: 0;
         --color: var(--color-gray-500);
+        z-index: 2;
     }
 
     div.line {

@@ -366,10 +366,18 @@ export const GetScoringZoneEnabledPrevKeyframe = (time, keyframes, ignore_same_t
     
     const keyframes_keys = Object.keys(keyframes).map((v) => parseFloat(v));
     const closest_key_before = keyframes_keys.reduce((a, b) => {
-        if (typeof a == 'undefined') {
-            return b;
-        } else if (typeof b == 'undefined') {
-            return a;
+        if (ignore_same_time) {
+            if (typeof a == 'undefined') {
+                return b == time_val ? undefined : b;
+            } else if (typeof b == 'undefined') {
+                return a == time_val ? undefined : a;
+            }
+        } else {
+            if (typeof a == 'undefined') {
+                return b;
+            } else if (typeof b == 'undefined') {
+                return a;
+            }
         }
 
         const a_diff = a - time_val;
@@ -419,10 +427,18 @@ export const GetScoringZoneEnabledNextKeyframe = (time, keyframes, ignore_same_t
     
     const keyframes_keys = Object.keys(keyframes).map((v) => parseFloat(v));
     const closest_key_after = keyframes_keys.reduce((a, b) => {
-        if (typeof a == 'undefined') {
-            return b;
-        } else if (typeof b == 'undefined') {
-            return a;
+        if (ignore_same_time) {
+            if (typeof a == 'undefined') {
+                return b == time_val ? undefined : b;
+            } else if (typeof b == 'undefined') {
+                return a == time_val ? undefined : a;
+            }
+        } else {
+            if (typeof a == 'undefined') {
+                return b;
+            } else if (typeof b == 'undefined') {
+                return a;
+            }
         }
 
         const a_diff = a - time_val;
