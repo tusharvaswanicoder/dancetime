@@ -17,8 +17,8 @@
         ingameShouldScore,
         ingameNumStars,
         ingameVideoPlayer
-    } from '../stores';$ingameTime
-    import { sleep, GetVideoStartAndEndTimeFromMetadata } from '../utils';
+    } from '../stores';
+    import { sleep, GetVideoStartAndEndTimeFromMetadata, GetScoringZoneEnabledAtTime } from '../utils';
     import { AnalyzePose } from './Scoring/Scoring';
     import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring/Defaults';
     import { GetNumStarsFromPerfectPercentage } from './Scoring/Stars';
@@ -27,16 +27,30 @@
         GetTotalFinalScore,
         GetScoringDurationFromInOutScoringAreas
     } from './Scoring/Judgements';
+    import { COMPONENT_TYPE } from '../constants';
     
     const shouldDisplayDebugScores = false;
 
     let raf;
     let personDetected = false;
+    let scoring_areas_component;
+    $: {
+        scoring_areas_component = $playGameMetadata.components.find((component) => component.type == COMPONENT_TYPE.SCORING_AREAS)
+    }
 
     const onFrame = async () => {
         const time = $ingameTime;
         const pose = await tfjs.detectFrame($ingameCameraCanvas);
         const playing = (await $ingameVideoPlayer.getPlayerState()) == 1;
+
+        // If scoring areas component, check to see if scoring is enabled at this time
+        if (scoring_areas_component) {
+            const shouldScore = GetScoringZoneEnabledAtTime(time, scoring_areas_component.keyframes);
+            // Only update if it changed
+            if ($ingameShouldScore != shouldScore) {
+                $ingameShouldScore = shouldScore;
+            }
+        }
 
         if (!personDetected) {
             if (pose) {
@@ -67,7 +81,7 @@
                 $playGameMetadata.duration,
                 startEndTime.start,
                 startEndTime.end,
-                {}
+                scoring_areas_component
             );
             $ingameFinalScore = GetTotalFinalScore(
                 $ingameJudgementTotals,
@@ -103,7 +117,7 @@
             $playGameMetadata.duration,
             startEndTime.start,
             startEndTime.end,
-            {}
+            scoring_areas_component
         );
         return GetNumStarsFromPerfectPercentage(
             GetPerfectPercentage(judgementTotals, scoringDuration)

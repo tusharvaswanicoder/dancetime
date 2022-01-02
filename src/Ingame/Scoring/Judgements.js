@@ -1,4 +1,6 @@
 import outlier from './RemoveOutliers';
+import { GetScoringZoneEnabledNextKeyframe } from '../../utils';
+
 
 // List of all judgements used
 export const JUDGEMENTS = {
@@ -104,10 +106,38 @@ export const GetScoringDurationFromInOutScoringAreas = (
     _out,
     scoring_areas
 ) => {
-    // TODO: factor in scoring areas
-    const dur = Math.max(0, duration - _in);
-    return Math.min(dur, _out - _in);
-};
+    // Base scoring duration from just the in/out points
+    let scoring_duration = Math.max(0, duration - _in);
+    scoring_duration = Math.min(scoring_duration, _out - _in);
+
+    if (typeof scoring_areas == 'undefined' || Object.keys(scoring_areas.keyframes) == 0) {
+        return scoring_duration;
+    } else {
+        // Use scoring_areas.keyframes to determine new scoring duration
+        for (const keyframe_time of Object.keys(scoring_areas.keyframes)) {
+            const scoring_enabled = scoring_areas.keyframes[keyframe_time];
+            let time = parseFloat(keyframe_time);
+            
+            // Found a disabled zone, so find the next keypoint to end the zone
+            if (scoring_enabled === false) {
+                let next_keyframe_time = GetScoringZoneEnabledNextKeyframe(keyframe_time, scoring_areas.keyframes, true);
+                if (typeof next_keyframe_time != 'undefined') {
+                    next_keyframe_time = parseFloat(next_keyframe_time);
+                }
+
+                let keyframe_end_time = next_keyframe_time || _out;
+
+                let start_time = Math.max(_in, time);
+                let end_time = Math.min(_out, keyframe_end_time);
+
+                // Subtract disabled zone duration from scoring duration
+                scoring_duration -= (end_time - start_time);
+            }
+        }
+
+        return scoring_duration;
+    }
+}
 
 const GetTotalFinalPossibleScore = (scoringMaxTime) => {
     const finalIndex = GetCurrentJudgementIndex(scoringMaxTime);
