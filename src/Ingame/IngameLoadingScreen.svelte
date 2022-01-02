@@ -64,6 +64,7 @@
 
             if (keypoints_result.keypoints) {
                 $playGameKeypoints = keypoints_result.keypoints;
+                $playGameMetadata.keypoints = $playGameKeypoints;
                 $ingameErrorMessage = null;
                 // TODO: cache these keypoints somewhere so if they play again they don't have to wait for download
             } else if (keypoints_result.error) {
@@ -115,9 +116,6 @@
             // Enter gameplay woo
             $ingameIsLoading = false;
             
-            const startTime = GetVideoStartTimeFromMetadata($playGameMetadata);
-            // TODO?: set current time of video to actual start time
-                
             setTimeout(() => {
                 $ingameVideoPlayer.playVideo();
                 $ingameShouldScore = true;

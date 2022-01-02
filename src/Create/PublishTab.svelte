@@ -47,7 +47,6 @@
                 // Handle error
             } else if (response.chart) {
                 $createProject = {...$createProject, ...response.chart};
-                console.log($createProject);
                 projectManager.saveProject($createProject);
                 $createProjectUnsaved = false;
             }

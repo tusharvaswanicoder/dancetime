@@ -46,7 +46,10 @@ const interp = (a, b, t) => {
  * @param {*} time 
  */
 export const GetKeypointsForTime = (keypoints, time) => {
-    
+    if (typeof keypoints == 'undefined') {
+        return;
+    }
+
     if (typeof time == 'undefined' || isNaN(time)) {
         return;
     }
