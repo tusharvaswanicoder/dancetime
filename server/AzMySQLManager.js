@@ -11,8 +11,12 @@ class AzMySQLManager {
         this.pool = null;
 
         this.initialized = false;
+        this.initialize();
+    }
+
+    async initialize () {
         try {
-            this.initializeConnectionAndTables();
+            await this.initializeConnectionAndTables();
         } catch (error) {
             console.error(error);
         }
@@ -157,7 +161,7 @@ class AzMySQLManager {
 
         for (const table_config of default_tables) {
             // Remove extra spaces and newlines from table structure
-            const escaped_structure = table_config.structure.replace(/  |\r\n|\n|\r/gm, '').replace(/ +(?= )/g,'');
+            const escaped_structure = table_config.structure.replace(/\n/g, '').replace(/ +(?= )/g,'');
             await this.pool.query(`CREATE TABLE IF NOT EXISTS ${table_config.name} ${escaped_structure}`);
         }
 
