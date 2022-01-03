@@ -157,7 +157,7 @@ const AnalyzePose = async (
     // Otherwise, use .id to assign the scores to the correct person
 
     const player_id = pose?.id || 0;
-    console.log(`player_id: ${player_id}`);
+    // console.log(`player_id: ${player_id}`);
 
     // False positive on another player, do not add
     if (!ingameRawJudgementsValue[player_id] && pose?.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
@@ -175,7 +175,6 @@ const AnalyzePose = async (
     }
 
     if (!pose || !pose.keypoints || pose.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
-        console.log('is miss')
         is_miss = true;
     }
 

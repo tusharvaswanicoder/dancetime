@@ -101,8 +101,8 @@
                     <!-- svelte-ignore a11y-missing-attribute -->
                     <img src={image_url} />
                     {#if i == current_image_index}
-                        <div class='playtest-icon-container'>
-                            <span class="playtest-icon" on:click={clickPlayButton}>
+                        <div class='playtest-icon-container' on:click={clickPlayButton}>
+                            <span class="playtest-icon">
                                 <Icon name="video_play_icon" stops={play_icon_stops} />
                             </span>
                         </div>

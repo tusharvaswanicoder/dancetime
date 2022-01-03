@@ -505,7 +505,7 @@ keypoints: {
 */
 export const MirrorKeypoints = (keypoints) => {
     // Mirror keypoints horizontally so no post processing is needed for the webcam feed later
-    return keypoints;
+    // return keypoints;
     const mirrored_keypoints = {};
     for (const timestamp in keypoints) {
         mirrored_keypoints[timestamp] = {
