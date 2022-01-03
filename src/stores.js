@@ -31,7 +31,6 @@ export const ingameScreenShouldShow = writable(false);
 export const ingameErrorMessage = writable();
 export const ingameTime = writable(0);
 export const ingameCamera = writable();
-export const ingameCameraCanvas = writable();
 export const TFJSReady = writable(false);
 export const ingameShouldScore = writable(false);
 

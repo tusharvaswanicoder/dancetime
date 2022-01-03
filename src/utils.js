@@ -483,3 +483,41 @@ export const GetScoringZoneEnabledAtTime = (time, keyframes) => {
 export const getCategoryColorVars = (category) => {
     return `--color1: ${SONG_WHEEL_CATEGORY_INFO[category].colors[0]}; --color2: ${SONG_WHEEL_CATEGORY_INFO[category].colors[1]}`;
 }
+
+// Mirrors the X values of keypoints
+// Assumes X keypoints are in the 0-1920 range
+// Expects keypoints to look like:
+/*
+keypoints: {
+    ["0.00"]: {
+        keypoints: [
+            {x: 57, y: 57, score: 0.3},
+            {x: 57, y: 57, score: 0.3},
+        ]
+    },
+    ["2.30"]: {
+        keypoints: [
+            {x: 57, y: 57, score: 0.3},
+            {x: 57, y: 57, score: 0.3},
+        ]
+    },
+}
+*/
+export const MirrorKeypoints = (keypoints) => {
+    // Mirror keypoints horizontally so no post processing is needed for the webcam feed later
+    return keypoints;
+    const mirrored_keypoints = {};
+    for (const timestamp in keypoints) {
+        mirrored_keypoints[timestamp] = {
+            ...keypoints[timestamp],
+            keypoints: keypoints[timestamp].keypoints.map((keypoint) => {
+                return {
+                    ...keypoint,
+                    x: 1920 - keypoint.x
+                }
+            })
+        }
+    }
+    
+    return mirrored_keypoints;
+}

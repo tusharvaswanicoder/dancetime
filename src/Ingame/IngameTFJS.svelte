@@ -4,7 +4,6 @@
     import {
         testIngameScores,
         ingameCamera,
-        ingameCameraCanvas,
         groupmodeStateStore,
         TFJSReady,
         playGameMetadata,
@@ -21,7 +20,7 @@
         ingameCurrentJudgement
     } from '../stores';
     import { sleep, GetVideoStartAndEndTimeFromMetadata, GetScoringZoneEnabledAtTime } from '../utils';
-    import { AnalyzePose } from './Scoring/Scoring';
+    import { AnalyzePoses } from './Scoring/Scoring';
     import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Scoring/Defaults';
     import { GetNumStarsFromPerfectPercentage } from './Scoring/Stars';
     import {
@@ -31,7 +30,7 @@
     } from './Scoring/Judgements';
     import { COMPONENT_TYPE, GROUP_STATE, GROUP_MODES_MAX_PLAYERS } from '../constants';
     
-    const shouldDisplayDebugScores = false;
+    const shouldDisplayDebugScores = true;
 
     let raf;
     let first_frame_run = false;
@@ -42,8 +41,9 @@
 
     const onFrame = async () => {
         const time = $ingameTime;
-        const poses = await tfjs.detectFrame($ingameCameraCanvas);
-        const playing = (await $ingameVideoPlayer.getPlayerState()) == 1;
+        const poses = await tfjs.detectFrame($ingameCamera);
+        // console.log(poses);
+        const video_is_playing = (await $ingameVideoPlayer.getPlayerState()) == 1;
 
         // If scoring areas component, check to see if scoring is enabled at this time
         if (scoring_areas_component) {
@@ -56,21 +56,18 @@
 
         // Iterate through the number of poses per the current group mode
         const max_poses = GROUP_MODES_MAX_PLAYERS[$groupmodeStateStore];
-        for (let i = 0; i < max_poses; i++) {
-            const pose = poses[i];
-
-            if (playing && $ingameShouldScore) {
-                await AnalyzePose(
-                    pose,
-                    time,
-                    $playGameMetadata,
-                    $ingameRawScores,
-                    $ingameAdjustedScores,
-                    $ingameJudgementTotals,
-                    $ingameRawJudgements,
-                    $ingameCurrentJudgement
-                );
-            }
+        if (video_is_playing && $ingameShouldScore) {
+            await AnalyzePoses(
+                poses,
+                max_poses,
+                time,
+                $playGameMetadata,
+                $ingameRawScores,
+                $ingameAdjustedScores,
+                $ingameJudgementTotals,
+                $ingameRawJudgements,
+                $ingameCurrentJudgement
+            );
         }
 
         if (!$ingameEvalScreenShouldShow) {
@@ -99,8 +96,7 @@
     const startTFJS = async () => {
         while (
             !$ingameCamera ||
-            $ingameCamera.readyState != 4 ||
-            !$ingameCameraCanvas
+            $ingameCamera.readyState != 4
         ) {
             await sleep(500);
         }
@@ -167,7 +163,7 @@
         font-size: 3rem;
         position: absolute;
         top: 0;
-        left: 0;
+        right: 0;
         margin: 10px;
         z-index: 50;
     }

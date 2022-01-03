@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { JUDGEMENT_FREQUENCY, JUDGEMENT_VISUALS } from './Scoring/Judgements';
     import { ingameVideoPlayer, ingameShouldScore } from '../stores';
     import Icon from '../Icon.svelte';
@@ -8,29 +8,29 @@
     let judgement_elem;
     let refreshTimeout;
     let currentJudgement;
+    let lastJudgementTime = new Date().getTime();
     
     const star_stops = [
         { color: 'var(--color-yellow-dark)', offset: '0' },
         { color: 'var(--color-yellow-light)', offset: '1' },
     ];
     
-    const refreshJudgementAnim = async () => {
-        // if (($ingameVideoPlayer && $ingameVideo.ended) || refreshTimeout) {
-        // TODO: update this
-        if (!$ingameVideoPlayer || refreshTimeout) {
+    let raf;
+    const refreshJudgementAnimOnFrame = () => {
+        raf = window.requestAnimationFrame(refreshJudgementAnimOnFrame);
+
+        if (!$ingameVideoPlayer) {
             return;
         }
         
-        if (refreshTimeout) {
-            clearTimeout(refreshTimeout);
+        // Wait until enough time has elpased to display the next score
+        const currentTime = new Date().getTime();
+        if (currentTime - lastJudgementTime < JUDGEMENT_FREQUENCY * 1000) {
+            return;
         }
-        
-        // Continuously display the same judgement if there hasn't been a different one yet
-        refreshTimeout = setTimeout(() => {
-            refreshTimeout = null;
-            refreshJudgementAnim();
-        }, JUDGEMENT_FREQUENCY * 1000);
-        
+
+        lastJudgementTime = currentTime;
+
         if ($ingameShouldScore) {
             currentJudgement = player_data.judgement;
             if (judgement_elem && currentJudgement) {
@@ -43,7 +43,13 @@
     }
     
     onMount(() => {
-        refreshJudgementAnim();
+        refreshJudgementAnimOnFrame();
+    })
+
+    onDestroy(() => {
+        if (raf) {
+            window.cancelAnimationFrame(raf);
+        }
     })
     
     // Enable this code to make the judgement pop up after every change

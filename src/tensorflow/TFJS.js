@@ -1,7 +1,7 @@
 import '@tensorflow/tfjs-core';
 import * as poseDetection from '@tensorflow-models/pose-detection';
 import '@tensorflow/tfjs-backend-webgl';
-import '@tensorflow/tfjs-core/dist/public/chained_ops/register_all_chained_ops';
+// import '@tensorflow/tfjs-core/dist/public/chained_ops/register_all_chained_ops';
 
 
 // 2.7s+ hot reload time with TFJS installed. Can be potentially minifier further with: 
@@ -40,6 +40,15 @@ class TFJS {
         if (modelType == this.modelTypes.MULTIPOSE_LIGHTNING) {
             detectorConfig.enableTracking = true;
             detectorConfig.trackerType = poseDetection.TrackerType.BoundingBox;
+            detectorConfig.trackerConfig = {
+                maxTracks: 20,
+                maxAge: 60 * 1000,
+                minSimilarity: 0.1,
+                // keypointTrackerParams: {
+                //     keypointConfidenceThreshold: 0.4,
+                //     minNumberOfKeypoints: 10
+                // }
+            }
             // Potentially use detectorConfig.trackerConfig
             // https://github.com/tensorflow/tfjs-models/blob/master/pose-detection/src/calculators/tracker.md
         }

@@ -20,6 +20,70 @@ import {
     JUDGEMENTS
 } from './Judgements';
 import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
+import { GROUP_MODES_MAX_PLAYERS } from '../../constants';
+
+/**
+ * Takes an array of poses and calls AnalyzePose on all of them.
+ * @param {*} pose 
+ * @param {*} max_poses 
+ * @param {*} currentTime 
+ * @param {*} playGameMetadataValue 
+ * @param {*} ingameRawScoresValue 
+ * @param {*} ingameAdjustedScoresValue 
+ * @param {*} ingameJudgementTotalsValue 
+ * @param {*} ingameRawJudgementsValue 
+ * @param {*} ingameCurrentJudgementValue 
+ */
+export const AnalyzePoses = async (
+    poses,
+    max_poses,
+    currentTime,
+    playGameMetadataValue,
+    ingameRawScoresValue,
+    ingameAdjustedScoresValue,
+    ingameJudgementTotalsValue,
+    ingameRawJudgementsValue,
+    ingameCurrentJudgementValue
+) => {
+
+    const promises = [];
+    for (let i = 0; i < max_poses; i++) {
+        const pose = poses[i];
+        const player_id = pose?.id || 0;
+
+        const promise = new Promise(async (resolve, reject) => {
+            await AnalyzePose(
+                pose, 
+                currentTime,
+                playGameMetadataValue,
+                ingameRawScoresValue,
+                ingameAdjustedScoresValue,
+                ingameJudgementTotalsValue,
+                ingameRawJudgementsValue,
+                ingameCurrentJudgementValue
+            );
+
+            ingameRawJudgements[player_id] = ingameRawJudgementsValue[player_id];
+            ingameRawScores[player_id] = ingameRawScoresValue[player_id];
+            ingameAdjustedScores[player_id] = ingameAdjustedScoresValue[player_id];
+            ingameJudgementTotals[player_id] = ingameJudgementTotalsValue[player_id];
+            ingameCurrentJudgement[player_id] = ingameCurrentJudgementValue[player_id];
+
+            resolve();
+        })
+
+        promises.push(promise);
+    }
+
+    await Promise.all(promises);
+
+    // Wait until all analysis completes, then update store values
+    ingameRawJudgements.set(ingameRawJudgementsValue);
+    ingameRawScores.set(ingameRawScoresValue);
+    ingameAdjustedScores.set(ingameAdjustedScoresValue);
+    ingameJudgementTotals.set(ingameJudgementTotalsValue);
+    ingameCurrentJudgement.set(ingameCurrentJudgementValue);
+}
 
 /**
  * Every frame starts here.
@@ -76,7 +140,7 @@ import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
  * @param {*} ingameRawJudgementsValue
  * @returns
  */
-export const AnalyzePose = async (
+const AnalyzePose = async (
     pose,
     currentTime,
     playGameMetadataValue,
@@ -91,7 +155,6 @@ export const AnalyzePose = async (
     // Pose may contain a .id field in MULTIPOSE situations
     // If it does not, default to index 0 for scoring
     // Otherwise, use .id to assign the scores to the correct person
-    // PLAN: convert all the score stores to objects. Should be "painless"
 
     const player_id = pose?.id || 0;
     console.log(`player_id: ${player_id}`);
@@ -104,20 +167,15 @@ export const AnalyzePose = async (
     // Entries for this ID do not exist, so add all of them
     if (!ingameRawJudgementsValue[player_id]) {
         ingameRawJudgementsValue[player_id] = {};
-        ingameRawJudgements.set(ingameRawJudgementsValue);
         ingameRawScoresValue[player_id] = {};
-        ingameRawScores.set(ingameRawScoresValue);
         ingameAdjustedScoresValue[player_id] = {};
-        ingameAdjustedScores.set(ingameAdjustedScoresValue);
         ingameRawJudgementsValue[player_id] = {};
-        ingameRawJudgements.set(ingameRawJudgementsValue);
         ingameJudgementTotalsValue[player_id] = {};
-        ingameJudgementTotals.set(ingameJudgementTotalsValue);
         ingameCurrentJudgementValue[player_id] = {};
-        ingameCurrentJudgement.set(ingameCurrentJudgementValue);
     }
 
     if (!pose || !pose.keypoints || pose.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {
+        console.log('is miss')
         is_miss = true;
     }
 
@@ -134,13 +192,11 @@ export const AnalyzePose = async (
         );
         if (!group_scores) {
             ingameRawJudgementsValue[player_id][currentTime] = JUDGEMENTS.MISS;
-            ingameRawJudgements.set(ingameRawJudgementsValue);
             return;
         }
 
         const raw_score = GetScoreFromGroups(group_scores);
         ingameRawScoresValue[player_id][currentTime] = raw_score;
-        ingameRawScores.set(ingameRawScoresValue);
 
         const thisTimeScore = GetCurrentTopXLastScores(
             ingameRawScoresValue[player_id],
@@ -148,7 +204,6 @@ export const AnalyzePose = async (
         );
 
         ingameAdjustedScoresValue[player_id][currentTime] = thisTimeScore;
-        ingameAdjustedScores.set(ingameAdjustedScoresValue);
 
         let scoresString = `${thisTimeScore.toFixed(2)}`;
 
@@ -160,7 +215,6 @@ export const AnalyzePose = async (
 
         const judgement = GetJudgementFromScore(thisTimeScore);
         ingameRawJudgementsValue[player_id][currentTime] = judgement;
-        ingameRawJudgements.set(ingameRawJudgementsValue);
 
         scoresString += ` -- ${JUDGEMENT_VISUALS[judgement].name}`;
 
@@ -168,19 +222,17 @@ export const AnalyzePose = async (
     } else {
         // This is a miss due to no pose recognized or something else
         ingameRawScoresValue[player_id][currentTime] = 0;
-        ingameRawScores.set(ingameRawScoresValue);
         ingameAdjustedScoresValue[player_id][currentTime] = 0;
-        ingameAdjustedScores.set(ingameAdjustedScoresValue);
 
         const judgement = GetJudgementFromScore(0);
         ingameRawJudgementsValue[player_id][currentTime] = judgement;
-        ingameRawJudgements.set(ingameRawJudgementsValue);
 
         testIngameScores.set('MISS - INVALID DATA');
     }
 
     // Update current judgement and judgement values if needed
     const startEndTime = GetVideoStartAndEndTimeFromMetadata(playGameMetadataValue);
+    // TODO: factor in scoring areas
     const scoringCurrentTime = GetScoringCurrentTime(currentTime, startEndTime.start, startEndTime.end, {});
     const judgement_index = GetCurrentJudgementIndex(scoringCurrentTime);
     if (!ingameJudgementTotalsValue[player_id][judgement_index]) {
@@ -189,8 +241,6 @@ export const AnalyzePose = async (
             currentTime
         );
         ingameJudgementTotalsValue[player_id][judgement_index] = top_judgement;
-        ingameJudgementTotals.set(ingameJudgementTotalsValue);
         ingameCurrentJudgementValue[player_id] = top_judgement;
-        ingameCurrentJudgement.set(ingameCurrentJudgementValue);
     }
 };

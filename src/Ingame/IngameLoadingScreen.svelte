@@ -17,7 +17,7 @@
         ingameShouldScore,
         ingameVideoPlayer
     } from "../stores";
-    import { HasCameraAccess, RequestCameraAccess, sleep, GetVideoStartTimeFromMetadata } from "../utils";
+    import { HasCameraAccess, RequestCameraAccess, sleep, MirrorKeypoints } from "../utils";
 
     let preLoadbarTime = 2200;
     let loadbarTime = 3000;
@@ -84,7 +84,12 @@
             $ingameErrorMessage = 'No chart keypoints.';
             return;
         }
-        
+
+        // Mirror keypoints so we don't have to mirror the camera later
+        const mirrored_keypoints = MirrorKeypoints($playGameKeypoints)
+        $playGameKeypoints = mirrored_keypoints;
+        $playGameMetadata.keypoints = mirrored_keypoints;
+
         // Unable to get camera access
         const stream = await RequestCameraAccess(localStorage.getItem(LOCALSTORE_CAMERAPREF_NAME));
         if (!stream) {
