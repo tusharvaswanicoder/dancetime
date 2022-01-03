@@ -46,6 +46,13 @@ export async function SetUser (req, res, next) {
             return;
         }
 
+        if (!process.env.CONTENT_MOD_ENDPOINT || !process.env.CONTENT_MOD_KEY) {
+            res.send({
+                error: "Failed to check username."
+            })
+            return;
+        }
+
         // Flagged by content moderator
         if (await IsReviewRecommended(username)) {
             res.send({

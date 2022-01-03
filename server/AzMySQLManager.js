@@ -156,7 +156,8 @@ class AzMySQLManager {
             password : process.env.MYSQL_DB_PW,
             database : DATABASE_NAME,
             debug    : process.env.DEBUG == 'TRUE',
-            ssl: true
+            ssl: true,
+            connectTimeout: 30000
         });
 
         for (const table_config of default_tables) {
