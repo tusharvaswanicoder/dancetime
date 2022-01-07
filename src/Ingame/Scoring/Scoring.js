@@ -43,15 +43,16 @@ export const AnalyzePoses = async (
     ingameAdjustedScoresValue,
     ingameJudgementTotalsValue,
     ingameRawJudgementsValue,
-    ingameCurrentJudgementValue
+    ingameCurrentJudgementValue,
+    playGameKeypointsValue
 ) => {
 
+    console.log(`num poses: ${poses.length}`)
     const promises = [];
-    for (let i = 0; i < max_poses; i++) {
-        const pose = poses[i];
-        const player_id = pose?.id || 0;
-
+    for (const pose of poses)
+    {
         const promise = new Promise(async (resolve, reject) => {
+            const player_id = pose?.id || 0;
             await AnalyzePose(
                 pose, 
                 currentTime,
@@ -60,7 +61,8 @@ export const AnalyzePoses = async (
                 ingameAdjustedScoresValue,
                 ingameJudgementTotalsValue,
                 ingameRawJudgementsValue,
-                ingameCurrentJudgementValue
+                ingameCurrentJudgementValue,
+                playGameKeypointsValue
             );
 
             ingameRawJudgements[player_id] = ingameRawJudgementsValue[player_id];
@@ -148,7 +150,8 @@ const AnalyzePose = async (
     ingameAdjustedScoresValue,
     ingameJudgementTotalsValue,
     ingameRawJudgementsValue,
-    ingameCurrentJudgementValue
+    ingameCurrentJudgementValue,
+    playGameKeypointsValue
 ) => {
     let is_miss = false;
 
@@ -187,7 +190,7 @@ const AnalyzePose = async (
         const group_scores = PoseComparisonFunc(
             groups,
             currentTime,
-            playGameMetadataValue
+            playGameKeypointsValue
         );
         if (!group_scores) {
             ingameRawJudgementsValue[player_id][currentTime] = JUDGEMENTS.MISS;

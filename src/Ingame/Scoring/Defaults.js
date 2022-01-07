@@ -1,7 +1,7 @@
 import { GROUP_TYPE } from './KeypointGroupSplits';
 
 // Accuracy scores must be above this to even be scored
-export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.4;
+export const DEFAULT_ACCURACY_SCORE_THRESHOLD = 0.3;
 
 // Amount of frames to lookback and average scores over to the the "current" frame's score
 export const DEFAULT_SCORE_AVG_FRAME_LOOKBACK = () => {

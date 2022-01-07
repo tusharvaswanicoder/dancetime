@@ -39,10 +39,10 @@ class TFJS {
         // Enable person tracking for multipose
         if (modelType == this.modelTypes.MULTIPOSE_LIGHTNING) {
             detectorConfig.enableTracking = true;
-            detectorConfig.trackerType = poseDetection.TrackerType.BoundingBox;
+            detectorConfig.trackerType = poseDetection.TrackerType.Keypoint;
             detectorConfig.trackerConfig = {
-                maxTracks: 20,
-                maxAge: 60 * 1000,
+                maxTracks: 50,
+                maxAge: 9999999,
                 minSimilarity: 0.1,
                 // keypointTrackerParams: {
                 //     keypointConfidenceThreshold: 0.4,

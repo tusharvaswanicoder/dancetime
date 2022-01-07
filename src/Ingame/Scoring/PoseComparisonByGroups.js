@@ -51,14 +51,14 @@ const GetWeightedAvgGroupScore = (group) => {
 };
 
 // Returns all the similarity scores for the past X frames in an array
-const GetShapeSimilarityWithLookback = (groups, currentTime, playGameMetadataValue) => {
+const GetShapeSimilarityWithLookback = (groups, currentTime, playGameKeypointsValue) => {
     const lookback_time_amount = GROUP_SCORE_TIME_LOOKBACK();
     const lookback_interval = lookback_time_amount / 10;
     let all_similarity_scores = [];
 
     for (let time = currentTime; time > currentTime - lookback_time_amount; time -= lookback_interval) {
         const videoFrameKeypoints = GetKeypointsForTime(
-            playGameMetadataValue.keypoints,
+            playGameKeypointsValue,
             time
         );
 
@@ -243,9 +243,9 @@ const GetGroups_NoOutliersUpperHalf = (
 const GetGroups_NoOutliersTopScore = (
     groups,
     currentTime,
-    playGameMetadataValue
+    playGameKeypointsValue
 ) => {
-    const all_similarity_scores = GetShapeSimilarityWithLookback(groups, currentTime, playGameMetadataValue);
+    const all_similarity_scores = GetShapeSimilarityWithLookback(groups, currentTime, playGameKeypointsValue);
     const all_weighted_avg_scores = GetWeightedAvgGroupsScores(all_similarity_scores);
     const all_similarity_scores_no_outliers = RemoveWeightedAvgOutliers(all_similarity_scores, all_weighted_avg_scores);
 

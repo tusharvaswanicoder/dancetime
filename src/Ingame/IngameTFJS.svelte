@@ -17,7 +17,8 @@
         ingameShouldScore,
         ingameNumStars,
         ingameVideoPlayer,
-        ingameCurrentJudgement
+        ingameCurrentJudgement,
+        playGameKeypoints
     } from '../stores';
     import { sleep, GetVideoStartAndEndTimeFromMetadata, GetScoringZoneEnabledAtTime } from '../utils';
     import { AnalyzePoses } from './Scoring/Scoring';
@@ -66,7 +67,8 @@
                 $ingameAdjustedScores,
                 $ingameJudgementTotals,
                 $ingameRawJudgements,
-                $ingameCurrentJudgement
+                $ingameCurrentJudgement,
+                $playGameKeypoints
             );
         }
 

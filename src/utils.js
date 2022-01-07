@@ -503,19 +503,24 @@ keypoints: {
     },
 }
 */
+
+import { SortKeypointsByName } from './Ingame/Scoring/KeypointGroupSplits';
+
 export const MirrorKeypoints = (keypoints) => {
     // Mirror keypoints horizontally so no post processing is needed for the webcam feed later
-    // return keypoints;
     const mirrored_keypoints = {};
     for (const timestamp in keypoints) {
         mirrored_keypoints[timestamp] = {
             ...keypoints[timestamp],
-            keypoints: keypoints[timestamp].keypoints.map((keypoint) => {
+            keypoints: SortKeypointsByName(keypoints[timestamp].keypoints.map((keypoint) => {
                 return {
                     ...keypoint,
-                    x: 1920 - keypoint.x
+                    x: 1920 - keypoint.x,
+                    name: keypoint.name.includes('right') ? 
+                        keypoint.name.replace('right', 'left') :
+                        keypoint.name.replace('left', 'right')
                 }
-            })
+            }))
         }
     }
     
