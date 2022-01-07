@@ -32,8 +32,8 @@ export const default_tables = [
                         visibility VARCHAR(20), 
                         version INTEGER, 
                         tags BLOB, 
-                        components BLOB, 
-                        keypoints MEDIUMBLOB, 
+                        components MEDIUMBLOB, 
+                        keypoints LONGBLOB, 
                         user_id INTEGER,
                         FOREIGN KEY (user_id) REFERENCES users(user_id))`
     },
@@ -55,8 +55,8 @@ export const default_tables = [
                         visibility VARCHAR(20), 
                         version INTEGER, 
                         tags BLOB, 
-                        components BLOB, 
-                        keypoints MEDIUMBLOB,
+                        components MEDIUMBLOB, 
+                        keypoints LONGBLOB,
                         user_id INTEGER,
                         FOREIGN KEY (user_id) REFERENCES users(user_id))`
     },
