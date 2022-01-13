@@ -41,13 +41,17 @@ class TFJS {
             detectorConfig.enableTracking = true;
             detectorConfig.trackerType = poseDetection.TrackerType.Keypoint;
             detectorConfig.trackerConfig = {
-                maxTracks: 50,
+                maxTracks: 20,
                 maxAge: 9999999,
-                minSimilarity: 0.1,
-                // keypointTrackerParams: {
-                //     keypointConfidenceThreshold: 0.4,
-                //     minNumberOfKeypoints: 10
-                // }
+                minSimilarity: 0.05,
+                keypointTrackerParams: {
+                    keypointConfidenceThreshold: 0.1, // Default 0.3
+                    minNumberOfKeypoints: 10, // Minimum keypoints needed - omit face
+                    keypointFalloff: [ // Default
+                        0.026, 0.025, 0.025, 0.035, 0.035, 0.079, 0.079, 0.072, 0.072, 0.062,
+                        0.062, 0.107, 0.107, 0.087, 0.087, 0.089, 0.089
+                    ]
+                }
             }
             // Potentially use detectorConfig.trackerConfig
             // https://github.com/tensorflow/tfjs-models/blob/master/pose-detection/src/calculators/tracker.md
