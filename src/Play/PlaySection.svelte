@@ -8,6 +8,7 @@
         groupmodeStateStore,
         songWheelSelectedCategory,
         songWheelChartMetadata,
+        songWheelSelectedChartMetadata,
         songWheelCategoryCurrentIndex
     } from "../stores";
     import { GROUP_MODES, SONG_WHEEL_CATEGORIES, SONG_WHEEL_CATEGORY_INFO } from "../constants";
@@ -17,6 +18,12 @@
         $selectedInitialGamemode = false;
         $modeStateStore = null;
         $groupmodeStateStore = null;
+        
+        // Reset song wheel when exiting so it will refresh when loaded again
+        $songWheelSelectedCategory = null;
+        $songWheelChartMetadata = {};
+        $songWheelCategoryCurrentIndex = {};
+        $songWheelSelectedChartMetadata = null;
     };
 
     let currentGroupMode;
