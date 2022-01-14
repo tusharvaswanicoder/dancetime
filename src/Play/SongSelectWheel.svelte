@@ -20,6 +20,7 @@
 
     onMount(() => {
         $songWheelSelectedCategory = SONG_WHEEL_CATEGORIES.POPULAR;
+        refreshChartThumbnails();
     })
 
     const refreshChartThumbnails = async () => {
@@ -33,17 +34,18 @@
                 const chart_metadata = $songWheelChartMetadata[category_id][index];
 
                 if (!thumbnails[category_id][chart_metadata.video_id]) {
-                    const thumbnail_links = await getAvailableThumbnails(chart_metadata.video_id);
-                    thumbnails[category_id][chart_metadata.video_id] = {thumbnail_link: thumbnail_links[thumbnail_links.length - 1], index};
+                    getAvailableThumbnails(chart_metadata.video_id).then((thumbnail_links) => {
+                        thumbnails[category_id][chart_metadata.video_id] = {thumbnail_links, index};
+                        refreshImagesToDisplay();
+                    })
                 }
 
             }
         }
 
-        refreshImagesToDisplay();
         loading_images = false;
     }
-
+    
     const refreshImagesToDisplay = () => {
         if (!$songWheelSelectedCategory || !thumbnails[$songWheelSelectedCategory]) {
             return;
@@ -51,7 +53,7 @@
 
         images_to_display = Object.values(thumbnails[$songWheelSelectedCategory])
             .sort((a, b) => a.index - b.index)
-            .map((entry) => entry.thumbnail_link);
+            .map((entry) => entry.thumbnail_links);
     }
 
     $: {

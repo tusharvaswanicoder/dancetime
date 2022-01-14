@@ -16,7 +16,7 @@ export const getAllYoutubeThumbnailURLs = (youtubeID) => {
         "sddefault.jpg",
         "hqdefault.jpg",
         "mqdefault.jpg",
-        // "maxresdefault.jpg"
+        "maxresdefault.jpg"
     ]
 
     let urlTemplate = `https://img.youtube.com/vi/${videoId}/`

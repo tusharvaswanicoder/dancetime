@@ -8,29 +8,21 @@
         groupmodeStateStore,
         songWheelSelectedCategory,
         songWheelChartMetadata,
-        songWheelSelectedChartMetadata,
         songWheelCategoryCurrentIndex
     } from "../stores";
     import { GROUP_MODES, SONG_WHEEL_CATEGORIES, SONG_WHEEL_CATEGORY_INFO } from "../constants";
-    import { onMount } from "svelte";
 
     const onClickBackArrow = () => {
         $selectedInitialGamemode = false;
         $modeStateStore = null;
         $groupmodeStateStore = null;
-        
-        // Reset song wheel when exiting so it will refresh when loaded again
-        $songWheelSelectedCategory = null;
-        $songWheelChartMetadata = {};
-        $songWheelCategoryCurrentIndex = {};
-        $songWheelSelectedChartMetadata = null;
     };
 
     let currentGroupMode;
     $: currentGroupMode = GROUP_MODES.find(
         (v) => v.state == $groupmodeStateStore
     );
-
+    
     // Every time the song category changes, the charts are fetched from the server
     const refreshSongCategoryCharts = (category_id) => {
         if (typeof category_id == 'undefined') {

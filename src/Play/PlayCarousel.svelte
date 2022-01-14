@@ -91,15 +91,44 @@
         $songWheelSelectedCategory,
         shouldTransition = false
     }
+    
+    // Ordering matters since they all have "default.jpg" in them
+    const sizemap = {
+        ["maxresdefault.jpg"]: "2000w",
+        ["mqdefault.jpg"]: "1000w",
+        ["hqdefault.jpg"]: "500w",
+        ["sddefault.jpg"]: "250w",
+        ["default.jpg"]: "100w"
+    }
+    
+    const getSrcSet = (image_urls) => {
+        
+        const getSizemapFromUrl = (url) => {
+            for (const img_size in sizemap) {
+                if (url.includes(img_size)) {
+                    return sizemap[img_size];
+                }
+            }
+            return sizemap["default.jpg"];
+        }
+        
+        let srcset_str = "";
+        
+        for (const img_url of image_urls) {
+            srcset_str += `${img_url} ${getSizemapFromUrl(img_url)},`
+        }
+        
+        return srcset_str;
+    }
 </script>
 
 <main style={`--gap: ${gap}px; ${style}`}>
     <div class='images-container' class:transition={shouldTransition} style={`transform: translateX(calc(${transform}));`}>
         {#if images.length > 0}
-            {#each images as image_url, i}
+            {#each images as image_urls, i}
                 <div class='image-container' in:fade={{delay: 100 * i}} on:click={() => clickImage(i)} class:selected={i == current_image_index} style={`--image-size: ${image_size}px;`}>
                     <!-- svelte-ignore a11y-missing-attribute -->
-                    <img src={image_url} />
+                    <img srcset={getSrcSet(image_urls)} src={image_urls[image_urls.length - 1]} />
                     {#if i == current_image_index}
                         <div class='playtest-icon-container'>
                             <span class="playtest-icon" on:click={clickPlayButton}>
@@ -184,6 +213,9 @@
         height: 100%;
         width: 100%;
         object-fit: cover;
+        user-select: none;
+        pointer-events: none;
+        -webkit-user-drag: none;
     }
 
     div.playtest-icon-container {
