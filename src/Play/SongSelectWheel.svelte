@@ -7,7 +7,7 @@
     import { onMount } from "svelte";
     import { songWheelSelectedCategory, songWheelChartMetadata } from '../stores';
     import { getCategoryColorVars } from '../utils';
-    import { getAvailableThumbnails } from './YoutubeThumbnails';
+    import { getAvailableThumbnails, getAllYoutubeThumbnailURLs } from './YoutubeThumbnails';
 
     const thumbnails = {};
     let images_to_display = [];
@@ -34,12 +34,11 @@
                 const chart_metadata = $songWheelChartMetadata[category_id][index];
 
                 if (!thumbnails[category_id][chart_metadata.video_id]) {
-                    getAvailableThumbnails(chart_metadata.video_id).then((thumbnail_links) => {
-                        thumbnails[category_id][chart_metadata.video_id] = {thumbnail_links, index};
-                        refreshImagesToDisplay();
-                    })
+                    // getAvailableThumbnails(chart_metadata.video_id).then((thumbnail_links) => {
+                    const thumbnail_links = getAllYoutubeThumbnailURLs(chart_metadata.video_id);
+                    thumbnails[category_id][chart_metadata.video_id] = {thumbnail_links, index};
+                    refreshImagesToDisplay();
                 }
-
             }
         }
 
