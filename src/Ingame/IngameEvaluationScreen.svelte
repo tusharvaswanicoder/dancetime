@@ -47,10 +47,11 @@
     div.content {
         display: grid;
         place-items: center;
-        gap: 30px;
         width: fit-content;
         max-width: 75%;
         height: fit-content;
+        grid-template-columns: 1fr 1fr;
+        gap: 10vw;
     }
 
 </style>

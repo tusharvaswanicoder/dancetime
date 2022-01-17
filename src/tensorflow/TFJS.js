@@ -41,9 +41,9 @@ class TFJS {
             detectorConfig.enableTracking = true;
             detectorConfig.trackerType = poseDetection.TrackerType.Keypoint;
             detectorConfig.trackerConfig = {
-                maxTracks: 20,
+                maxTracks: 50,
                 maxAge: 9999999,
-                minSimilarity: 0.05,
+                minSimilarity: 0.01,
                 keypointTrackerParams: {
                     keypointConfidenceThreshold: 0.1, // Default 0.3
                     minNumberOfKeypoints: 10, // Minimum keypoints needed - omit face

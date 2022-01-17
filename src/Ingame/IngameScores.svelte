@@ -15,7 +15,7 @@
     {:else}
         {#each Object.keys($ingameCurrentJudgement).slice(0, 6) as player_id}
             <IngamePlayerScore player_data={{
-                name: `Player ${player_id}`,
+                name: `Dancer ${player_id}`,
                 judgement: $ingameCurrentJudgement[player_id],
                 num_stars: $ingameNumStars[player_id]
             }} />
@@ -26,5 +26,7 @@
 <style>
     main {
         position: relative;
+        display: grid;
+        gap: 10px;
     }
 </style>

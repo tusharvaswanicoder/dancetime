@@ -21,6 +21,7 @@ import {
 } from './Judgements';
 import { DEFAULT_ACCURACY_SCORE_THRESHOLD } from './Defaults';
 import { GROUP_MODES_MAX_PLAYERS } from '../../constants';
+import { RecordIdsOnFrame, GetOriginalIdFromId } from './MultiScoreManager';
 
 /**
  * Takes an array of poses and calls AnalyzePose on all of them.
@@ -48,13 +49,21 @@ export const AnalyzePoses = async (
 ) => {
 
     console.log(`num poses: ${poses.length}`)
+    
+    const pose_ids = poses.map((pose) => pose.id);
+    RecordIdsOnFrame(pose_ids);
+    console.log(`pose ids: ${pose_ids.join(" ")}`);
+    
     const promises = [];
     for (const pose of poses)
     {
         const promise = new Promise(async (resolve, reject) => {
-            const player_id = pose?.id || 0;
+            const pose_id = pose?.id || 0;
+            const player_id = GetOriginalIdFromId(pose_id, max_poses);
+            console.log(`pose_id: ${pose_id} player_id: ${player_id}`)
             await AnalyzePose(
                 pose, 
+                player_id,
                 currentTime,
                 playGameMetadataValue,
                 ingameRawScoresValue,
@@ -144,6 +153,7 @@ export const AnalyzePoses = async (
  */
 const AnalyzePose = async (
     pose,
+    player_id,
     currentTime,
     playGameMetadataValue,
     ingameRawScoresValue,
@@ -154,13 +164,6 @@ const AnalyzePose = async (
     playGameKeypointsValue
 ) => {
     let is_miss = false;
-
-    // Pose may contain a .id field in MULTIPOSE situations
-    // If it does not, default to index 0 for scoring
-    // Otherwise, use .id to assign the scores to the correct person
-
-    const player_id = pose?.id || 0;
-    // console.log(`player_id: ${player_id}`);
 
     // False positive on another player, do not add
     if (!ingameRawJudgementsValue[player_id] && pose?.score < DEFAULT_ACCURACY_SCORE_THRESHOLD) {

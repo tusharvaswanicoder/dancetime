@@ -75,25 +75,30 @@
         if (!$ingameEvalScreenShouldShow) {
             raf = window.requestAnimationFrame(onFrame);
         } else {
-            const startEndTime =
-                GetVideoStartAndEndTimeFromMetadata($playGameMetadata);
-            const scoringDuration = GetScoringDurationFromInOutScoringAreas(
-                $playGameMetadata.duration,
-                startEndTime.start,
-                startEndTime.end,
-                scoring_areas_component
-            );
-
-            for (const player_id in Object.keys($ingameJudgementTotals)) {
-                $ingameFinalScores[player_id] = GetTotalFinalScore(
-                    $ingameJudgementTotals[player_id],
-                    scoringDuration
-                );
-            }
+            finishGame();
         }
 
         first_frame_run = true;
     };
+    
+    // Called when the game finishes and scores should be calculated and shown
+    const finishGame = () => {
+        const startEndTime =
+            GetVideoStartAndEndTimeFromMetadata($playGameMetadata);
+        const scoringDuration = GetScoringDurationFromInOutScoringAreas(
+            $playGameMetadata.duration,
+            startEndTime.start,
+            startEndTime.end,
+            scoring_areas_component
+        );
+
+        for (const player_id of Object.keys($ingameJudgementTotals)) {
+            $ingameFinalScores[player_id] = GetTotalFinalScore(
+                $ingameJudgementTotals[player_id],
+                scoringDuration
+            );
+        }
+    }
 
     const startTFJS = async () => {
         while (

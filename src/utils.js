@@ -347,7 +347,7 @@ export const GetVideoEndTimeFromMetadata = (metadata) => {
 
 // Returns the next previous keyframe key from the time given
 export const GetScoringZoneEnabledPrevKeyframe = (time, keyframes, ignore_same_time) => {
-    if (!keyframes) {
+    if (!keyframes || Object.keys(keyframes).length == 0) {
         return;
     }
 
@@ -412,7 +412,7 @@ export const GetScoringZoneEnabledPrevKeyframe = (time, keyframes, ignore_same_t
 
 // Returns the next closest keyframe key from the time given
 export const GetScoringZoneEnabledNextKeyframe = (time, keyframes, ignore_same_time) => {
-    if (!keyframes) {
+    if (!keyframes || Object.keys(keyframes).length == 0) {
         return;
     }
 
@@ -472,6 +472,10 @@ export const GetScoringZoneEnabledNextKeyframe = (time, keyframes, ignore_same_t
 }
 
 export const GetScoringZoneEnabledAtTime = (time, keyframes) => {
+    if (Object.keys(keyframes).length == 0) {
+        return true;
+    }
+    
     const key = GetScoringZoneEnabledPrevKeyframe(time, keyframes);
     if (key) {
         return keyframes[key];
