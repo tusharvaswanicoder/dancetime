@@ -472,6 +472,10 @@ export const GetScoringZoneEnabledNextKeyframe = (time, keyframes, ignore_same_t
 }
 
 export const GetScoringZoneEnabledAtTime = (time, keyframes) => {
+    if (Object.keys(keyframes).length == 0) {
+        return true;
+    }
+    
     const key = GetScoringZoneEnabledPrevKeyframe(time, keyframes);
     if (key) {
         return keyframes[key];
@@ -482,4 +486,47 @@ export const GetScoringZoneEnabledAtTime = (time, keyframes) => {
 
 export const getCategoryColorVars = (category) => {
     return `--color1: ${SONG_WHEEL_CATEGORY_INFO[category].colors[0]}; --color2: ${SONG_WHEEL_CATEGORY_INFO[category].colors[1]}`;
+}
+
+// Mirrors the X values of keypoints
+// Assumes X keypoints are in the 0-1920 range
+// Expects keypoints to look like:
+/*
+keypoints: {
+    ["0.00"]: {
+        keypoints: [
+            {x: 57, y: 57, score: 0.3},
+            {x: 57, y: 57, score: 0.3},
+        ]
+    },
+    ["2.30"]: {
+        keypoints: [
+            {x: 57, y: 57, score: 0.3},
+            {x: 57, y: 57, score: 0.3},
+        ]
+    },
+}
+*/
+
+import { SortKeypointsByName } from './Ingame/Scoring/KeypointGroupSplits';
+
+export const MirrorKeypoints = (keypoints) => {
+    // Mirror keypoints horizontally so no post processing is needed for the webcam feed later
+    const mirrored_keypoints = {};
+    for (const timestamp in keypoints) {
+        mirrored_keypoints[timestamp] = {
+            ...keypoints[timestamp],
+            keypoints: SortKeypointsByName(keypoints[timestamp].keypoints.map((keypoint) => {
+                return {
+                    ...keypoint,
+                    x: 1920 - keypoint.x,
+                    name: keypoint.name.includes('right') ? 
+                        keypoint.name.replace('right', 'left') :
+                        keypoint.name.replace('left', 'right')
+                }
+            }))
+        }
+    }
+    
+    return mirrored_keypoints;
 }

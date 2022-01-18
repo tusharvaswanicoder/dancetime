@@ -1,18 +1,32 @@
 <script>
     import IngamePlayerScore from "./IngamePlayerScore.svelte";
-    import { ingameCurrentJudgement } from '../stores';
+    import { ingameCurrentJudgement, groupmodeStateStore, ingameNumStars } from '../stores';
+    import { USER } from '../Auth';
+    import { GROUP_STATE } from '../constants';
 </script>
 
 <main>
-    <IngamePlayerScore player_data={{
-        name: 'benank',
-        judgement: $ingameCurrentJudgement
-    }} />
-    <!-- TODO: limit number of player scores displayed so they don't over flow -->
+    {#if $groupmodeStateStore == GROUP_STATE.SOLO}
+        <IngamePlayerScore player_data={{
+            name: $USER.username,
+            judgement: $ingameCurrentJudgement[0],
+            num_stars: $ingameNumStars[0]
+        }} />
+    {:else}
+        {#each Object.keys($ingameCurrentJudgement).slice(0, 6) as player_id}
+            <IngamePlayerScore player_data={{
+                name: `Dancer ${player_id}`,
+                judgement: $ingameCurrentJudgement[player_id],
+                num_stars: $ingameNumStars[player_id]
+            }} />
+        {/each}
+    {/if}
 </main>
 
 <style>
     main {
         position: relative;
+        display: grid;
+        gap: 10px;
     }
 </style>

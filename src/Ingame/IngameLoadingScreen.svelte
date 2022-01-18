@@ -1,7 +1,7 @@
 <script>
     import { cubicOut } from "svelte/easing";
     import { fade, fly } from "svelte/transition";
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
     import { GAMESTATE, LOCALSTORE_CAMERAPREF_NAME } from "../constants";
     import {
         settingsOpen,
@@ -17,7 +17,7 @@
         ingameShouldScore,
         ingameVideoPlayer
     } from "../stores";
-    import { HasCameraAccess, RequestCameraAccess, sleep, GetVideoStartTimeFromMetadata } from "../utils";
+    import { HasCameraAccess, RequestCameraAccess, sleep, MirrorKeypoints } from "../utils";
 
     let preLoadbarTime = 2200;
     let loadbarTime = 3000;
@@ -64,7 +64,6 @@
 
             if (keypoints_result.keypoints) {
                 $playGameKeypoints = keypoints_result.keypoints;
-                $playGameMetadata.keypoints = $playGameKeypoints;
                 $ingameErrorMessage = null;
                 // TODO: cache these keypoints somewhere so if they play again they don't have to wait for download
             } else if (keypoints_result.error) {
@@ -84,7 +83,11 @@
             $ingameErrorMessage = 'No chart keypoints.';
             return;
         }
-        
+
+        // Mirror keypoints so we don't have to mirror the camera later
+        const mirrored_keypoints = MirrorKeypoints($playGameKeypoints)
+        $playGameKeypoints = mirrored_keypoints;
+
         // Unable to get camera access
         const stream = await RequestCameraAccess(localStorage.getItem(LOCALSTORE_CAMERAPREF_NAME));
         if (!stream) {
@@ -168,7 +171,7 @@
             class="loading-bar"
             style={`--loadbar-delay: ${preLoadbarTime}ms; --loadbar-duration: ${loadbarTime}ms;`}
         />
-        <h3 in:fly={{ delay: 8000, duration: 1200, y: -50 }}>
+        <h3 in:fly={{ delay: 15000, duration: 1200, y: -50 }}>
             Press Enter to adjust settings.
         </h3>
     </div>

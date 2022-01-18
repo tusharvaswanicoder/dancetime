@@ -31,7 +31,6 @@ export const ingameScreenShouldShow = writable(false);
 export const ingameErrorMessage = writable();
 export const ingameTime = writable(0);
 export const ingameCamera = writable();
-export const ingameCameraCanvas = writable();
 export const TFJSReady = writable(false);
 export const ingameShouldScore = writable(false);
 
@@ -39,11 +38,13 @@ export const ingameShouldScore = writable(false);
 export const ingameRawScores = writable({});
 export const ingameAdjustedScores = writable({});
 export const ingameCurrentJudgement = writable();
-export const ingameFinalScore = writable(0);
+export const ingameFinalScores = writable({});
 export const ingameEvalScreenShouldShow = writable(false);
 export const ingameJudgementTotals = writable({});
 export const ingameRawJudgements = writable({});
-export const ingameNumStars = writable(0);
+export const ingameNumStars = writable({});
+export const ingamePlayerPortraits = writable({});
+
 
 export const testIngameScores = writable('');
 

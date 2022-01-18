@@ -60,9 +60,9 @@
         height: fit-content;
         top: 0;
         left: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 40px;
+        display: grid;
+        grid-template-rows: 300px 1fr;
+        gap: 20px;
         max-height: 45%;
     }
 </style>
