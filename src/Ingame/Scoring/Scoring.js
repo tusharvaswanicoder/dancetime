@@ -57,26 +57,29 @@ export const AnalyzePoses = async (
         const promise = new Promise(async (resolve, reject) => {
             const pose_id = pose?.id || 0;
             const player_id = GetOriginalIdFromId(pose_id, max_poses);
-            pose.player_id = player_id;
-            await AnalyzePose(
-                pose, 
-                player_id,
-                currentTime,
-                playGameMetadataValue,
-                ingameRawScoresValue,
-                ingameAdjustedScoresValue,
-                ingameJudgementTotalsValue,
-                ingameRawJudgementsValue,
-                ingameCurrentJudgementValue,
-                playGameKeypointsValue
-            );
+            
+            if (player_id) {
+                pose.player_id = player_id;
+                await AnalyzePose(
+                    pose, 
+                    player_id,
+                    currentTime,
+                    playGameMetadataValue,
+                    ingameRawScoresValue,
+                    ingameAdjustedScoresValue,
+                    ingameJudgementTotalsValue,
+                    ingameRawJudgementsValue,
+                    ingameCurrentJudgementValue,
+                    playGameKeypointsValue
+                );
 
-            ingameRawJudgements[player_id] = ingameRawJudgementsValue[player_id];
-            ingameRawScores[player_id] = ingameRawScoresValue[player_id];
-            ingameAdjustedScores[player_id] = ingameAdjustedScoresValue[player_id];
-            ingameJudgementTotals[player_id] = ingameJudgementTotalsValue[player_id];
-            ingameCurrentJudgement[player_id] = ingameCurrentJudgementValue[player_id];
-
+                ingameRawJudgements[player_id] = ingameRawJudgementsValue[player_id];
+                ingameRawScores[player_id] = ingameRawScoresValue[player_id];
+                ingameAdjustedScores[player_id] = ingameAdjustedScoresValue[player_id];
+                ingameJudgementTotals[player_id] = ingameJudgementTotalsValue[player_id];
+                ingameCurrentJudgement[player_id] = ingameCurrentJudgementValue[player_id];
+            }
+            
             resolve();
         })
 

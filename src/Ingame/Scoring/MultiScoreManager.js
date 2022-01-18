@@ -19,7 +19,6 @@ export const RecordIdsOnFrame = (pose_ids) => {
             const new_id = new_ids[i];
             const original_id = typeof missing_original_ids[i] == 'undefined' ? missing_original_ids[0] : missing_original_ids[i];
             ID_CORRELATION_MAP[new_id] = original_id;
-            console.log(`CORRELATE id ${new_id} to ${original_id}`);
         }
     }
 }
@@ -42,7 +41,7 @@ export const GetOriginalIdFromId = (pose_id, max_poses) => {
     }
     
     console.warn(`Failed to get original ID from id ${pose_id}`);
-    return pose_id;
+    // return pose_id;
 }
 
 export const ResetMultiScores = () => {

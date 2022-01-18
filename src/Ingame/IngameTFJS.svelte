@@ -42,6 +42,10 @@
         scoring_areas_component = $playGameMetadata.components.find((component) => component.type == COMPONENT_TYPE.SCORING_AREAS)
     }
 
+    // Check every X seconds for new thumbnails
+    const thumbnail_check_interval = 2000;
+    let last_thumbnail_check = new Date().getTime();
+    
     const onFrame = async () => {
         const time = $ingameTime;
         const poses = await tfjs.detectFrame($ingameCamera);
@@ -73,21 +77,8 @@
                 $playGameKeypoints
             );
             
-            const player_ids = Object.keys($ingameJudgementTotals);
-            const num_portraits = Object.keys($ingamePlayerPortraits).length;
-            if (player_ids.length > num_portraits) {
-                // Get player thumbnails
-                for (const pose of poses) {
-                    if (pose.player_id && !$ingamePlayerPortraits[pose.player_id]) {
-                        const player_portrait = await GetPlayerPortrait($ingameCamera, pose);
-                        if (player_portrait) {
-                            const url = URL.createObjectURL(player_portrait);
-                            $ingamePlayerPortraits[pose.player_id] = url;
-                            // TODO: release image urls
-                        }
-                    }
-                }
-            }
+            // Must do this AFTER AnalyzePoses because AnalyzePoses assigns player_id to poses
+            ensurePlayerPortraitsExist(poses);
         }
 
         if (!$ingameEvalScreenShouldShow) {
@@ -98,6 +89,35 @@
 
         first_frame_run = true;
     };
+    
+    // Makes sure that we get pics of the players in COUPLE mode to display at the end
+    const ensurePlayerPortraitsExist = async (poses) => {
+        const player_ids = Object.keys($ingameJudgementTotals);
+        const current_time = new Date().getTime();
+        if (player_ids.length == 0) {
+            last_thumbnail_check = current_time;
+        }
+        
+        if (current_time - last_thumbnail_check > thumbnail_check_interval) {
+            last_thumbnail_check = current_time;
+            
+            const num_portraits = Object.keys($ingamePlayerPortraits).length;
+            if (player_ids.length > num_portraits) {
+                // Get player thumbnails
+                for (const pose of poses) {
+                    if (pose.player_id && !$ingamePlayerPortraits[pose.player_id]) {
+                        const player_portrait = await GetPlayerPortrait($ingameCamera, pose);
+                        if (player_portrait) {
+                            const url = URL.createObjectURL(player_portrait);
+                            $ingamePlayerPortraits[pose.player_id] = url;
+                            break; // Only do one image per frame - otherwise, pose may not match current frame
+                            // TODO: release image urls
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     // Called when the game finishes and scores should be calculated and shown
     const finishGame = () => {

@@ -99,7 +99,7 @@
     div.score-container {
         display: flex;
         flex-direction: column;
-        height: 500px;
+        height: 600px;
         position: relative;
         place-content: center;
     }
@@ -121,7 +121,7 @@
         border-radius: 500px;
         aspect-ratio: 1 / 1;
         overflow: hidden;
-        width: 50%;
+        width: 75%;
         border: 8px solid white;
         margin-bottom: 20px;
     }

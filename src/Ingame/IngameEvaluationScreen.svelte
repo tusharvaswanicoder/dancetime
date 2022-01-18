@@ -223,7 +223,7 @@
         width: fit-content;
         max-width: 90%;
         height: fit-content;
-        grid-template-columns: repeat(var(--num-players), 1fr);
+        grid-template-columns: repeat(var(--num-players), min-content);
         gap: 15vw;
     }
 </style>
