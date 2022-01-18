@@ -60,7 +60,8 @@
 
     main section {
         position: relative;
-        filter: drop-shadow(
+        /* Text becomes blurry if drop shadow filters are applied */
+        /* filter: drop-shadow(
                 0.6px 0px 0.7px hsl(var(--shadow-color) / var(--shadow-opacity))
             )
             drop-shadow(
@@ -73,7 +74,7 @@
             drop-shadow(
                 11.2px 0.4px 12.6px
                     hsl(var(--shadow-color) / var(--shadow-opacity))
-            );
+            ); */
         flex: 1;
         display: grid;
         grid-template-columns: 1fr;

@@ -48,11 +48,8 @@ export const AnalyzePoses = async (
     playGameKeypointsValue
 ) => {
 
-    console.log(`num poses: ${poses.length}`)
-    
-    const pose_ids = poses.map((pose) => pose.id);
+    const pose_ids = poses.map((pose) => pose.id || 0);
     RecordIdsOnFrame(pose_ids);
-    console.log(`pose ids: ${pose_ids.join(" ")}`);
     
     const promises = [];
     for (const pose of poses)
@@ -60,7 +57,7 @@ export const AnalyzePoses = async (
         const promise = new Promise(async (resolve, reject) => {
             const pose_id = pose?.id || 0;
             const player_id = GetOriginalIdFromId(pose_id, max_poses);
-            console.log(`pose_id: ${pose_id} player_id: ${player_id}`)
+            pose.player_id = player_id;
             await AnalyzePose(
                 pose, 
                 player_id,

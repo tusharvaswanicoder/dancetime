@@ -18,7 +18,8 @@
         ingameNumStars,
         ingameVideoPlayer,
         ingameCurrentJudgement,
-        playGameKeypoints
+        playGameKeypoints,
+        ingamePlayerPortraits
     } from '../stores';
     import { sleep, GetVideoStartAndEndTimeFromMetadata, GetScoringZoneEnabledAtTime } from '../utils';
     import { AnalyzePoses } from './Scoring/Scoring';
@@ -30,8 +31,9 @@
         GetScoringDurationFromInOutScoringAreas
     } from './Scoring/Judgements';
     import { COMPONENT_TYPE, GROUP_STATE, GROUP_MODES_MAX_PLAYERS } from '../constants';
+    import { GetPlayerPortrait } from './CapturePlayerPortrait';
     
-    const shouldDisplayDebugScores = true;
+    const shouldDisplayDebugScores = false;
 
     let raf;
     let first_frame_run = false;
@@ -70,6 +72,22 @@
                 $ingameCurrentJudgement,
                 $playGameKeypoints
             );
+            
+            const player_ids = Object.keys($ingameJudgementTotals);
+            const num_portraits = Object.keys($ingamePlayerPortraits).length;
+            if (player_ids.length > num_portraits) {
+                // Get player thumbnails
+                for (const pose of poses) {
+                    if (pose.player_id && !$ingamePlayerPortraits[pose.player_id]) {
+                        const player_portrait = await GetPlayerPortrait($ingameCamera, pose);
+                        if (player_portrait) {
+                            const url = URL.createObjectURL(player_portrait);
+                            $ingamePlayerPortraits[pose.player_id] = url;
+                            // TODO: release image urls
+                        }
+                    }
+                }
+            }
         }
 
         if (!$ingameEvalScreenShouldShow) {
@@ -143,7 +161,7 @@
 
     // Update stars as judgements change
     $: {
-        for (const player_id in Object.keys($ingameJudgementTotals)) {
+        for (const player_id of Object.keys($ingameJudgementTotals)) {
             $ingameNumStars[player_id] = UpdateNumStars($ingameJudgementTotals[player_id]);
         }
     }

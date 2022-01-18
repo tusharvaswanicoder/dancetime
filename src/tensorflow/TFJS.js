@@ -30,7 +30,6 @@ class TFJS {
             this.detector = this.detector.dispose();
         }
         
-        console.log(`using modelType: ${modelType}`)
         this.modelType = modelType;
         const detectorConfig = {
             modelType
@@ -60,9 +59,6 @@ class TFJS {
         if (minPoseScore) {
             detectorConfig.minPoseScore = minPoseScore;
         }
-
-        console.log(`Creating detector with config:`)
-        console.log(detectorConfig);
 
         this.detector = await poseDetection.createDetector(
             poseDetection.SupportedModels.MoveNet,

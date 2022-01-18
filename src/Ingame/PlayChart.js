@@ -15,7 +15,8 @@ import {
     ingameRawJudgements,
     ingameShouldScore,
     ingameNumStars,
-    ingameVideoPlayer
+    ingameVideoPlayer,
+    ingamePlayerPortraits
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
@@ -34,6 +35,7 @@ export const PlayChart = async (metadata, keypoints) => {
     ingameShouldScore.set(false);
     ingameNumStars.set({});
     ingameVideoPlayer.set(null);
+    ingamePlayerPortraits.set({});
 
     playGameMetadata.set(metadata);
     playGameKeypoints.set(keypoints);

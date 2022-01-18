@@ -14,7 +14,8 @@
     // import { onMount } from "svelte";
     
     // onMount(() => {
-    //     $ingameFinalScores = 95;
+    //     $ingameFinalScores[0] = 95;
+    //     $ingameFinalScores[1] = 87;
     // })
 
     // Update with a new unique key when the toggle changes so it resets internal component state vars
