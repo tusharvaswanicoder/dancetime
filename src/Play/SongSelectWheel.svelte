@@ -43,9 +43,12 @@
         }
 
         loading_images = false;
+        refreshImagesToDisplay();
     }
     
     const refreshImagesToDisplay = () => {
+        images_to_display = [];
+        
         if (!$songWheelSelectedCategory || !thumbnails[$songWheelSelectedCategory]) {
             return;
         }
