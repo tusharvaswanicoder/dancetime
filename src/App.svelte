@@ -1,6 +1,7 @@
 <script>
     import LandingContent from "./LandingContent.svelte"
     import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
+    import LoadingScreen from './LoadingScreen.svelte';
     import { onMount } from "svelte";
     import { GAMESTATE } from "./constants";
     import { keyPress, keyDown, message, settingsOpen, gameState } from "./stores";
@@ -41,6 +42,8 @@
             <NotLoggedInLanding />
         {/if}
     </main>
+{:else}
+    <LoadingScreen />
 {/if}
 
 <style>
