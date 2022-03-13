@@ -1,4 +1,4 @@
-import azMySQLManager from './AzMySQLManager.js';
+import azMySQLManager from './AzMySQLManager.mjs';
 
 class ChartCategoryManager {
     constructor () {

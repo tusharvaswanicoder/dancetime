@@ -35,7 +35,6 @@
 
 {#if loaded}
     <main>
-        <!-- TODO: reorganize these components into another one -->
         {#if $USER.loggedIn}
             <LandingContent />
         {:else}

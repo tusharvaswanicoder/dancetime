@@ -1,5 +1,4 @@
 import { request } from 'https';
-import path from 'path';
 
 const MAGIC_LINK_URL = process.env.NODE_ENV == 'production' ? 
     'https://dancetime.io/auth/login' : 'http://localhost:3001/auth/login';

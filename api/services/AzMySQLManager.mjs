@@ -1,5 +1,5 @@
 import { createConnection, createPool } from 'promise-mysql';
-import { default_tables } from './DatabaseConfig.js';
+import { default_tables } from './DatabaseConfig.mjs';
 import snappy from 'snappy';
 
 const DATABASE_NAME = process.env.NODE_ENV == 'production' ?

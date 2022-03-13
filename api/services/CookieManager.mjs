@@ -1,5 +1,5 @@
-import JWT from './JWT.js';
-import azMySQLManager from './AzMySQLManager.js';
+import JWT from './JWT.mjs';
+import azMySQLManager from './AzMySQLManager.mjs';
 const secondsInADay = 86400;
 
 /**
@@ -8,14 +8,52 @@ const secondsInADay = 86400;
  * @param {*} req 
  * @param {*} res 
  */
- function SetJWTCookie (token, req, res) {
+ function SetJWTCookie (token, context, req) {
     // Store cookie for 6 months
-    res.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: true, secure: true });
+    context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: true, secure: true });
+}
+
+export const ParseCookies = (req) => {
+        // Return an empty object if cookieString
+        // is empty
+        const cookies = req.headers.cookie || "";
+        if (cookies === "")
+        {
+            return {};
+        }
+ 
+        // Get each individual key-value pairs
+        // from the cookie string
+        // This returns a new array
+        let pairs = cookies.split(";");
+ 
+        // Separate keys from values in each pair string
+        // Returns a new array which looks like
+        // [[key1,value1], [key2,value2], ...]
+        let splittedPairs = pairs.map(cookie => cookie.split("="));
+ 
+        // Create an object with all key-value pairs
+        const cookieObj = splittedPairs.reduce(function (obj, cookie) {
+ 
+            // cookie[0] is the key of cookie
+            // cookie[1] is the value of the cookie
+            // decodeURIComponent() decodes the cookie
+            // string, to handle cookies with special
+            // characters, e.g. '$'.
+            // string.trim() trims the blank spaces
+            // auround the key and value.
+            obj[decodeURIComponent(cookie[0].trim())] = decodeURIComponent(cookie[1].trim());
+            return obj;
+        }, {})
+ 
+        return cookieObj;
 }
 
 // Look for user cookies to see if they are already logged in
-export function CookieCheck(req, res, next) {
-    // If a cookie is expired it will not show up in req.cookies
+export function CookieCheck(context, req) {
+    // req.headers.cookie: 'Cookie_1=value'
+    // If a cookie is expired it will not show up in cookies
+    req.cookies = ParseCookies(req);
     new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
         if (!jwtToken) {
@@ -26,7 +64,7 @@ export function CookieCheck(req, res, next) {
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
             console.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
-            res.clearCookie('jwtToken');
+            context.cookie('jwtToken', '').end();
             resolve();
             return;
         }
@@ -34,7 +72,7 @@ export function CookieCheck(req, res, next) {
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
             // No await so we don't have to wait for the refresh to finish
-            RefreshToken(req, res, decoded.email);
+            RefreshToken(context, req, decoded.email);
         }
 
         if (!req.user) {
@@ -52,36 +90,34 @@ export function CookieCheck(req, res, next) {
         resolve();
     }).catch((err) => {
         console.log(err);
-    }).finally(() => {
-        next();
     })
 }
 
-async function RefreshToken (req, res, email) {
+async function RefreshToken (context, req, email) {
     // Ensure that they are still whitelisted before refreshing token
     const isWhitelisted = await azMySQLManager.emailIsWhitelisted(email);
     
     if (isWhitelisted) {
         const token = JWT.makeToken(email, '90d');
-        SetJWTCookie(token, req, res);
+        SetJWTCookie(token, context, req);
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting req.user
-        res.clearCookie('jwtToken');
+        context.cookie('jwtToken', '');
     }
 }
 
-export function MagicLinkLogin (req, res) {
+export function MagicLinkLogin (context, req) {
     // No token
     if (!req.query.token) {
-        res.redirect('/');
+        context.redirect('/');
         return;
     }
 
     // Verify token provided
     const decoded = JWT.verify(req.query.token);
     if (decoded.err) {
-        res.redirect('/'); // Expired potentially
+        context.redirect('/'); // Expired potentially
         return;
     }
     
@@ -92,18 +128,18 @@ export function MagicLinkLogin (req, res) {
     // Temp token, replace with better token
     const expTimeInSeconds = decoded.iat - decoded.exp;
     if (expTimeInSeconds < secondsInADay) {
-        RefreshToken(req, res, decoded.email).then(() => {
-            res.redirect('/');
+        RefreshToken(context, req, decoded.email).then(() => {
+            context.redirect('/');
         })
     }
 }
 
-import SendMagicLinkEmail from './SendMagicLinkEmail.js';
+import SendMagicLinkEmail from './SendMagicLinkEmail.mjs';
 
-export function TryRegister (req, res) {
+export function TryRegister (context, req) {
     // User is already logged in, do not allow them to login again
     if (req.user) {
-        res.status(403).end();
+        context.status(403).end();
         return;
     }
 
