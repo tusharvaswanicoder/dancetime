@@ -74,7 +74,7 @@ export async function Middleware (context, req, ...args)
         }
         catch (error)
         {
-            console.log(error);
+            context.log(error);
             context.status(500).end();
         }
         

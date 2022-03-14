@@ -6,7 +6,6 @@ import azMySQLManager from './AzMySQLManager.mjs';
  * @param {*} req Request from user
  */
  export const IsUserFullySignedIn = (context) => {
-     console.log(context.user);
     return typeof context.user != 'undefined' && typeof context.user.username != 'undefined' && typeof context.user.user_id != 'undefined';
 }
 

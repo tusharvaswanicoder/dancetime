@@ -54,41 +54,34 @@ export async function CookieCheck(context, req) {
     // req.headers.cookie: 'Cookie_1=value'
     // If a cookie is expired it will not show up in cookies
     req.cookies = ParseCookies(req);
-    console.log(req)
     return new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
-        console.log('cookiecheck 1')
         if (!jwtToken) {
             resolve();
             return;
         }
         
-        console.log('cookiecheck 2')
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
-            console.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
+            context.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
             context.cookie('jwtToken', '').end();
             resolve();
             return;
         }
         
-        console.log('cookiecheck 3')
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
             // No await so we don't have to wait for the refresh to finish
             RefreshToken(context, req, decoded.email);
         }
 
-        console.log('cookiecheck 4')
         if (!context.user) {
-            console.log('cookiecheck 5')
             context.user = {
                 email: decoded.email,
             }
 
             const user_details = await azMySQLManager.getUsernameFromEmail(decoded.email);
             if (user_details) {
-                console.log('cookiecheck 6')
                 context.user.username = user_details.username;
                 context.user.user_id = user_details.user_id;
             }
@@ -96,7 +89,7 @@ export async function CookieCheck(context, req) {
 
         resolve();
     }).catch((err) => {
-        console.log(err);
+        context.log(err);
     })
 }
 
@@ -164,7 +157,7 @@ export function TryRegister (context, req) {
                 SendMagicLinkEmail(req.body.email, token).then(() => {
                 
                 }).catch((err) => {
-                    console.log(err);
+                    context.log(err);
                 });
             }
         });

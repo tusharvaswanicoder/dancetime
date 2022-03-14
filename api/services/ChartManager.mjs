@@ -18,7 +18,6 @@ class ChartManager {
      * @param {*} chart_id 
      */
     async getChartKeypoints (context, req) {
-        console.log(req.params.chart_id)
         const chart_id = req.params.chart_id;
 
         if (!chart_id) {

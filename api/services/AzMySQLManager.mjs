@@ -121,13 +121,11 @@ class AzMySQLManager {
      * @returns True/false if the email is invited.
      */
     async emailIsWhitelisted (email) {
-        console.log('testa 1')
         if (!this.initialized) {
             return;
         }
-        console.log('testa 2')
+        
         const result = await this.pool.query('SELECT * FROM invited_emails WHERE email = ? LIMIT 1', [email]);
-        console.log('testa 3')
         if (result[0]) {
             return result[0].email == email;
         } else {
