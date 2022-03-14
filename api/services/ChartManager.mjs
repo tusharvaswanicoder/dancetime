@@ -42,25 +42,30 @@ class ChartManager {
      * @param {*} res 
      * @returns 
      */
-    async publishChart (req, res) {
-        const user = req.user;
-        const chart = req.body.chart;
+    async publishChart (context, req) {
+        return new Promise(async (resolve, reject) => {
+            const user = context.user;
+            const chart = req.body.chart;
 
-        // TODO: put in string length limits for fields
-        if (!this.verifyValidChart(chart)) {
-            return res.send({error: 'Chart validation failed.'});
-        }
+            // TODO: put in string length limits for fields
+            if (!this.verifyValidChart(chart)) {
+                context.send({error: 'Chart validation failed.'});
+                return resolve();
+            }
 
-        try {
-            const publish_result = await azMySQLManager.publishChart(chart, user);
-            res.send({
-                chart: publish_result
-            })
-        } catch (error) {
-            res.send({
-                error: 'An error occurred.'
-            })
-        }
+            try {
+                const publish_result = await azMySQLManager.publishChart(chart, user);
+                context.send({
+                    chart: publish_result
+                })
+            } catch (error) {
+                context.send({
+                    error: 'An error occurred.'
+                })
+            } finally {
+                resolve();
+            }
+        })
     }
 
     /**

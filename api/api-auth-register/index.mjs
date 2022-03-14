@@ -6,6 +6,6 @@ export default async function (context, req) {
         return; // Middleware returned a value so we should not continue
     }
     
-    // // User is querying an existing chart in db to get its keypoints
-    TryRegister(context, req);
+    // User goes to site, enters email, and posts request with email to see if they can get a magic link
+    await TryRegister(context, req);
 };

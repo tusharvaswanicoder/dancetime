@@ -10,18 +10,20 @@ import azMySQLManager from './AzMySQLManager.mjs';
 }
 
 export async function UserFullyAuthenticated (context, req) {
-    context.log(context);
     if (!IsUserFullySignedIn(context)) {
         context.status(403).end();
     }
 }
 
 export function GetUser (context, req) {
-    if (req.user) {
-        context.send(req.user);
-    } else {
-        return context.status(403).end();
-    }
+    return new Promise(async (resolve, reject) => {
+        if (context.user) {
+            context.send(context.user);
+        } else {
+            context.status(403).end();
+        }
+        resolve();
+    })
 }
 
 
@@ -31,42 +33,49 @@ function validateUsername(username) {
 }
 
 export async function SetUser (context, req) {
-    if (req.user && req.body && req.body.username) {
-        if (req.user.username) {
+    return new Promise(async (resolve, reject) => {
+        if (context.user && req.body && req.body.username) {
+            if (context.user.username) {
+                context.status(403).end();
+                return resolve();
+            }
+
+            const username = String(req.body.username).trim();
+            if (!validateUsername(username)) {
+                context.send({
+                    error: "Invalid username."
+                })
+                return resolve();
+            }
+
+            if (!process.env.CONTENT_MOD_ENDPOINT || !process.env.CONTENT_MOD_KEY) {
+                context.send({
+                    error: "Failed to check username."
+                })
+                return resolve();
+            }
+
+            // Flagged by content moderator
+            if (await IsReviewRecommended(username)) {
+                context.send({
+                    error: "Bad username."
+                })
+                return resolve();
+            }
+
+            const user_result = await azMySQLManager.createNewUser(context.user.email, username);
+            if (user_result) {
+                context.user = user_result;
+                
+                context.send({
+                    user: context.user
+                })
+            }
+            
+            resolve();
+        } else {
             context.status(403).end();
-            return;
+            resolve();
         }
-
-        const username = String(req.body.username).trim();
-        if (!validateUsername(username)) {
-            context.send({
-                error: "Invalid username."
-            })
-            return;
-        }
-
-        if (!process.env.CONTENT_MOD_ENDPOINT || !process.env.CONTENT_MOD_KEY) {
-            context.send({
-                error: "Failed to check username."
-            })
-            return;
-        }
-
-        // Flagged by content moderator
-        if (await IsReviewRecommended(username)) {
-            context.send({
-                error: "Bad username."
-            })
-            return;
-        }
-
-        const user_result = await azMySQLManager.createNewUser(req.user.email, username);
-        req.user = user_result;
-        
-        context.send({
-            user: req.user
-        })
-    } else {
-        return context.status(403).end();
-    }
+    })
 }

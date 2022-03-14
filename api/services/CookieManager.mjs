@@ -102,7 +102,7 @@ async function RefreshToken (context, req, email) {
         SetJWTCookie(token, context, req);
     }
     else {
-        // Clear cookie as they are no longer whitelisted, and exit without setting req.user
+        // Clear cookie as they are no longer whitelisted, and exit without setting context.user
         context.cookie('jwtToken', '');
     }
 }
@@ -142,26 +142,32 @@ export async function MagicLinkLogin (context, req) {
 import SendMagicLinkEmail from './SendMagicLinkEmail.mjs';
 
 export function TryRegister (context, req) {
-    // User is already logged in, do not allow them to login again
-    if (req.user) {
-        context.status(403).end();
-        return;
-    }
+    return new Promise((resolve, reject) => {
+        // User is already logged in, do not allow them to login again
+        if (context.user) {
+            context.status(403).end();
+            return resolve();
+        }
 
-    if (req.body.email) {
-        // TODO: check if email is in db
-        // If so, send magic link with token
-        azMySQLManager.emailIsWhitelisted(req.body.email).then((result) => {
-            if (result == true) {
-                const token = JWT.makeToken(req.body.email, '1h');
-                SendMagicLinkEmail(req.body.email, token).then(() => {
-                
-                }).catch((err) => {
-                    context.log(err);
-                });
-            }
-        });
-    }
-
-    context.status(200).end();
+        context.status(200).end();
+        
+        if (req.body.email) {
+            // TODO: check if email is in db
+            // If so, send magic link with token
+            azMySQLManager.emailIsWhitelisted(req.body.email).then((result) => {
+                if (result == true) {
+                    const token = JWT.makeToken(req.body.email, '1h');
+                    SendMagicLinkEmail(req.body.email, token).then(() => {
+                    
+                    }).catch((err) => {
+                        context.log(err);
+                    }).finally(() => {
+                        resolve();
+                    })
+                }
+            });
+        } else {
+            resolve();
+        }
+    })
 }
