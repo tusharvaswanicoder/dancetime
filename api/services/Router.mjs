@@ -26,9 +26,9 @@ function AddContextHelpers (context)
     
     // Add context.cookie() function to set cookies
     context.cookie = function (name, value, options) {
-        let existingCookie = this.cookies.find((cookie) => cookie.name == name) || {};
-        this.cookies = this.cookies.filter((cookie) => cookie.name != name);
-        this.cookies.push({...existingCookie, name, value, ...options});
+        let existingCookie = this.res.cookies.find((cookie) => cookie.name == name) || {};
+        this.res.cookies = this.res.cookies.filter((cookie) => cookie.name != name);
+        this.res.cookies.push({...existingCookie, name, value, ...options});
         return this;
     }
     
@@ -50,33 +50,36 @@ function AddContextHelpers (context)
     }
 }
 
-export function Middleware (context, req, ...args)
+export async function Middleware (context, req, ...args)
 {
-    AddContextHelpers(context);
-    
-    try {
-        for (let i = 2; i < arguments.length; i++)
-        {
-            const arg = arguments[i];
-            if (MIDDLEWARE_MAP[arg])
+    return new Promise(async (resolve, reject) => {
+        AddContextHelpers(context);
+        
+        try {
+            for (let i = 2; i < arguments.length; i++)
             {
-                // Call middlware
-                MIDDLEWARE_MAP[arg](context, req);
-                if (context.ended)
+                const arg = arguments[i];
+                context.log(`Executing middleware ${arg}`)
+                if (MIDDLEWARE_MAP[arg])
                 {
-                    return true;
+                    // Call middlware
+                    await MIDDLEWARE_MAP[arg](context, req);
+                    if (context.ended)
+                    {
+                        context.log(`Ending middlware on ${arg}`);
+                        return resolve(true);
+                    }
                 }
             }
         }
-    }
-    catch (error)
-    {
-        console.log(error);
-        return {
-            body: "An internal server error occurred.",
-            status: 500
+        catch (error)
+        {
+            console.log(error);
+            context.status(500).end();
         }
-    }
+        
+        resolve();
+    })
 }
 
 
@@ -92,47 +95,45 @@ export function Middleware (context, req, ...args)
 //     max: 10, // start blocking after 10 requests
 //     message: "Too many accounts created recently; please try again later"
 // });
-app.use(express.static('public'));
+// app.use(express.static('public'));
 
 
 
-// Look for user cookies to see if they are already logged in on API or AUTH calls
-app.all(["/auth/*", "/api/*"], CookieCheck);
+// // Look for user cookies to see if they are already logged in on API or AUTH calls
+// app.all(["/auth/*", "/api/*"], CookieCheck);
 
-// User is querying an existing chart in db to get its keypoints
-app.get('/api/chart/:chart_id/keypoints', apiLimiter, UserFullyAuthenticated, (req, res) => {
-    chartManager.getChartKeypoints(req, res);
-});
+// // User is querying an existing chart in db to get its keypoints
+// app.get('/api/chart/:chart_id/keypoints', apiLimiter, UserFullyAuthenticated, (req, res) => {
+//     chartManager.getChartKeypoints(req, res);
+// });
 
-// User is querying charts from a certain category
-app.get('/api/charts/category/:category', apiLimiter, UserFullyAuthenticated, (req, res, next) => {
-    if (req.params.category) {
-        req.params.category = req.params.category.toLowerCase();
-    }
+// // User is querying charts from a certain category
+// app.get('/api/charts/category/:category', apiLimiter, UserFullyAuthenticated, (req, res, next) => {
+//     if (req.params.category) {
+//         req.params.category = req.params.category.toLowerCase();
+//     }
     
-    chartCategoryManager.userRequestChartsInCategory(req, res);
-});
+//     chartCategoryManager.userRequestChartsInCategory(req, res);
+// });
 
-// User is publishing a chart
-app.post('/api/chart/publish', apiLimiter, UserFullyAuthenticated, (req, res, next) => {
-    chartManager.publishChart(req, res);
-});
+// // User is publishing a chart
+// app.post('/api/chart/publish', apiLimiter, UserFullyAuthenticated, (req, res, next) => {
+//     chartManager.publishChart(req, res);
+// });
 
-// User arrives here with a magic link
-app.get('/auth/login', createAccountLimiter, MagicLinkLogin);
+// // User arrives here with a magic link
+// app.get('/auth/login', createAccountLimiter, MagicLinkLogin);
 
-// User goes to site, enters email, and posts request with email to see if they can get a magic link
-app.post('/auth/register', createAccountLimiter, TryRegister);
+// // User goes to site, enters email, and posts request with email to see if they can get a magic link
+// app.post('/auth/register', createAccountLimiter, TryRegister);
 
-// User tries to set username after authenticating with  magic link
-app.post('/api/user/set', apiLimiter, SetUser);
+// // User tries to set username after authenticating with  magic link
+// app.post('/api/user/set', apiLimiter, SetUser);
 
-// User queries this on page load to get their info and load the authenticated screen(s)
-app.get('/api/user/get', apiLimiter, GetUser);
+// // User queries this on page load to get their info and load the authenticated screen(s)
+// app.get('/api/user/get', apiLimiter, GetUser);
 
-app.get('*', (req, res) => {
-    res.redirect('/');
-    res.end();
-});
-
-app.listen(PORT, () => console.log(`API server listening on port ${PORT}!`));
+// app.get('*', (req, res) => {
+//     res.redirect('/');
+//     res.end();
+// });

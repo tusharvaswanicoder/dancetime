@@ -1,7 +1,7 @@
 export default {
     uploadFileSizeLimit: '50mb',
     middleware: {
-        UserFullyAuthenticated: 1,
-        CookieCheck: 2
+        CookieCheck: 1,
+        UserFullyAuthenticated: 2
     }
 }

@@ -5,12 +5,14 @@ import azMySQLManager from './AzMySQLManager.mjs';
  * Returns true if the user is fully signed in with an email, username, and user_id.
  * @param {*} req Request from user
  */
- export const IsUserFullySignedIn = (req) => {
-    return typeof req.user != 'undefined' && typeof req.user.username != 'undefined' && typeof req.user.user_id != 'undefined';
+ export const IsUserFullySignedIn = (context) => {
+     console.log(context.user);
+    return typeof context.user != 'undefined' && typeof context.user.username != 'undefined' && typeof context.user.user_id != 'undefined';
 }
 
-export function UserFullyAuthenticated (context, req) {
-    if (!IsUserFullySignedIn(req)) {
+export async function UserFullyAuthenticated (context, req) {
+    context.log(context);
+    if (!IsUserFullySignedIn(context)) {
         context.status(403).end();
     }
 }

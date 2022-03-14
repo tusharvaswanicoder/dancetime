@@ -10,7 +10,7 @@ const secondsInADay = 86400;
  */
  function SetJWTCookie (token, context, req) {
     // Store cookie for 6 months
-    context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: true, secure: true });
+    context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: 'Strict', secure: true });
 }
 
 export const ParseCookies = (req) => {
@@ -50,17 +50,20 @@ export const ParseCookies = (req) => {
 }
 
 // Look for user cookies to see if they are already logged in
-export function CookieCheck(context, req) {
+export async function CookieCheck(context, req) {
     // req.headers.cookie: 'Cookie_1=value'
     // If a cookie is expired it will not show up in cookies
     req.cookies = ParseCookies(req);
-    new Promise(async (resolve, reject) => {
+    console.log(req)
+    return new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
+        console.log('cookiecheck 1')
         if (!jwtToken) {
             resolve();
             return;
         }
         
+        console.log('cookiecheck 2')
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
             console.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
@@ -69,21 +72,25 @@ export function CookieCheck(context, req) {
             return;
         }
         
+        console.log('cookiecheck 3')
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
             // No await so we don't have to wait for the refresh to finish
             RefreshToken(context, req, decoded.email);
         }
 
-        if (!req.user) {
-            req.user = {
+        console.log('cookiecheck 4')
+        if (!context.user) {
+            console.log('cookiecheck 5')
+            context.user = {
                 email: decoded.email,
             }
 
             const user_details = await azMySQLManager.getUsernameFromEmail(decoded.email);
             if (user_details) {
-                req.user.username = user_details.username;
-                req.user.user_id = user_details.user_id;
+                console.log('cookiecheck 6')
+                context.user.username = user_details.username;
+                context.user.user_id = user_details.user_id;
             }
         }
 
@@ -107,31 +114,36 @@ async function RefreshToken (context, req, email) {
     }
 }
 
-export function MagicLinkLogin (context, req) {
+export async function MagicLinkLogin (context, req) {
     // No token
-    if (!req.query.token) {
-        context.redirect('/');
-        return;
-    }
-
-    // Verify token provided
-    const decoded = JWT.verify(req.query.token);
-    if (decoded.err) {
-        context.redirect('/'); // Expired potentially
-        return;
-    }
-    
-    // TODO: check date in token to see if it is expired
-
-    // Valid JWT token, store in cookies
-    // Store cookie for 6 months
-    // Temp token, replace with better token
-    const expTimeInSeconds = decoded.iat - decoded.exp;
-    if (expTimeInSeconds < secondsInADay) {
-        RefreshToken(context, req, decoded.email).then(() => {
+    return new Promise((resolve, reject) => {
+        if (!req.query.token) {
             context.redirect('/');
-        })
-    }
+            return resolve();
+        }
+
+        // Verify token provided
+        const decoded = JWT.verify(req.query.token);
+        if (decoded.err) {
+            context.redirect('/'); // Expired potentially
+            return resolve();
+        }
+        
+        // TODO: check date in token to see if it is expired
+
+        // Valid JWT token, store in cookies
+        // Store cookie for 6 months
+        // Temp token, replace with better token
+        const expTimeInSeconds = decoded.iat - decoded.exp;
+        if (expTimeInSeconds < secondsInADay) {
+            RefreshToken(context, req, decoded.email).then(() => {
+                context.redirect('/');
+                resolve();
+            })
+        } else {
+            resolve();
+        }
+    })
 }
 
 import SendMagicLinkEmail from './SendMagicLinkEmail.mjs';
@@ -158,5 +170,5 @@ export function TryRegister (context, req) {
         });
     }
 
-    res.status(200).end();
+    context.status(200).end();
 }

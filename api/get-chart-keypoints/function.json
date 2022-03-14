@@ -8,7 +8,7 @@
             "methods": [
                 "get"
             ],
-            "route": "charts/{id}"
+            "route": "chart/{chart_id}/keypoints"
         },
         {
             "type": "http",
