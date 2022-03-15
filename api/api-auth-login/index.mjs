@@ -9,4 +9,5 @@ export default async function (context, req) {
     // User arrives here with a magic link
     await MagicLinkLogin(context, req);
     context.log(context);
+    context.log(context.res.cookies);
 };
