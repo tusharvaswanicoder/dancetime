@@ -103,6 +103,7 @@ async function RefreshToken (context, req, email) {
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting context.user
+        context.log(`clear cookie for ${email}`)
         context.cookie('jwtToken', '');
     }
 }
