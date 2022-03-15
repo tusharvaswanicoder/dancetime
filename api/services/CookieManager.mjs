@@ -111,16 +111,14 @@ export async function MagicLinkLogin (context, req) {
     // No token
     return new Promise((resolve, reject) => {
         if (!req.query.token) {
-            // context.redirect('/');
-            context.status(200).end();
+            context.redirect('/');
             return resolve();
         }
 
         // Verify token provided
         const decoded = JWT.verify(req.query.token);
         if (decoded.err) { // Expired potentially
-            // context.redirect('/');
-            context.status(200).end();
+            context.redirect('/');
             return resolve();
         }
         
@@ -132,8 +130,7 @@ export async function MagicLinkLogin (context, req) {
         const expTimeInSeconds = decoded.iat - decoded.exp;
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
-                // context.redirect('/');
-                context.status(200).end();
+                context.redirect('/');
                 resolve();
             })
         } else {
@@ -152,11 +149,7 @@ export function TryRegister (context, req) {
             return resolve();
         }
 
-        context.status(200).end();
-        
         if (req.body.email) {
-            // TODO: check if email is in db
-            // If so, send magic link with token
             azMySQLManager.emailIsWhitelisted(req.body.email).then((result) => {
                 if (result == true) {
                     const token = JWT.makeToken(req.body.email, '1h');
@@ -165,12 +158,17 @@ export function TryRegister (context, req) {
                     }).catch((err) => {
                         context.log(err);
                     }).finally(() => {
+                        context.status(200).end();
                         resolve();
                     })
+                } else {
+                    context.status(200).end();
+                    resolve();
                 }
             });
         } else {
             resolve();
+            context.status(200).end();
         }
     })
 }
