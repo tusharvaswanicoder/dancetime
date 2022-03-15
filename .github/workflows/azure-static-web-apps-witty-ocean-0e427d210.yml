@@ -4,6 +4,7 @@ env:
   PLATFORM_NAME: "nodejs"
   PLATFORM_VERSION: "16.14.0"
   NODE_VERSION: "16.14.0"
+  PRE_BUILD_COMMAND: "npm install --global rollup"
 
 on:
   push:
