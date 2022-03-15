@@ -1,7 +1,7 @@
 import { request } from 'https';
 
 const MAGIC_LINK_URL = process.env.NODE_ENV == 'production' ? 
-    'https://dancetime.io/auth/login' : 'http://localhost:3001/auth/login';
+    'https://dancetime.io/api/auth/login' : 'http://localhost:3001/api/auth/login';
 
 async function SendMagicLinkEmail(email, token) {
     return post(process.env.EMAIL_POST_ENDPOINT, {

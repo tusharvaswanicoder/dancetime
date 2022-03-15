@@ -16,7 +16,7 @@
             return;
         }
 
-        fetch('/auth/register', {
+        fetch('/api/auth/register', {
             method: 'post',
             headers: {
                 Accept: 'application/json',
