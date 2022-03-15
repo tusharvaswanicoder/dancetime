@@ -10,7 +10,6 @@ const secondsInADay = 86400;
  */
  function SetJWTCookie (token, context, req) {
     // Store cookie for 6 months
-    context.log('set cookie')
     context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: 'Strict', secure: true });
 }
 
@@ -132,6 +131,8 @@ export async function MagicLinkLogin (context, req) {
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
                 context.redirect('/');
+                context.log("LOGGING CONTEXT")
+                context.log(context);
                 resolve();
             })
         } else {
