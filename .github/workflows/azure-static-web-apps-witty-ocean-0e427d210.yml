@@ -1,6 +1,6 @@
 name: Azure Static Web Apps CI/CD
 env:
-  NODE_ENV: "production"
+  NODE_ENV: "development"
   PLATFORM_NAME: "nodejs"
   PLATFORM_VERSION: "16.14.0"
   NODE_VERSION: "16.14.0"

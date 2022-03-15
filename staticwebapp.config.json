@@ -1,0 +1,8 @@
+{
+    "navigationFallback": {
+        "rewrite": "public/index.html"
+    },
+    "platform": {
+        "apiRuntime": "node:16"
+    }
+}
