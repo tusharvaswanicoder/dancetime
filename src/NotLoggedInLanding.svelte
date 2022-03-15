@@ -53,7 +53,7 @@
                 Thanks! You should receive an email from us momentarily if you were invited.
             {/if}
         </h2>
-        <input in:fade={{delay: 1600, duration: 600}} class:hidden={submitted} placeholder="bob@example.com" bind:value={input_value} />
+        <input in:fade={{delay: 1600, duration: 600}} class:hidden={submitted} placeholder="ben@dancetime.io" bind:value={input_value} />
         <div
             class={`button ${validateEmail(input_value.trim()) ? 'visible' : ''}`}
             on:click={ClickSubmitButton}
