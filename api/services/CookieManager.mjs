@@ -111,14 +111,14 @@ export async function MagicLinkLogin (context, req) {
     // No token
     return new Promise((resolve, reject) => {
         if (!req.query.token) {
-            context.redirect('/');
+            context.status(403).end();
             return resolve();
         }
 
         // Verify token provided
         const decoded = JWT.verify(req.query.token);
         if (decoded.err) {
-            context.redirect('/'); // Expired potentially
+            context.status(403).end(); // Expired potentially
             return resolve();
         }
         
