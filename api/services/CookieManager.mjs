@@ -71,7 +71,9 @@ export async function CookieCheck(context, req) {
         
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
+            context.log(`cookie is more than a day old: ${Date.now() / 1000 - decoded.exp}. Refreshing...`)
             await RefreshToken(context, req, decoded.email);
+            context.log("Refreshed")
         }
 
         if (!context.user) {
@@ -97,11 +99,13 @@ async function RefreshToken (context, req, email) {
     const isWhitelisted = await azMySQLManager.emailIsWhitelisted(email);
     
     if (isWhitelisted) {
+        context.log(`Email whitelisted ${email}`);
         const token = JWT.makeToken(email, '90d');
         SetJWTCookie(token, context, req);
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting context.user
+        context.log(`Email not whitelisted ${email}`);
         context.cookie('jwtToken', '');
     }
 }
