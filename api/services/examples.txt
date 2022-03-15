@@ -8,7 +8,7 @@
      functionName: 'charts-get',
      functionDirectory: 'B:\\User\\GitHub\\dancetime\\api\\charts-get',
      retryContext: null
-   },
+   }, 
    bindings: {
      req: {
        method: 'GET',
