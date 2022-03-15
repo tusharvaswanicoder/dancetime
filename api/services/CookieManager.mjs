@@ -111,14 +111,14 @@ export async function MagicLinkLogin (context, req) {
     // No token
     return new Promise((resolve, reject) => {
         if (!req.query.token) {
-            context.status(403).end();
+            context.redirect('dancetime.io');
             return resolve();
         }
 
         // Verify token provided
         const decoded = JWT.verify(req.query.token);
         if (decoded.err) {
-            context.status(403).end(); // Expired potentially
+            context.redirect('dancetime.io'); // Expired potentially
             return resolve();
         }
         
@@ -130,7 +130,7 @@ export async function MagicLinkLogin (context, req) {
         const expTimeInSeconds = decoded.iat - decoded.exp;
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
-                context.redirect('/');
+                context.redirect('dancetime.io');
                 resolve();
             })
         } else {
