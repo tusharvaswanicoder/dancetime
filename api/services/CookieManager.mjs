@@ -71,8 +71,7 @@ export async function CookieCheck(context, req) {
         
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
-            // No await so we don't have to wait for the refresh to finish
-            RefreshToken(context, req, decoded.email);
+            await RefreshToken(context, req, decoded.email);
         }
 
         if (!context.user) {
@@ -103,7 +102,6 @@ async function RefreshToken (context, req, email) {
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting context.user
-        context.log(`clear cookie for ${email}`)
         context.cookie('jwtToken', '');
     }
 }
@@ -132,8 +130,6 @@ export async function MagicLinkLogin (context, req) {
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
                 context.redirect('/');
-                context.log("LOGGING CONTEXT")
-                context.log(context);
                 resolve();
             })
         } else {
