@@ -11,7 +11,12 @@
     "start": "npm-run-all build server",
     "start-dev": "npm-run-all -r -p dev server-dev"
   },
-  "devDependencies": {
+  "dependencies": {
+    "curve-matcher": "^1.1.1",
+    "dexie": "^3.2.0",
+    "wavesurfer.js": "^5.2.0",
+    "youtube-dl-wrap": "^2.1.1",
+    
     "@mediapipe/pose": "^0.5.1635988162",
     "@rollup/plugin-alias": "^3.1.8",
     "@rollup/plugin-commonjs": "^21.0.1",
@@ -33,11 +38,5 @@
     "svelte-range-slider-pips": "^2.0.0",
     "uuid": "^8.3.2",
     "youtube-player": "^5.5.2"
-  },
-  "dependencies": {
-    "curve-matcher": "^1.1.1",
-    "dexie": "^3.2.0",
-    "wavesurfer.js": "^5.2.0",
-    "youtube-dl-wrap": "^2.1.1"
   }
 }
