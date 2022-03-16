@@ -6,5 +6,6 @@ export default async function (context, req) {
         return; // Middleware returned a value so we should not continue
     }
     
-    context.cookie('testcookie', '5', { maxAge: 15552000, domain: "dancetime.io",  sameSite: 'Strict', secure: true }).end();
+    // got rid of httponly, domain, samesite
+    context.cookie('testcookie', '5', { maxAge: 15552000, secure: true }).end();
 };
