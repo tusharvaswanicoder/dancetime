@@ -135,7 +135,7 @@ export async function MagicLinkLogin (context, req) {
         const expTimeInSeconds = decoded.iat - decoded.exp;
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
-                context.redirect('/');
+                // context.redirect('/');
                 resolve();
             })
         } else {
