@@ -125,7 +125,7 @@ export async function MagicLinkLogin (context, req) {
         // Verify token provided
         const decoded = JWT.verify(req.query.token);
         if (decoded.err) { // Expired potentially
-            context.log("error ");
+            context.log("error");
             context.log(decoded.err);
             context.redirect('/');
             return resolve();
