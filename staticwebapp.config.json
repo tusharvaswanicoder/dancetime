@@ -1,5 +1,13 @@
 {
     "platform": {
         "apiRuntime": "node:16"
+    },
+    "globalHeaders": {
+        "content-security-policy": "frame-ancestors *; default-src 'self'; upgrade-insecure-requests; img-src *; *.youtube.com youtube.com",
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-Permitted-Cross-Domain-Policies": "none",
+        "Referrer-Policy":"no-referrer",
+        "X-Content-Type-Options": "nosniff",
+        "Permissions-Policy": "autoplay=()"
     }
 }
