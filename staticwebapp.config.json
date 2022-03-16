@@ -3,7 +3,7 @@
         "apiRuntime": "node:16"
     },
     "globalHeaders": {
-        "content-security-policy": "default-src 'self' https: 'unsafe-eval' 'unsafe-inline'; frame-src https:; script-src https:;",
+        "content-security-policy": "default-src 'self' https: 'unsafe-eval' 'unsafe-inline';",
         "X-Frame-Options": "SAMEORIGIN",
         "X-Permitted-Cross-Domain-Policies": "none",
         "Access-Control-Allow-Methods": "POST, GET",
