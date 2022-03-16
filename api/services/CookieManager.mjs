@@ -10,7 +10,7 @@ const secondsInADay = 86400;
  */
  function SetJWTCookie (token, context, req) {
     // Store cookie for 6 months
-    context.cookie('jwtToken', token, { maxAge: 15552000, httpOnly: true, domain: "dancetime.io", secure: false });
+    context.cookie('jwtToken', token, { maxAge: 15552000, httpOnly: true, secure: true });
 }
 
 export const ParseCookies = (req) => {
