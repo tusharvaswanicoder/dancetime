@@ -14,8 +14,7 @@ const secondsInADay = 86400;
 }
 
 export const ParseCookies = (req) => {
-        // Return an empty object if cookieString
-        // is empty
+        // Return an empty object if cookieString is empty
         const cookies = req.headers.cookie || "";
         if (cookies === "")
         {
