@@ -98,6 +98,7 @@ export async function CookieCheck(context, req) {
 
 async function RefreshToken (context, req, email) {
     // Ensure that they are still whitelisted before refreshing token
+    context.log("refreshing token...")
     const isWhitelisted = await azMySQLManager.emailIsWhitelisted(email);
     
     if (isWhitelisted) {
@@ -116,6 +117,7 @@ export async function MagicLinkLogin (context, req) {
     return new Promise((resolve, reject) => {
         // No token
         if (!req.query.token) {
+            context.log("no token")
             context.redirect('/');
             return resolve();
         }
@@ -123,6 +125,8 @@ export async function MagicLinkLogin (context, req) {
         // Verify token provided
         const decoded = JWT.verify(req.query.token);
         if (decoded.err) { // Expired potentially
+            context.log("error");
+            context.log(decoded.err);
             context.redirect('/');
             return resolve();
         }
@@ -135,10 +139,12 @@ export async function MagicLinkLogin (context, req) {
         const expTimeInSeconds = decoded.iat - decoded.exp;
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
-                // context.redirect('/');
+                context.redirect('/');
+                context.log("redirect and resolve")
                 resolve();
             })
         } else {
+            context.log("no need to refresh token")
             context.redirect('/');
             resolve();
         }
