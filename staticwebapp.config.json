@@ -3,7 +3,7 @@
         "apiRuntime": "node:16"
     },
     "globalHeaders": {
-        "content-security-policy": "default-src dancetime.io *.dancetime.io youtube.com *.youtube.com; upgrade-insecure-requests;",
+        "content-security-policy": "default-src 'self'; style-src 'self'; script-src 'self'; frame-src *.youtube.com youtube.com;",
         "X-Frame-Options": "SAMEORIGIN",
         "X-Permitted-Cross-Domain-Policies": "none",
         "Referrer-Policy":"no-referrer",
