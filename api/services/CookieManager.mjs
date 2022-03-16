@@ -10,7 +10,7 @@ const secondsInADay = 86400;
  */
  function SetJWTCookie (token, context, req) {
     // Store cookie for 6 months
-    context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: 'Strict', secure: true });
+    context.cookie('jwtToken', token, { maxAge: 15552000, httpOnly: true, domain: "dancetime.io",  sameSite: 'Strict', secure: false });
 }
 
 export const ParseCookies = (req) => {
@@ -164,7 +164,7 @@ export function TryRegister (context, req) {
         if (req.body.email) {
             azMySQLManager.emailIsWhitelisted(req.body.email).then((result) => {
                 if (result == true) {
-                    const token = JWT.makeToken(req.body.email, '1h');
+                    const token = JWT.makeToken(req.body.email, '3h');
                     SendMagicLinkEmail(req.body.email, token).then(() => {
                     
                     }).catch((err) => {
