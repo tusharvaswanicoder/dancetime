@@ -7,7 +7,7 @@
         "X-Frame-Options": "SAMEORIGIN",
         "X-Permitted-Cross-Domain-Policies": "none",
         "Access-Control-Allow-Methods": "POST, GET",
-        "Referrer-Policy":"no-referrer-when-downgrade",
+        "Referrer-Policy":"origin",
         "X-Content-Type-Options": "nosniff",
         "Permissions-Policy": "autoplay=()"
     }
