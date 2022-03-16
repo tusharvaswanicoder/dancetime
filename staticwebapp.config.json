@@ -3,7 +3,7 @@
         "apiRuntime": "node:16"
     },
     "globalHeaders": {
-        "content-security-policy": "default-src '*'; upgrade-insecure-requests;",
+        "content-security-policy": "default-src *; upgrade-insecure-requests;",
         "X-Frame-Options": "SAMEORIGIN",
         "X-Permitted-Cross-Domain-Policies": "none",
         "Referrer-Policy":"no-referrer",
