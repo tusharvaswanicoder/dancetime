@@ -1,0 +1,107 @@
+// context example
+
+{
+   invocationId: '07a8289a-bd6f-43d1-b7d6-e491e77cadf1',
+   traceContext: { traceparent: '', tracestate: '', attributes: {} },
+   executionContext: {
+     invocationId: '07a8289a-bd6f-43d1-b7d6-e491e77cadf1',
+     functionName: 'charts-get',
+     functionDirectory: 'B:\\User\\GitHub\\dancetime\\api\\charts-get',
+     retryContext: null
+   }, 
+   bindings: {
+     req: {
+       method: 'GET',
+       url: 'http://localhost:7071/api/charts/3',
+       originalUrl: 'http://localhost:7071/api/charts/3',
+       headers: [Object],
+       query: {},
+       params: [Object],
+       body: [Object],
+       rawBody: '{\r\n    "email": "ben@b-a.dev"\r\n}'
+     }
+   },
+   log: [Function (anonymous)] {
+     error: [Function: error],
+     warn: [Function: warn],
+     info: [Function: info],
+     verbose: [Function: verbose]
+   },
+   bindingData: {
+     invocationId: '07a8289a-bd6f-43d1-b7d6-e491e77cadf1',
+     email: 'ben@b-a.dev',
+     id: 3,
+     query: {},
+     headers: {
+       accept: '*/*',
+       connection: 'keep-alive',
+       host: 'localhost:7071',
+       'user-Agent': 'PostmanRuntime/7.26.8',
+       'accept-Encoding': 'gzip, deflate, br',
+       'content-Type': 'application/json',
+       'content-Length': '32',
+       'postman-Token': '147f92e3-687f-4590-9d18-934aed5aa007'
+     },
+     sys: {
+       methodName: 'charts-get',
+       utcNow: '2022-03-13T02:50:59.265Z',
+       randGuid: 'c780d944-2116-443a-a168-2326f41f6e82'
+     }
+   },
+   bindingDefinitions: [
+     { name: 'req', type: 'httpTrigger', direction: 'in' },
+     { name: '$return', type: 'http', direction: 'out' }
+   ],
+   done: [Function (anonymous)],
+   req: r {
+     method: 'GET',
+     url: 'http://localhost:7071/api/charts/3',
+     originalUrl: 'http://localhost:7071/api/charts/3',
+     headers: {
+       accept: '*/*',
+       connection: 'keep-alive',
+       host: 'localhost:7071',
+       'user-agent': 'PostmanRuntime/7.26.8',
+       'accept-encoding': 'gzip, deflate, br',
+       'content-type': 'application/json',
+       'content-length': '32',
+       'postman-token': '147f92e3-687f-4590-9d18-934aed5aa007'
+     },
+     query: {},
+     params: { id: '3' },
+     body: { email: 'ben@b-a.dev' },
+     rawBody: '{\r\n    "email": "ben@b-a.dev"\r\n}'
+   },
+   res: {
+     headers: {},
+     cookies: [],
+     send: [Function: end],
+     header: [Function: setHeader],
+     set: [Function: setHeader],
+     get: [Function: getHeader],
+     _done: [Function (anonymous)]
+   }
+ }
+
+
+req example
+{
+   method: 'GET',
+   url: 'http://localhost:7071/api/charts/3',
+   originalUrl: 'http://localhost:7071/api/charts/3',
+   headers: {
+     accept: '*/*',
+     connection: 'keep-alive',
+     host: 'localhost:7071',
+     'user-agent': 'PostmanRuntime/7.26.8',
+     'accept-encoding': 'gzip, deflate, br',
+     'content-type': 'application/json',
+     cookie: 'Cookie_1=value; testcookie=5.0',
+     'content-length': '32',
+     'postman-token': '8e913ff6-d4dc-4684-8cd1-511ebee07ff5'
+   },
+   query: {},
+   params: { id: '3' },
+   body: { email: 'ben@b-a.dev' },
+   rawBody: '{\r\n    "email": "ben@b-a.dev"\r\n}'
+ }

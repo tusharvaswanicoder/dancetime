@@ -1,6 +1,7 @@
 import { createConnection, createPool } from 'promise-mysql';
-import { default_tables } from './DatabaseConfig.js';
+import { default_tables } from './DatabaseConfig.mjs';
 import snappy from 'snappy';
+import { sleep } from './utils.mjs';
 
 const DATABASE_NAME = process.env.NODE_ENV == 'production' ?
     process.env.MYSQL_DB_PROD : process.env.MYSQL_DB_DEV;
@@ -23,9 +24,8 @@ class AzMySQLManager {
     }
 
     async tryGetPublishedChartKeypoints (chart_id) {
-        if (!this.initialized) {
-            return;
-        }
+        await this.waitForInitialized();
+        
         const result = await this.pool.query('SELECT keypoints FROM charts WHERE chart_id = ? LIMIT 1', [chart_id]);
         if (result[0]) {
             return this.compressedStringToJSON(result[0].keypoints);
@@ -33,9 +33,8 @@ class AzMySQLManager {
     }
 
     async createNewUser (email, username) {
-        if (!this.initialized) {
-            return;
-        }
+        await this.waitForInitialized();
+        
         try {
             const result = await this.pool.query('INSERT INTO users (username, email) VALUES (?, ?)', [username, email]);
             return {email, username, user_id: result.insertId};
@@ -46,9 +45,8 @@ class AzMySQLManager {
     }
 
     async getUsernameFromEmail (email) {
-        if (!this.initialized) {
-            return;
-        }
+        await this.waitForInitialized();
+        
         try {
             const result = await this.pool.query('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
             return result[0];
@@ -73,9 +71,8 @@ class AzMySQLManager {
      * @returns Updated chart information to reuturn to the user, or undefined if it failed.
      */
     async publishChart (chart, user) {
-        if (!this.initialized) {
-            return;
-        }
+        await this.waitForInitialized();
+        
         try {
             let existing_chart = null;
             if (chart.chart_id) {
@@ -121,14 +118,19 @@ class AzMySQLManager {
      * @returns True/false if the email is invited.
      */
     async emailIsWhitelisted (email) {
-        if (!this.initialized) {
-            return;
-        }
+        await this.waitForInitialized();
+        
         const result = await this.pool.query('SELECT * FROM invited_emails WHERE email = ? LIMIT 1', [email]);
         if (result[0]) {
             return result[0].email == email;
         } else {
             return false;
+        }
+    }
+    
+    async waitForInitialized() {
+        while (!this.initialized) {
+            await sleep(100);
         }
     }
 

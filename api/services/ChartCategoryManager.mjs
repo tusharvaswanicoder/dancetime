@@ -1,4 +1,4 @@
-import azMySQLManager from './AzMySQLManager.js';
+import azMySQLManager from './AzMySQLManager.mjs';
 
 class ChartCategoryManager {
     constructor () {
@@ -27,23 +27,28 @@ class ChartCategoryManager {
         return await azMySQLManager.pool.query('SELECT chart_id, title, song_artist, choreography, difficulty, last_edited, video_link, video_id, duration, visibility, version, tags, components, user_id FROM charts ORDER BY last_edited DESC LIMIT 50');
     }
 
-    async userRequestChartsInCategory (req, res) {
-        if (!req.params.category) {
-            return res.status(400).end();
-        }
-
-        const charts = await this.getChartsInCategory(req.params.category);
-
-        if (charts) {
-            for (const chart of charts) {
-                chart.tags = azMySQLManager.compressedStringToJSON(chart.tags);
-                chart.components = azMySQLManager.compressedStringToJSON(chart.components);
+    async userRequestChartsInCategory (context, req) {
+        return new Promise(async (resolve, reject) => {
+            if (!req.params.category) {
+                context.status(400).end();
+                return resolve();
             }
 
-            res.send({charts});
-        } else {
-            res.send({charts: []});
-        }
+            const charts = await this.getChartsInCategory(req.params.category);
+
+            if (charts) {
+                for (const chart of charts) {
+                    chart.tags = azMySQLManager.compressedStringToJSON(chart.tags);
+                    chart.components = azMySQLManager.compressedStringToJSON(chart.components);
+                }
+
+                context.send({charts});
+            } else {
+                context.send({charts: []});
+            }
+            
+            resolve();
+        })
     }
 }
 
