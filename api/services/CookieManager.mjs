@@ -52,9 +52,7 @@ export const ParseCookies = (req) => {
 export async function CookieCheck(context, req) {
     // req.headers.cookie: 'Cookie_1=value'
     // If a cookie is expired it will not show up in cookies
-    context.log(req);
     req.cookies = ParseCookies(req);
-    context.log(`parsed cookies: ${JSON.stringify(req.cookies)}`)
     return new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
         if (!jwtToken) {
@@ -64,7 +62,7 @@ export async function CookieCheck(context, req) {
         
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
-            context.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
+            // context.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
             context.cookie('jwtToken', '').end();
             resolve();
             return;
@@ -72,9 +70,7 @@ export async function CookieCheck(context, req) {
         
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
-            context.log(`cookie is more than a day old: ${Date.now() / 1000 - decoded.exp}. Refreshing...`)
             await RefreshToken(context, req, decoded.email);
-            context.log("Refreshed")
         }
 
         if (!context.user) {
@@ -97,17 +93,14 @@ export async function CookieCheck(context, req) {
 
 async function RefreshToken (context, req, email) {
     // Ensure that they are still whitelisted before refreshing token
-    context.log("refreshing token...")
     const isWhitelisted = await azMySQLManager.emailIsWhitelisted(email);
     
     if (isWhitelisted) {
-        context.log(`Email whitelisted '${email}'`);
         const token = JWT.makeToken(email, '90d');
         SetJWTCookie(token, context, req);
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting context.user
-        context.log(`Email not whitelisted '${email}'`);
         context.cookie('jwtToken', '');
     }
 }
@@ -116,7 +109,6 @@ export async function MagicLinkLogin (context, req) {
     return new Promise((resolve, reject) => {
         // No token
         if (!req.query.token) {
-            context.log("no token")
             context.redirect('/');
             return resolve();
         }
@@ -124,8 +116,6 @@ export async function MagicLinkLogin (context, req) {
         // Verify token provided
         const decoded = JWT.verify(req.query.token);
         if (decoded.err) { // Expired potentially
-            context.log("error");
-            context.log(decoded.err);
             context.redirect('/');
             return resolve();
         }
@@ -139,11 +129,9 @@ export async function MagicLinkLogin (context, req) {
         if (expTimeInSeconds < secondsInADay) {
             RefreshToken(context, req, decoded.email).then(() => {
                 context.redirect('/');
-                context.log("redirect and resolve")
                 resolve();
             })
         } else {
-            context.log("no need to refresh token")
             context.redirect('/');
             resolve();
         }
