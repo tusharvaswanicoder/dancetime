@@ -18,8 +18,10 @@ export async function UserFullyAuthenticated (context, req) {
 export function GetUser (context, req) {
     return new Promise(async (resolve, reject) => {
         if (context.user) {
+            context.log('got user')
             context.send(context.user);
         } else {
+            context.log('no user')
             context.status(403).end();
         }
         resolve();

@@ -10,7 +10,7 @@ const secondsInADay = 86400;
  */
  function SetJWTCookie (token, context, req) {
     // Store cookie for 6 months
-    context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: 'Lax', secure: true });
+    context.cookie('jwtToken', token, { maxAge: 15552000000, httpOnly: true, sameSite: 'Strict', secure: true });
 }
 
 export const ParseCookies = (req) => {
@@ -53,7 +53,9 @@ export const ParseCookies = (req) => {
 export async function CookieCheck(context, req) {
     // req.headers.cookie: 'Cookie_1=value'
     // If a cookie is expired it will not show up in cookies
+    context.log(req);
     req.cookies = ParseCookies(req);
+    context.log(`parsed cookies: ${JSON.stringify(req.cookies)}`)
     return new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
         if (!jwtToken) {
@@ -99,13 +101,13 @@ async function RefreshToken (context, req, email) {
     const isWhitelisted = await azMySQLManager.emailIsWhitelisted(email);
     
     if (isWhitelisted) {
-        context.log(`Email whitelisted ${email}`);
+        context.log(`Email whitelisted '${email}'`);
         const token = JWT.makeToken(email, '90d');
         SetJWTCookie(token, context, req);
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting context.user
-        context.log(`Email not whitelisted ${email}`);
+        context.log(`Email not whitelisted '${email}'`);
         context.cookie('jwtToken', '');
     }
 }
