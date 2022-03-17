@@ -8,6 +8,7 @@ const DATABASE_NAME = process.env.NODE_ENV == 'production' ?
 
 class AzMySQLManager {
     constructor () {
+        console.log('Initializing MySQL...');
         this.conn = null;
         this.pool = null;
 
@@ -140,6 +141,7 @@ class AzMySQLManager {
      * do not exist.
      */
     async initializeConnectionAndTables () {
+        console.log('creating connection...')
         this.conn = await createConnection({ 
             host: process.env.MYSQL_DB_HOST, 
             user: process.env.MYSQL_DB_USER, 
@@ -149,8 +151,10 @@ class AzMySQLManager {
             ssl: true
         });
 
+        console.log('query...')
         await this.conn.query(`CREATE DATABASE IF NOT EXISTS ${DATABASE_NAME}`);
 
+        console.log('createpool...')
         this.pool = await createPool({
             connectionLimit : 100,
             host     : process.env.MYSQL_DB_HOST,
@@ -165,6 +169,7 @@ class AzMySQLManager {
             timeout         : 60 * 60 * 1000,
         });
 
+        console.log('query2...')
         for (const table_config of default_tables) {
             // Remove extra spaces and newlines from table structure
             const escaped_structure = table_config.structure.replace(/\n/g, '').replace(/ +(?= )/g,'');
