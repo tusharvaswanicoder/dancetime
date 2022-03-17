@@ -5,11 +5,10 @@
     "private": true,
     "scripts": {
         "build": "cross-env NODE_ENV=production rollup -c",
-        "dev": "cross-env NODE_ENV=development rollup -c -w",
-        "server": "cross-env NODE_ENV=production node server/index.js",
-        "server-dev": "cross-env NODE_ENV=development nodemon server/index.js --watch server",
-        "start": "npm-run-all build server",
-        "start-dev": "npm-run-all -r -p dev server-dev"
+        "autobuild": "cross-env NODE_ENV=development rollup -c -w",
+        "sirv": "cross-env NODE_ENV=development sirv public --dev --single --no-clear --port 3001",
+        "start-dev": "run-p autobuild sirv",
+        "start": "swa start http://localhost:3001 --api-location=\"./api\" --run \"npm run start-dev\" --swa-config-location=./"
     },
     "devDependencies": {
         "@mediapipe/pose": "^0.5.1635988162",

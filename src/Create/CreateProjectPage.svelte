@@ -148,7 +148,7 @@ out:fly|local={{x: -500, duration: 200}}>
                 title: "Create New Project",
                 new_project: true
             }} />
-            {#each Object.values($projectManager) as project}
+            {#each Object.values($projectManager).sort((a, b) => new Date(b.last_edited) - new Date(a.last_edited)) as project}
                 <ProjectCard 
                     card_data={project} 
                     OnClickOpen={() => OnClickProjectOpen(project)} 
