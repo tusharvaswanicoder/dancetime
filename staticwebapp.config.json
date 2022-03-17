@@ -11,9 +11,7 @@
         "X-Content-Type-Options": "nosniff",
         "Permissions-Policy": "autoplay=()"
     },
-    "responseOverrides": {
-        "404": {
-          "rewrite": "/index.html"
-        }
+    "navigationFallback": {
+        "rewrite": "index.html"
     }
 }
