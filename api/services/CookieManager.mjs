@@ -52,17 +52,20 @@ export const ParseCookies = (req) => {
 export async function CookieCheck(context, req) {
     // req.headers.cookie: 'Cookie_1=value'
     // If a cookie is expired it will not show up in cookies
+    context.log('cookie check')
     req.cookies = ParseCookies(req);
+    context.log('cookies parsed')
     return new Promise(async (resolve, reject) => {
         const jwtToken = req.cookies.jwtToken;
         if (!jwtToken) {
+            context.log('no token')
             resolve();
             return;
         }
         
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
-            // context.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
+            context.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
             context.cookie('jwtToken', '').end();
             resolve();
             return;
@@ -70,7 +73,9 @@ export async function CookieCheck(context, req) {
         
         // Check timestamp and refresh token if more than a day old
         if (Date.now() / 1000 - decoded.exp > secondsInADay) {
+            context.log('refresh token')
             await RefreshToken(context, req, decoded.email);
+            context.log('done refresh token')
         }
 
         if (!context.user) {
@@ -78,7 +83,9 @@ export async function CookieCheck(context, req) {
                 email: decoded.email,
             }
 
+            context.log('get username')
             const user_details = await azMySQLManager.getUsernameFromEmail(decoded.email);
+            context.log('got username')
             if (user_details) {
                 context.user.username = user_details.username;
                 context.user.user_id = user_details.user_id;

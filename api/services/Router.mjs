@@ -47,7 +47,9 @@ function AddContextHelpers (context)
 export async function Middleware (context, req, ...args)
 {
     return new Promise(async (resolve, reject) => {
+        context.log('add context helpers')
         AddContextHelpers(context);
+        context.log('finish add context helpers')
         
         try {
             for (let i = 2; i < arguments.length; i++)
