@@ -1,7 +1,7 @@
 <script>
     import { v1 } from 'uuid';
     import ProjectCard from './ProjectCard.svelte';
-    import { GROUP_STATE } from "../constants"
+    import { GROUP_STATE, MODE_STATE } from "../constants"
     import Icon from '../Icon.svelte';
     import projectManager from "./ProjectManager"
     import { fade, fly } from 'svelte/transition'
@@ -95,9 +95,7 @@
     };
 
     const onClickExitBackArrow = () => {
-        $selectedInitialGamemode = false;
-        $modeStateStore = null;
-        $groupmodeStateStore = null;
+        $modeStateStore = MODE_STATE.PLAY;
     }
 
     onMount(() => {

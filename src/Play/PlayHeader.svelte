@@ -1,5 +1,11 @@
 <script>
     import Icon from "../Icon.svelte";
+    import { modeStateStore } from '../stores';
+    import { MODE_STATE } from '../constants';
+    
+    const clickCreateButton = () => {
+        $modeStateStore = MODE_STATE.CREATE;
+    }
 </script>
 
 <main>
@@ -17,7 +23,7 @@
     </div>
     
     <div class='right-container'>
-        <div class='create-button'>
+        <div class='create-button' on:click={clickCreateButton}>
             <Icon name={'nav_create_icon'} />
             <span class='text'>Create</span>
         </div>
@@ -83,6 +89,7 @@
         color: white;
         font-weight: bold;
         margin-top: -7px;
+        margin-left: 2px;
     }
     
     div.middle-container {
@@ -146,5 +153,6 @@
     
     div.right-container div.create-button span.text {
         @include lhCrop(1.1);
+        // Hack for fixing the line height so the text isn't vertically off-centered
     }
 </style>

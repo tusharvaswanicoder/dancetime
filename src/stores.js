@@ -7,10 +7,12 @@ export const cameraCanvasStoreVideo = writable(null);
 export const playerStore = writable(null);
 export const gradientIdStore = writable(0);
 
-import { MODE_STATE, GAMESTATE } from "./constants";
+import { MODE_STATE, GAMESTATE, SIDEBAR_SECTIONS } from "./constants";
 export const modeStateStore = writable(MODE_STATE.PLAY);
 export const groupmodeStateStore = writable();
 export const selectedInitialGamemode = writable(false);
+
+export const sidebarStateStore = writable(SIDEBAR_SECTIONS.HOME);
 
 export const keyPress = writable({});
 export const keyDown = writable({});
