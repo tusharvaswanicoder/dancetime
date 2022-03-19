@@ -80,7 +80,7 @@
             21.4px 21.1px 33.8px -2.1px hsl(var(--shadow-color) / 0.32),
             31.5px 31.1px 49.8px -2.5px hsl(var(--shadow-color) / 0.32);
         position: relative;
-        width: 375px;
+        width: 370px;
         background-color: white;
         border-radius: 10px;
         padding: 10px;
