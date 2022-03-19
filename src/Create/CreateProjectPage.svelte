@@ -1,5 +1,4 @@
 <script>
-    import { v1 } from 'uuid';
     import ProjectCard from './ProjectCard.svelte';
     import { GROUP_STATE, MODE_STATE } from "../constants"
     import Icon from '../Icon.svelte';
@@ -8,7 +7,7 @@
     import { cubicOut } from 'svelte/easing';
     import { onMount } from 'svelte';
     import BackArrow from '../BackArrow.svelte';
-    import { groupmodeStateStore, selectedInitialGamemode, modeStateStore } from '../stores';
+    import { groupmodeStateStore, modeStateStore } from '../stores';
     
     export let OpenProject = () => {};
     

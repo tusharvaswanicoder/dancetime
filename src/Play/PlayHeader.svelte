@@ -144,7 +144,7 @@
         align-items: center;
         cursor: pointer;
         user-select: none;
-        transition: 0.2s ease-in-out transform;
+        transition: 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) transform;
     }
     
     div.right-container div.create-button:hover {

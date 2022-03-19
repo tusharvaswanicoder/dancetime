@@ -530,3 +530,45 @@ export const MirrorKeypoints = (keypoints) => {
     
     return mirrored_keypoints;
 }
+
+export const GetRelativeTimeFormat = (date) => {
+    const rtf1 = new Intl.RelativeTimeFormat('en', { style: 'long' });
+    const then = new Date(date);
+    const now = new Date();
+    const diff_in_seconds = (now.getTime() -  then.getTime()) / 1000;
+    const diff_in_minutes = diff_in_seconds / 60;
+    const diff_in_hours = diff_in_minutes / 60;
+    const diff_in_days = diff_in_hours / 24;
+    const diff_in_weeks = diff_in_days / 7;
+    const diff_in_months = diff_in_weeks / 4;
+    const diff_in_years = diff_in_months / 12;
+    
+    if (diff_in_years > 1)
+    {
+        return then.toLocaleDateString('en-us', {year:"numeric", month:"short", day:"numeric"});
+    }
+    else if (diff_in_months < 12)
+    {
+        return rtf1.format(-Math.floor(diff_in_months), 'month');
+    }
+    else if (diff_in_weeks < 4)
+    {
+        return rtf1.format(-Math.floor(diff_in_weeks), 'week');
+    }
+    else if (diff_in_days < 7)
+    {
+        return rtf1.format(-Math.floor(diff_in_days), 'day');
+    }
+    else if (diff_in_hours < 24)
+    {
+        return rtf1.format(-Math.floor(diff_in_hours), 'hour');
+    }
+    else if (diff_in_minutes < 60)
+    {
+        return rtf1.format(-Math.floor(diff_in_minutes), 'minute');
+    }
+    else if (diff_in_seconds < 60)
+    {
+        return rtf1.format(-Math.floor(diff_in_seconds), 'second');
+    }
+}

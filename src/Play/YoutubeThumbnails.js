@@ -68,29 +68,38 @@ export const getYoutubeThumbnailURL = (youtubeID, resolutionType) => {
 
 export const thumbnailIsAvailable = async (thumbailURL) => {
     return new Promise((resolve, reject) => {
-        // Must use iframes to check if a page exists cross origin - fetch doesn't work
-        const iframe = document.createElement('iframe');
-        let iframeError; // Store the iframe timeout
+        let imgerr;
         
-        iframe.onload = function () {
-            clearTimeout(iframeError);
-            iframe.remove();
-            resolve(true);
+        const img = new Image();
+        img.onload = function() {
+            clearTimeout(imgerr);
+            img.remove();
+            if (!thumbailURL.endsWith('/default.jpg') && this.width == 120) 
+            {
+                resolve(false);
+            } 
+            else {
+                resolve(true);
+            }
         }
         
-        iframeError = setTimeout(function () {
-            iframe.remove();
+        img.onerror = function (err) {
+            clearTimeout(imgerr);
+            img.remove();
             resolve(false);
-        }, 3000);
+        }
         
-        iframe.src = thumbailURL;
-        iframe.style.display = 'none';
-        document.getElementsByTagName("body")[0].appendChild(iframe);
+        imgerr = setTimeout(function () {
+            img.remove();
+            resolve(false);
+        }, 5000);
+        
+        img.src = thumbailURL;
     })
 }
 
 export const getAvailableThumbnails = async (youtubeURL) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const thumbailURLs = getAllYoutubeThumbnailURLs(youtubeURL)
         if (!thumbailURLs) {
             resolve(null);
@@ -100,15 +109,32 @@ export const getAvailableThumbnails = async (youtubeURL) => {
         const availableThumbnails = [];
         for (let index = 0; index < thumbailURLs.length; index++) {
             const thumbailURL = thumbailURLs[index];
-            thumbnailIsAvailable(thumbailURL).then((isAvailable) => {
-                if (isAvailable) {
-                    availableThumbnails.push(thumbailURL)
-                }
-                if (index == thumbailURLs.length - 1) {
-                    resolve(availableThumbnails);
-                    return;
-                }
-            })
+            if (await thumbnailIsAvailable(thumbailURL))
+            {
+                availableThumbnails.push(thumbailURL)
+            }
         }
+        resolve(availableThumbnails);
     })
+}
+
+async function fetchHTML (searchQuery) {
+    const url = `https://www.youtube.com/results?search_query=${searchQuery}`
+    const headers = {
+      'User-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0'
+    }
+    const html = await fetch(url, { headers }).then(response => response.text())
+  
+    return html
+}
+  
+export async function fetchAnimatedThumbnail (videoId) {
+    const html = await fetchHTML(videoId)
+    // eslint-disable-next-line
+    const pattern = `https:\/\/i\.ytimg\.com\/an_webp\/${videoId}\/mqdefault.+?"`
+    const regex = new RegExp(pattern, 'gi')
+    const [result] = html.match(regex)
+    const clean = result.replace('"', '').replace(/\\u0026/g, '&')
+  
+    return clean
 }
