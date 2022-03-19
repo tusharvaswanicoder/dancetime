@@ -555,6 +555,10 @@ export const GetRelativeTimeFormat = (date) => {
     {
         return rtf1.format(-Math.floor(diff_in_hours), 'hour');
     }
+    else if (diff_in_days < 7)
+    {
+        return rtf1.format(-Math.floor(diff_in_days), 'day');
+    }
     else if (diff_in_weeks < 4)
     {
         return rtf1.format(-Math.floor(diff_in_weeks), 'week');
