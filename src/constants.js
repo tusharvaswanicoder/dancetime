@@ -132,3 +132,29 @@ export const SONG_WHEEL_CATEGORY_INFO = {
 }
 
 export const MAX_PREVIEW_TIME = 20;
+
+export const SIDEBAR_SECTIONS = 
+{
+    HOME: 1,
+    EXPLORE: 2,
+    FEED: 3,
+    RIVALS: 4,
+    FAVORITES: 5,
+    HISTORY: 6,
+    HELP: 7,
+    FEEDBACK: 8,
+    SETTINGS: 9
+}
+
+export const SIDEBAR_SECTIONS_DETAILS = 
+{
+    [SIDEBAR_SECTIONS.HOME]: {name: 'Home', icon: 'nav_home'},
+    [SIDEBAR_SECTIONS.EXPLORE]: {name: 'Explore', icon: 'nav_explore'},
+    [SIDEBAR_SECTIONS.FEED]: {name: 'Feed', icon: 'nav_feed'},
+    [SIDEBAR_SECTIONS.RIVALS]: {name: 'Rivals', icon: 'nav_rivals'},
+    [SIDEBAR_SECTIONS.FAVORITES]: {name: 'Favorites', icon: 'nav_favorites'},
+    [SIDEBAR_SECTIONS.HISTORY]: {name: 'History', icon: 'nav_history'},
+    [SIDEBAR_SECTIONS.HELP]: {name: 'Help', icon: 'nav_help'},
+    [SIDEBAR_SECTIONS.FEEDBACK]: {name: 'Feedback', icon: 'nav_feedback'},
+    [SIDEBAR_SECTIONS.SETTINGS]: {name: 'Settings', icon: 'nav_settings'}
+}

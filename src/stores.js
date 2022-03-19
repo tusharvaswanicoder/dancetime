@@ -7,23 +7,20 @@ export const cameraCanvasStoreVideo = writable(null);
 export const playerStore = writable(null);
 export const gradientIdStore = writable(0);
 
-export const modeStateStore = writable();
-export const groupmodeStateStore = writable();
-export const selectedInitialGamemode = writable(false);
+import { MODE_STATE, GAMESTATE, SIDEBAR_SECTIONS, GROUP_STATE } from "./constants";
+export const modeStateStore = writable(MODE_STATE.PLAY);
+export const groupmodeStateStore = writable(GROUP_STATE.COUPLE);
+
+export const sidebarStateStore = writable(SIDEBAR_SECTIONS.HOME);
 
 export const keyPress = writable({});
 export const keyDown = writable({});
 export const message = writable({});
 
-import { GAMESTATE } from './constants';
 export const gameState = writable(GAMESTATE.NOT_INGAME);
 export const playGameMetadata = writable({});
 export const playGameKeypoints = writable({});
 export const playGameCameraStream = writable();
-export const songWheelSelectedCategory = writable();
-export const songWheelChartMetadata = writable({});
-export const songWheelCategoryCurrentIndex = writable({});
-export const songWheelSelectedChartMetadata = writable();
 
 export const ingameVideoPlayer = writable();
 export const ingameIsLoading = writable(true);

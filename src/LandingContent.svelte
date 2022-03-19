@@ -1,11 +1,10 @@
 <script>
-    import NavScreen from "./MainNavigation/NavScreen.svelte";
     import MainContent from "./MainContent.svelte"
     import SettingsScreen from "./SettingsScreen.svelte";
     import IngameContent from "./Ingame/IngameContent.svelte";
     import CreateUsernamePage from "./CreateUsernamePage.svelte";
     import { GAMESTATE } from "./constants";
-    import { settingsOpen, gameState, selectedInitialGamemode } from "./stores";
+    import { settingsOpen, gameState } from "./stores";
     import { USER } from './Auth';
     
     // Score screen testing
@@ -18,13 +17,6 @@
     //     $ingameFinalScores[1] = 87;
     // })
 
-    // Update with a new unique key when the toggle changes so it resets internal component state vars
-    let navScreenKey = {};
-    $: {
-        $selectedInitialGamemode,
-        navScreenKey = {}
-    }
-
 </script>
 
 <main>
@@ -33,11 +25,6 @@
     {:else}
         {#if $gameState == GAMESTATE.NOT_INGAME}
             <MainContent />
-            {#key navScreenKey}
-                {#if !$selectedInitialGamemode}
-                    <NavScreen />
-                {/if}
-            {/key}
         {:else if $gameState == GAMESTATE.INGAME}
             <IngameContent />
         {/if}
