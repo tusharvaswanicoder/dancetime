@@ -33,11 +33,6 @@
     {:else}
         {#if $gameState == GAMESTATE.NOT_INGAME}
             <MainContent />
-            {#key navScreenKey}
-                {#if !$selectedInitialGamemode}
-                    <NavScreen />
-                {/if}
-            {/key}
         {:else if $gameState == GAMESTATE.INGAME}
             <IngameContent />
         {/if}

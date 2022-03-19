@@ -7,7 +7,8 @@ export const cameraCanvasStoreVideo = writable(null);
 export const playerStore = writable(null);
 export const gradientIdStore = writable(0);
 
-export const modeStateStore = writable();
+import { MODE_STATE, GAMESTATE } from "./constants";
+export const modeStateStore = writable(MODE_STATE.PLAY);
 export const groupmodeStateStore = writable();
 export const selectedInitialGamemode = writable(false);
 
@@ -15,7 +16,6 @@ export const keyPress = writable({});
 export const keyDown = writable({});
 export const message = writable({});
 
-import { GAMESTATE } from './constants';
 export const gameState = writable(GAMESTATE.NOT_INGAME);
 export const playGameMetadata = writable({});
 export const playGameKeypoints = writable({});
