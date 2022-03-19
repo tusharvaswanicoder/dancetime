@@ -5,7 +5,7 @@ import { GetRoundedTimeFromTime } from './utils';
 // Allowed domains for the iframe content_script to run in
 const ALLOWED_DOMAINS = ["www.youtube.com", "youtube.com"]
 // Allowed domains for the iframe to be in for this to run
-const ALLOWED_REFERRERS = ["http://localhost:3001/", "https://dancetime.io/"];
+const ALLOWED_REFERRERS = ["http://localhost:4280/", "https://dancetime.io/"];
 
 export default class IFrameManager {
     constructor () {

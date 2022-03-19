@@ -51,6 +51,7 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: flex-start;
+        align-content: flex-start;
         gap: 30px;
     }
     

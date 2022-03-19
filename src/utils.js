@@ -543,32 +543,28 @@ export const GetRelativeTimeFormat = (date) => {
     const diff_in_months = diff_in_weeks / 4;
     const diff_in_years = diff_in_months / 12;
     
-    if (diff_in_years > 1)
+    if (diff_in_seconds < 60)
     {
-        return then.toLocaleDateString('en-us', {year:"numeric", month:"short", day:"numeric"});
-    }
-    else if (diff_in_months < 12)
-    {
-        return rtf1.format(-Math.floor(diff_in_months), 'month');
-    }
-    else if (diff_in_weeks < 4)
-    {
-        return rtf1.format(-Math.floor(diff_in_weeks), 'week');
-    }
-    else if (diff_in_days < 7)
-    {
-        return rtf1.format(-Math.floor(diff_in_days), 'day');
-    }
-    else if (diff_in_hours < 24)
-    {
-        return rtf1.format(-Math.floor(diff_in_hours), 'hour');
+        return rtf1.format(-Math.floor(diff_in_seconds), 'second');
     }
     else if (diff_in_minutes < 60)
     {
         return rtf1.format(-Math.floor(diff_in_minutes), 'minute');
     }
-    else if (diff_in_seconds < 60)
+    else if (diff_in_hours < 24)
     {
-        return rtf1.format(-Math.floor(diff_in_seconds), 'second');
+        return rtf1.format(-Math.floor(diff_in_hours), 'hour');
+    }
+    else if (diff_in_weeks < 4)
+    {
+        return rtf1.format(-Math.floor(diff_in_weeks), 'week');
+    }
+    else if (diff_in_months < 12)
+    {
+        return rtf1.format(-Math.floor(diff_in_months), 'month');
+    }
+    else
+    {
+        return then.toLocaleDateString('en-us', {year:"numeric", month:"short", day:"numeric"});
     }
 }
