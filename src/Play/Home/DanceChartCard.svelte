@@ -202,4 +202,12 @@
         display: grid;
         grid-template-columns: 1fr min-content;
     }
+    
+    div.choreography {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 </style>
