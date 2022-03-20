@@ -1,10 +1,23 @@
 <script>
     import Icon from "../Icon.svelte";
-    import { modeStateStore } from '../stores';
-    import { MODE_STATE } from '../constants';
+    import { modeStateStore, groupmodeStateStore } from '../stores';
+    import { MODE_STATE, GROUP_MODES } from '../constants';
+    import Dropdown from "../Dropdown.svelte";
+    
+    const group_modes_titles = Object.values(GROUP_MODES).map((value) => value.title);
     
     const clickCreateButton = () => {
         $modeStateStore = MODE_STATE.CREATE;
+    }
+    
+    let selected_group_mode;
+    $: {
+        selected_group_mode = GROUP_MODES[$groupmodeStateStore].title;
+    }
+    
+    const onDropdownChanged = (new_val, old_val) => {
+        const entry = Object.values(GROUP_MODES).find((value) => value.title == new_val);
+        $groupmodeStateStore = entry.state;
     }
 </script>
 
@@ -23,6 +36,9 @@
     </div>
     
     <div class='right-container'>
+        <div class='dropdown-container' title="Select your dance mode">
+            <Dropdown options={group_modes_titles} selectedOption={selected_group_mode} onChanged={onDropdownChanged} />
+        </div>
         <div class='create-button' on:click={clickCreateButton}>
             <Icon name={'nav_create_icon'} />
             <span class='text'>Create</span>
@@ -123,6 +139,16 @@
         padding: 20px;
         padding-bottom: 0;
         padding-top: 0;
+    }
+    
+    div.right-container div.dropdown-container {
+        margin-right: 20px;
+        font-weight: bold;
+        color: rgb(31, 31, 31);
+        --dropdown-bg-color: white;
+        --dropdown-border-color: #D6D6D6;
+        --dropdown-bg-color-hover: #EBEBEB;
+        width: 100px;
     }
     
     div.right-container div.create-button {

@@ -1,4 +1,4 @@
-import { COMPONENT_TYPE, SONG_WHEEL_CATEGORY_INFO, MAX_PREVIEW_TIME } from './constants';
+import { COMPONENT_TYPE, SONG_WHEEL_CATEGORY_INFO, MAX_PREVIEW_TIME, GAMESTATE } from './constants';
 
 export const ConvertDurationToNiceString = (duration) => {
     if (!duration) {
@@ -571,4 +571,12 @@ export const GetRelativeTimeFormat = (date) => {
     {
         return then.toLocaleDateString('en-us', {year:"numeric", month:"short", day:"numeric"});
     }
+}
+
+import { ingameIsLoading, ingameScreenShouldShow, ingameEvalScreenShouldShow, gameState } from './stores';
+export const ExitGame = () => {
+    gameState.set(GAMESTATE.NOT_INGAME);
+    ingameIsLoading.set(false);
+    ingameScreenShouldShow.set(false);
+    ingameEvalScreenShouldShow.set(false);
 }

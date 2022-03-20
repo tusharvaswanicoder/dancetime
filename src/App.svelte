@@ -3,8 +3,7 @@
     import NotLoggedInLanding from "./NotLoggedInLanding.svelte";
     import LoadingScreen from './LoadingScreen.svelte';
     import { onMount } from "svelte";
-    import { GAMESTATE } from "./constants";
-    import { keyPress, keyDown, message, settingsOpen, gameState } from "./stores";
+    import { keyPress, keyDown, message } from "./stores";
     
     import {getUserInfo, USER} from "./Auth"
     

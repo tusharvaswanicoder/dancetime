@@ -61,7 +61,6 @@
         --dropdown-bg-color-hover-fallback: var(--color-gray-800);
         --dropdown-border-color-fallback: var(--color-gray-500);
         --dropdown-width-fallback: 100%;
-        --dropdown-width: 100%;
         width: var(--dropdown-width, var(--dropdown-width-fallback));
         z-index: 10;
         user-select: none;

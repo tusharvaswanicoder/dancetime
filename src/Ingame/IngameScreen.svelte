@@ -11,9 +11,11 @@
         playGameMetadata,
         ingameEvalScreenShouldShow,
         ingameScreenShouldShow,
-        ingameShouldScore
+        ingameShouldScore,
+        keyDown
     } from '../stores';
-    import { GetVideoEndTimeFromMetadata } from '../utils';
+    import { ExitGame, GetVideoEndTimeFromMetadata } from '../utils';
+    import { fade } from 'svelte/transition';
 
     // Detect when song is over and show ingame eval screen
     $: {
@@ -31,6 +33,39 @@
             }, 1000);
         }
     }
+    
+    let holdingEscape = false;
+    let holdingEscapeTimer;
+    let holdingEscapeStopTimer;
+    
+    const onKeyDown = (e) => {
+        if (e.key == "Escape") {
+            // Continue holding escape to quit
+            if (!holdingEscape) {
+                holdingEscape = true;
+                holdingEscapeTimer = setTimeout(() => {
+                    ExitGame();
+                    clearTimeout(holdingEscapeStopTimer);
+                }, 3000);
+            }
+            
+            if (holdingEscapeStopTimer) {
+                clearTimeout(holdingEscapeStopTimer);
+            }
+            
+            holdingEscapeStopTimer = setTimeout(() => {
+                holdingEscape = false;
+                if (holdingEscapeTimer) {
+                    clearTimeout(holdingEscapeTimer);
+                }
+            }, 200);
+        }
+    }
+    
+    $: {
+        onKeyDown($keyDown);
+    }
+    
 </script>
 
 <main>
@@ -42,6 +77,9 @@
         <IngameScores />
     </section>
     <IngameTFJS />
+    {#if holdingEscape}
+        <div class='exiting' transition:fade={{duration: 400}}>Continue holding escape to exit.</div>
+    {/if}
 </main>
 
 <style>
@@ -50,6 +88,22 @@
         width: 100%;
         height: 100%;
         /* cursor: none; */
+    }
+    
+    div.exiting {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        color: white;
+        font-weight: bold;
+        font-size: 24px;
+        background: linear-gradient(180deg, black, transparent);
+        z-index: 100;
+        display: grid;
+        place-content: center;
+        user-select: none;
     }
     
     section.progress-and-scores {

@@ -13,11 +13,11 @@ export const MODES = [
     {title: 'Create', state: MODE_STATE.CREATE, colors: ['var(--color-yellow-dark)', 'var(--color-yellow-light)']},
     {title: 'Play', state: MODE_STATE.PLAY, colors: ['var(--color-pink-dark)', 'var(--color-pink-light)']}
 ];
-export const GROUP_MODES = [
+export const GROUP_MODES = {
+    [GROUP_STATE.SOLO]: {title: 'Solo', state: GROUP_STATE.SOLO, colors: ['var(--color-red-dark)', 'var(--color-red-light)']},
+    [GROUP_STATE.COUPLE]: {title: 'Couple', state: GROUP_STATE.COUPLE, colors: ['var(--color-turquoise-dark)', 'var(--color-turquoise-light)']},
     // {title: 'Party', colors: ['var(--color-purple-dark)', 'var(--color-purple-light)']},
-    {title: 'Couple', state: GROUP_STATE.COUPLE, colors: ['var(--color-turquoise-dark)', 'var(--color-turquoise-light)']},
-    {title: 'Solo', state: GROUP_STATE.SOLO, colors: ['var(--color-red-dark)', 'var(--color-red-light)']}
-]
+}
 
 export const GROUP_MODES_MAX_PLAYERS = {
     [GROUP_STATE.SOLO]: 1,

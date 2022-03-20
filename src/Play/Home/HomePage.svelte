@@ -19,7 +19,7 @@
     })
 </script>
 
-<main>
+<main class:loaded>
     {#if loaded}
         {#each loaded_charts as chart}
             <DanceChartCard card_data={chart} />
@@ -47,13 +47,17 @@
         position: relative;
         width: 100%;
         min-height: 100%;
-        height: 100%;
+        height: fit-content;
         padding: 40px;
         display: flex;
         flex-wrap: wrap;
         justify-content: flex-start;
         align-content: flex-start;
         gap: 30px;
+    }
+    
+    main:not(.loaded) {
+        height: 100%;
     }
     
     div.loading-container {

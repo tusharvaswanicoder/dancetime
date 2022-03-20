@@ -1,10 +1,24 @@
 <script>
-    import { ingameFinalScores, ingamePlayerPortraits } from '../stores';
+    import { ingameFinalScores, ingamePlayerPortraits, keyPress } from '../stores';
     import IngameEvaluationScore from './IngameEvaluationScore.svelte';
+    import { fly } from 'svelte/transition';
+    import { cubicOut } from 'svelte/easing';
+    import { ExitGame } from '../utils';
     // import IngameEvaluationScreenParticles from './IngameEvaluationScreenParticles.svelte';
 
     let player_ids = [];
     $: player_ids = Object.keys($ingameFinalScores);
+    
+    const onKeyPress = (e) => {
+        if (e.key == "Enter") {
+            ExitGame();
+        }
+    }
+    
+    $: {
+        onKeyPress($keyPress);
+    }
+
 </script>
 
 <main>
@@ -18,6 +32,7 @@
             />
         {/each}
     </div>
+    <div class='continue' in:fly={{delay: 12000, duration: 1000, y: 20, easing: cubicOut}} >Press Enter to continue.</div>
 </main>
 
 <style>
@@ -225,5 +240,13 @@
         height: fit-content;
         grid-template-columns: repeat(var(--num-players), min-content);
         gap: 15vw;
+    }
+    
+    div.continue {
+        position: absolute;
+        bottom: 50px;
+        RIGHT: 50px;
+        font-size: 20px;
+        font-style: italic;
     }
 </style>

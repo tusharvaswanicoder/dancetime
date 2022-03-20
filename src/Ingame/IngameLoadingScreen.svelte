@@ -26,10 +26,7 @@
     let canEnterGameplay = false;
 
     const onkeyDown = (e) => {
-        if (e.key == "Escape" && !$settingsOpen) {
-            // TODO: exit loading
-            $gameState = GAMESTATE.NOT_INGAME;
-        } else if (e.key == "Enter") {
+        if (e.key == "Enter") {
             // Open Settings
             $settingsOpen = true;
         }
@@ -53,6 +50,10 @@
             return;
         }
 
+        if ($gameState != GAMESTATE.INGAME) {
+            return;
+        }
+        
         // No keypoints, try to get them from server
         if (!$playGameKeypoints && $playGameMetadata.chart_id && !requestedChartKeypoints) {
             requestedChartKeypoints = true;
@@ -109,6 +110,10 @@
         // Do not enter gameplay while settings are open
         while ($settingsOpen) {
             await sleep(500);
+        }
+        
+        if ($gameState != GAMESTATE.INGAME) {
+            return;
         }
         
         canEnterGameplay = true;
