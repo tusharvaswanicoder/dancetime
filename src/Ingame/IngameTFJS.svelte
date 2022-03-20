@@ -32,6 +32,7 @@
     } from './Scoring/Judgements';
     import { COMPONENT_TYPE, GROUP_STATE, GROUP_MODES_MAX_PLAYERS } from '../constants';
     import { GetPlayerPortrait } from './CapturePlayerPortrait';
+    import { SubmitScores } from './ScoreSubmission';
     
     const shouldDisplayDebugScores = false;
 
@@ -135,6 +136,12 @@
                 $ingameJudgementTotals[player_id],
                 scoringDuration
             );
+            
+            SubmitScores(
+                $playGameMetadata.chart_id, 
+                $ingameFinalScores[player_id],
+                $ingameJudgementTotals[player_id]
+                );
         }
     }
 

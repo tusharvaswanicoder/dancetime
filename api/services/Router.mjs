@@ -22,7 +22,6 @@ function AddContextHelpers (context)
         let existingCookie = this.res.cookies.find((cookie) => cookie.name == name) || {};
         this.res.cookies = this.res.cookies.filter((cookie) => cookie.name != name);
         this.res.cookies.push({...existingCookie, name, value, ...options});
-        this.log(JSON.stringify(this.res.cookies))
         return this;
     }
     

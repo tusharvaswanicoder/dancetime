@@ -20,7 +20,16 @@ import {
 } from '../stores';
 import { GAMESTATE } from '../constants';
 
-export const PlayChart = async (metadata, keypoints) => {
+export const PlayChart = async (metadata, keypoints, isTest) => {
+    if (!isTest)
+    {
+        fetch(`/api/play/start/${metadata.chart_id}`)
+        .catch((error) => {
+            console.log(error);
+            resolve();
+        });
+    }
+    
     ingameIsLoading.set(true);
     ingameScreenShouldShow.set(false);
     ingameErrorMessage.set(null);

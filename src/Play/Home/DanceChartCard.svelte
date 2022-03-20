@@ -19,7 +19,7 @@
     })
     
     const clickPlayButton = () => {
-        PlayChart(card_data);
+        PlayChart(card_data, null, false);
     }
 </script>
 

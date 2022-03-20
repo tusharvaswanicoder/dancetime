@@ -158,3 +158,5 @@ export const SIDEBAR_SECTIONS_DETAILS =
     [SIDEBAR_SECTIONS.FEEDBACK]: {name: 'Feedback', icon: 'nav_feedback'},
     [SIDEBAR_SECTIONS.SETTINGS]: {name: 'Settings', icon: 'nav_settings'}
 }
+
+export const PLAY_TOKEN_TIMEOUT = 30; // Song duration + 30s until the play token times out and invalidates

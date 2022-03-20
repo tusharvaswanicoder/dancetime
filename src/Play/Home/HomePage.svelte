@@ -47,6 +47,7 @@
         position: relative;
         width: 100%;
         min-height: 100%;
+        height: 100%;
         padding: 40px;
         display: flex;
         flex-wrap: wrap;
@@ -57,5 +58,6 @@
     
     div.loading-container {
         width: 100%;
+        height: 100%;
     }
 </style>

@@ -13,8 +13,8 @@
         <div class='title'>
             DanceTime
         </div>
-        <div class='beta-tag'>
-            Beta
+        <div class='tag'>
+            Alpha
         </div>
     </div>
     
@@ -73,14 +73,14 @@
         user-select: none;
     }
     
-    div.left-container div.beta-tag {
+    div.left-container div.tag {
         text-transform: uppercase;
         font-size: 12px;
         user-select: none;
         background: linear-gradient(
             45deg,
-            var(--color-blue-dark) 0%,
-            var(--color-blue-light) 100%
+            var(--color-green-dark) 0%,
+            var(--color-green-light) 100%
         );
         border-radius: 6px;
         padding: 3px;

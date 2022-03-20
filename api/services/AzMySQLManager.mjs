@@ -22,6 +22,39 @@ class AzMySQLManager {
             console.error(error);
         }
     }
+    
+    async submitChartScoreForUser (chart_id, user_id, score, judgements, chart_version) {
+        await this.waitForInitialized();
+        const now = new Date();
+        const timestamp = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()} ${now.getUTCHours()}:${now.getUTCMinutes()}:${now.getUTCSeconds()}`;
+        
+        try {
+            const result = await this.pool.query('INSERT INTO chart_scores (timestamp, chart_id, user_id, score, judgements, version) VALUES (?, ?, ?, ?, ?, ?)', 
+                [timestamp, chart_id, user_id, score, judgements, chart_version]);
+            return {insertId: result.insertId};
+        } catch (error) {
+            console.error(error);
+            return;
+        }
+    }
+
+    async tryGetPublishedChartDetails (chart_id) {
+        await this.waitForInitialized();
+        
+        const result = await this.pool.query('SELECT chart_id, title, song_artist, choreography, difficulty, last_edited, video_link, video_id, duration, visibility, version, tags, user_id FROM charts WHERE chart_id = ? LIMIT 1', [chart_id]);
+        if (result[0]) {
+            return result[0];
+        }
+    }
+
+    async tryGetPublishedChartDuration (chart_id) {
+        await this.waitForInitialized();
+        
+        const result = await this.pool.query('SELECT duration FROM charts WHERE chart_id = ? LIMIT 1', [chart_id]);
+        if (result[0]) {
+            return result[0].duration;
+        }
+    }
 
     async tryGetPublishedChartKeypoints (chart_id) {
         await this.waitForInitialized();

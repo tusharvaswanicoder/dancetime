@@ -75,7 +75,7 @@ export const default_tables = [
     },
     {
         // All scores for each chart for each user, similar in format to chart_upvotes with timestamp.
-        // Includes version of the chart for record-keeping, and also JSON object of judgements
+        // Includes version of the chart for record-keeping, and also a JSON object of judgements
         name: 'chart_scores',
         structure: `(timestamp DATETIME, 
                         chart_id INTEGER,

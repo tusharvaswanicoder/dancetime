@@ -24,7 +24,7 @@
     let analysisCompletion;
 
     const clickPlaytestIcon = () => {
-        PlayChart($createProject, $createProject.keypoints);
+        PlayChart($createProject, $createProject.keypoints, true);
     };
 
     const playtest_icon_stops = [

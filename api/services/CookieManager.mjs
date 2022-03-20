@@ -15,37 +15,42 @@ const secondsInADay = 86400;
 
 export const ParseCookies = (req) => {
         // Return an empty object if cookieString is empty
-        const cookies = req.headers.cookie || "";
-        if (cookies === "")
-        {
+        try {
+            const cookies = req.headers.cookie || "";
+            if (cookies === "")
+            {
+                return {};
+            }
+    
+            // Get each individual key-value pairs
+            // from the cookie string
+            // This returns a new array
+            let pairs = cookies.split(";");
+    
+            // Separate keys from values in each pair string
+            // Returns a new array which looks like
+            // [[key1,value1], [key2,value2], ...]
+            let splittedPairs = pairs.map(cookie => cookie.split("="));
+    
+            // Create an object with all key-value pairs
+            const cookieObj = splittedPairs.reduce(function (obj, cookie) {
+    
+                // cookie[0] is the key of cookie
+                // cookie[1] is the value of the cookie
+                // decodeURIComponent() decodes the cookie
+                // string, to handle cookies with special
+                // characters, e.g. '$'.
+                // string.trim() trims the blank spaces
+                // auround the key and value.
+                obj[decodeURIComponent(cookie[0]?.trim())] = decodeURIComponent(cookie[1]?.trim());
+                return obj;
+            }, {})
+    
+            return cookieObj;
+        } catch (err) {
+            console.log(err);
             return {};
         }
- 
-        // Get each individual key-value pairs
-        // from the cookie string
-        // This returns a new array
-        let pairs = cookies.split(";");
- 
-        // Separate keys from values in each pair string
-        // Returns a new array which looks like
-        // [[key1,value1], [key2,value2], ...]
-        let splittedPairs = pairs.map(cookie => cookie.split("="));
- 
-        // Create an object with all key-value pairs
-        const cookieObj = splittedPairs.reduce(function (obj, cookie) {
- 
-            // cookie[0] is the key of cookie
-            // cookie[1] is the value of the cookie
-            // decodeURIComponent() decodes the cookie
-            // string, to handle cookies with special
-            // characters, e.g. '$'.
-            // string.trim() trims the blank spaces
-            // auround the key and value.
-            obj[decodeURIComponent(cookie[0].trim())] = decodeURIComponent(cookie[1].trim());
-            return obj;
-        }, {})
- 
-        return cookieObj;
 }
 
 // Look for user cookies to see if they are already logged in
@@ -63,7 +68,7 @@ export async function CookieCheck(context, req) {
         const decoded = JWT.verify(jwtToken);
         if (decoded.err) {
             // context.log(`Error with token: ${decoded.err}`); // Probably expired, TokenExpiredError
-            context.cookie('jwtToken', '').end();
+            context.cookie('jwtToken', '', { maxAge: 1, httpOnly: true, secure: true }).end();
             resolve();
             return;
         }
@@ -101,7 +106,7 @@ async function RefreshToken (context, req, email) {
     }
     else {
         // Clear cookie as they are no longer whitelisted, and exit without setting context.user
-        context.cookie('jwtToken', '');
+        context.cookie('jwtToken', '', { maxAge: 1, httpOnly: true, secure: true });
     }
 }
 
