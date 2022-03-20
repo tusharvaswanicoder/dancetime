@@ -40,8 +40,8 @@ class ChartCategoryManager {
                 c.components, 
                 c.user_id,
                 COUNT(s.chart_id) AS plays
-            FROM dancetime_dev.charts AS c
-            LEFT JOIN (SELECT chart_id FROM dancetime_dev.chart_scores) AS s USING (chart_id)
+            FROM charts AS c
+            LEFT JOIN (SELECT chart_id FROM chart_scores) AS s USING (chart_id)
             GROUP BY c.chart_id
             ORDER BY last_edited DESC LIMIT 50`);
     }
