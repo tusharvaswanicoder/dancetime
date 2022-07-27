@@ -1,6 +1,6 @@
 import { writable } from "svelte/store";
 import { DIFFICULTY, VISIBILITY } from '../constants';
-import { v1 } from 'uuid';
+import { v4 } from 'uuid';
 import { DB_TABLES, StoreObject, DeleteObjectInDB } from '../ChartAndKeypointDBManager';
 import { GetVideoMetadataFromYouTube } from './GetVideoMetadata';
 
@@ -103,9 +103,9 @@ class ProjectManager {
     }
     
     getNewProjectUUID () {
-        let uuid = v1();
+        let uuid = v4();
         while (this.projectExists(uuid)) {
-            uuid = v1();
+            uuid = v4();
         }
         return uuid;
     }
