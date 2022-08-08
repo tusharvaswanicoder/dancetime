@@ -36,6 +36,39 @@ class ChartManager {
     }
     
     /**
+     * Called to save a chart while in the create editor. Can be used for charts that have been saved before
+     * or those that have never been saved (new ones).
+     * @param {*} req 
+     * @param {*} res 
+     * @returns 
+     */
+     async saveChart (context, req) {
+        return new Promise(async (resolve, reject) => {
+            const user = context.user;
+            const chart = req.body.chart;
+
+            // TODO: put in string length limits for fields
+            if (!this.verifyValidChart(chart)) {
+                context.send({error: 'Chart validation failed.'});
+                return resolve();
+            }
+
+            try {
+                const save_result = await azMySQLManager.saveChart(chart, user);
+                context.send({
+                    chart: save_result
+                })
+            } catch (error) {
+                context.send({
+                    error: 'An error occurred.'
+                })
+            } finally {
+                resolve();
+            }
+        })
+    }
+    
+    /**
      * Called to publish a chart. Can be used for charts that have been published before
      * or those that have never been published.
      * @param {*} req 

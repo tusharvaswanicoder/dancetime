@@ -5,7 +5,7 @@ import { sleep } from './utils.mjs';
 
 const DATABASE_NAME = process.env.NODE_ENV == 'production' ?
     process.env.MYSQL_DB_PROD : process.env.MYSQL_DB_DEV;
-
+    
 class AzMySQLManager {
     constructor () {
         this.conn = null;
@@ -95,6 +95,53 @@ class AzMySQLManager {
 
     compressedStringToJSON (str) {
         return JSON.parse(snappy.uncompressSync(str));
+    }
+
+    /**
+     * Called when a user presses the "SAVE" button to save their chart or when a new project is created.
+     * @param {*} chart 
+     * @param {*} user 
+     * @returns Updated chart information to reuturn to the user, or undefined if it failed.
+     */
+     async saveChart (chart, user) {
+        await this.waitForInitialized();
+        
+        try {
+            let existing_chart = null;
+            if (chart.chart_id) {
+                const result = await this.pool.query('SELECT * FROM projects WHERE project_id = ? AND user_id = ? LIMIT 1', [chart.project_id, user.user_id]);
+                existing_chart = result[0];
+            }
+
+            if (!existing_chart) {
+                // Chart has never been saved before
+                chart.version = 1;
+                chart.user_id = user.id;
+                const query = `INSERT INTO projects (title, song_artist, choreography, difficulty, last_edited, video_link, video_id, duration, visibility, version, tags, components, keypoints, user_id, project_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                await this.pool.query(query, [chart.title, chart.song_artist, chart.choreography, chart.difficulty, new Date(), chart.video_link, chart.video_id, chart.duration, chart.visibility, chart.version, this.jsonToCompressedString(chart.tags), this.jsonToCompressedString(chart.components), this.jsonToCompressedString(chart.keypoints), user.user_id, chart.project_id]);
+            } else {
+                // Chart has been saved once already, so update it
+                existing_chart.version++;
+                const query = `UPDATE projects SET title = ?, song_artist = ?, choreography = ?, difficulty = ?, last_edited = ?, visibility = ?, version = ?, tags = ?, components = ?, keypoints = ?, chart_id = ? WHERE project_id = ? AND user_id = ?`;
+                await this.pool.query(query, [chart.title, chart.song_artist, chart.choreography, chart.difficulty, new Date(), chart.visibility, existing_chart.version, this.jsonToCompressedString(chart.tags), this.jsonToCompressedString(chart.components), this.jsonToCompressedString(chart.keypoints), existing_chart.chart_id || null, existing_chart.project_id, user.user_id]);
+            }
+
+            // Query again to get latest version of the chart
+            const result = await this.pool.query('SELECT * FROM charts WHERE chart_id = ? AND user_id = ? LIMIT 1', [chart.chart_id, user.user_id]);
+            chart = result[0];
+
+            // Delete extra info not needed to send back
+            delete chart.tags;
+            delete chart.components;
+            delete chart.keypoints;
+            chart = JSON.parse(JSON.stringify(chart));
+
+            // Return chart info with updated version and user_id
+            return chart;
+        } catch (error) {
+            console.error(error);
+            return;
+        }
     }
 
     /**
