@@ -95,6 +95,7 @@
 
     const onClickExitBackArrow = () => {
         $modeStateStore = MODE_STATE.PLAY;
+        $groupmodeStateStore = GROUP_STATE.COUPLE;
     }
 
     onMount(() => {
