@@ -34,7 +34,7 @@ GOOD
 ALMOST
 MISS
 ```
-At the end of the dance, all your judgements are summed up and you are given a score out of 100 (though there is a bug where you can get over 100! 😅).
+At the end of the dance, all your judgements are summed up and you are given a score out of 100. There are also mid-dance snapshots that enhance the excitement of score reveals. First the scores pop up, then the headshots of the players appear over them! 😎
 
 ## How to Set Up DanceTime (local)
 
@@ -58,6 +58,7 @@ CONTENT_MOD_KEY=<Azure content moderator key>
 ```
 
 5. As part of Step 3, you'll need to set up a MySQL server, either locally on your computer or in a cloud environment. While you don't need to set up the prod/dev databases yourself (as the code will do it for you), it might be a good idea to use the [Starter Database Files](https://drive.google.com/file/d/1odmwqbtVhpEOXezxYkAC7pOUZ38HdM8P/view?usp=sharing) that I have provided. These are database files that contain many pre-created/analyzed dances so you can jump right in without having to analyze videos first (and you won't need to install the extension either). This is my personal collection of many fun songs to dance to, and I hope you will enjoy them as well if you choose to use them.
+5. Disable the username content moderator: open `/api/services/Constants.mjs` and set `contentModeratorEnabled` to `false`.
 6. Add yourself as an invited user in the database. Insert a new record into `invited_emails` (in either the production or development database, or both) containing only your email address. Only people with their email on the invitation list can create a user and login.
 7. Run `npm run start` to start the livereload server and static web app. DanceTime should now be live at [http://localhost:4280](http://localhost:4280) (or it might say something different as it starts up - monitor the output to make find the correct link!)
 
@@ -65,9 +66,65 @@ CONTENT_MOD_KEY=<Azure content moderator key>
 
 These are steps for setting up DanceTime on a cloud provider. Specifically, the steps below are for [Azure](https://azure.com), but you can likely use similar steps for other cloud providers.
 
-**TODO**
+### Local Settings
 
-### How to Set Up the DanceTime Extension
+This step is only necessary for [local testing with Azure Functions](https://docs.microsoft.com/en-us/azure/azure-functions/functions-develop-vs-code?tabs=nodejs).
+
+Create a `local.settings.json` file in the `/api` directory:
+```
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "",
+        "FUNCTIONS_WORKER_RUNTIME": "node",
+        "JWT_SECRET_KEY": "",
+        "EMAIL_POST_ENDPOINT": "",
+        "MAGIC_LINK_URL": "",
+        "AZURE_CONTENT_MODERATOR_ENDPOINT": "",
+        "AZURE_CONTENT_MODERATOR_KEY": "",
+        "MYSQL_DB_USER": "",
+        "MYSQL_DB_PW": "",
+        "MYSQL_DB_HOST": "",
+        "MYSQL_DB_PORT": "",
+        "MYSQL_DB_PROD": "",
+        "MYSQL_DB_DEV": "",
+        "CONTENT_MOD_ENDPOINT": "",
+        "CONTENT_MOD_KEY": "",
+        "JWT_PLAY_SECRET_KEY": ""
+    }
+}
+```
+All fields should have the same values as your local environment (if you set up the local env first, as seen above with the `.env` file).
+
+### MySQL Database
+
+1. Create a new [Azure Database for MySQL Flexible Server](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/Microsoft.MySQLFlexibleServer/product/) resource. In the Networking tab, make sure to allow access from any Azure service within Azure to this server and also add your current client IP address.
+2. Connect to your database using a management program, such as [MySQL Workbench](https://www.mysql.com/products/workbench/).
+3. Add the [Starter Database Files](https://drive.google.com/file/d/1odmwqbtVhpEOXezxYkAC7pOUZ38HdM8P/view?usp=sharing) to your database. This step is optional, but highly recommended.
+
+### Static Webapp
+
+1. Create a new [Static Web App](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/Microsoft.StaticApp/product/). Under Deployment Details, you can choose your own repository where you cloned DanceTime.
+2. Once the resource is created, nagivate to the Configuration blade. You'll need to add every field seen in the `local.settings.json` or `.env` above, mirroring your local development settings.
+3. Because [Azure Functions is automatically included with static web apps](https://docs.microsoft.com/en-us/azure/static-web-apps/add-api?tabs=vanilla-javascript), there is no need to create another resources to utilize the serverless functions.
+
+### Logic App
+
+The Logic App is only used for sending automated emails when a user tries to login. Logins are done through magic links.
+
+1. Create a new [Logic App](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/Microsoft.LogicApp/product/).
+
+### Content Moderator
+
+Content Moderator is currently only used to check for inappropriate usernames. It is not required to play the game.
+
+1. Enable Content Moderator: open `/api/services/Constants.mjs` and set `contentModeratorEnabled` to `true`.
+1. Create a new [Content Moderator](https://azure.microsoft.com/en-us/services/cognitive-services/content-moderator/) resource.
+1. Go to the "Keys and Endpoint" blade and take note of your keys and endpoint.
+1. Copy your endpoint URL to the `CONTENT_MOD_ENDPOINT` field of your `.env` and `local.settings.json` files.
+1. Copy one of your keys to the `CONTENT_MOD_KEY` of your `.env` and `local.settings.json` files.
+
+## How to Set Up the DanceTime Extension
 
 If you want to analyze YouTube videos and add them to the collection of playable videos, you will need to install the DanceTime browser extension. Currently this extension has only been tested on Firefox. This step is not required if you only want to play and do not want to analyze and add new YouTube videos.
 

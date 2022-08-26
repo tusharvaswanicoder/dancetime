@@ -1,0 +1,150 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Condition": {
+                "actions": {
+                    "Response_2": {
+                        "inputs": {
+                            "statusCode": 403
+                        },
+                        "kind": "Http",
+                        "runAfter": {},
+                        "type": "Response"
+                    }
+                },
+                "expression": {
+                    "or": [
+                        {
+                            "equals": [
+                                "@triggerOutputs()['headers']?['host']",
+                                "dancetime.io"
+                            ]
+                        },
+                        {
+                            "equals": [
+                                "@triggerOutputs()['headers']?['host']",
+                                "localhost:3001"
+                            ]
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "If"
+            },
+            "Initialize_variable": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "magicLink",
+                            "type": "string",
+                            "value": "<a href=\"@{triggerBody()?['magiclink']}\">magic link</a>"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Condition": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Response": {
+                "inputs": {
+                    "statusCode": 200
+                },
+                "kind": "Http",
+                "runAfter": {
+                    "Condition": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Response"
+            },
+            "Send_email_(V2)": {
+                "inputs": {
+                    "body": {
+                        "Body": "<p><span style=\"font-size: 18px\">Hey there! 👋</span><br>\n<br>\nIt looks like you're ready to dance! Just click this @{variables('magicLink')} to get started.<br>\n<br>\nAny questions, comments, or just want to chat? Feel free to reply to this email. 😊<br>\n<em>- Dance Time</em></p>",
+                        "Subject": "It's Dance Time! ✨",
+                        "To": "@triggerBody()?['email']"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['gmail']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "runtimeConfiguration": {
+                    "staticResult": {
+                        "name": "Send_email_(V2)0",
+                        "staticResultOptions": "Disabled"
+                    }
+                },
+                "type": "ApiConnection"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "staticResults": {
+            "Send_email_(V2)0": {
+                "outputs": {
+                    "headers": {},
+                    "statusCode": "OK"
+                },
+                "status": "Succeeded"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "conditions": [],
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "email": {
+                                "type": "string"
+                            },
+                            "magiclink": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "operationOptions": "EnableSchemaValidation",
+                "runtimeConfiguration": {
+                    "secureData": {
+                        "properties": [
+                            "inputs"
+                        ]
+                    }
+                },
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "gmail": {
+                    "connectionId": "/subscriptions/<subscription>/resourceGroups/<rg>/providers/Microsoft.Web/connections/gmail",
+                    "connectionName": "gmail",
+                    "id": "/subscriptions/<subscription>/providers/Microsoft.Web/locations/<region>/managedApis/gmail"
+                }
+            }
+        }
+    }
+}

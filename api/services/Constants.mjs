@@ -3,5 +3,6 @@ export default {
     middleware: {
         CookieCheck: 'Middleware.CookieCheck',
         UserFullyAuthenticated: 'Middleware.UserFullyAuthenticated'
-    }
+    },
+    contentModeratorEnabled: true
 }
