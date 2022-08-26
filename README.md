@@ -13,8 +13,8 @@ DanceTime has also been tested mainly in Firefox - other browsers may not functi
 ### Table of Contents
 - [How DanceTime Works](#how-dancetime-works)
 - [How to Set Up DanceTime (local)](#how-to-set-up-dancetime-local)
-- [How to Set Up the DanceTime Extension](#how-to-set-up-the-dancetime-extension)
 - [How to Set Up DanceTime (cloud)](#how-to-set-up-dancetime-cloud)
+- [How to Set Up the DanceTime Extension](#how-to-set-up-the-dancetime-extension)
 - [How to Analyze YouTube Videos](#how-to-analyze-youtube-videos)
 - [Adjusting DanceTime Preferences](#adjusting-dancetime-preferences)
 - [Known Issues](#known-issues)
@@ -151,6 +151,14 @@ You can add any YouTube video to DanceTime and dance along to it. Even workout v
 1. Congrats! Now that you've published it, you can exit the editor and check out your new dance on the homepage. Have fun!
 
 ## Adjusting DanceTime Preferences
+
+To adjust in-game preferences for DanceTime, such as the camera source you'd like to use, follow the steps below.
+
+1. Start playing any chart.
+2. While it is loading (in the pink screen), press Enter to bring up the preferences menu.
+3. Here, you can adjust your selected camera. You can also click the gray box on the right side to toggle the camera preview.
+> Note: none of the other settings have been implemented yet.
+4. Press Escape to return to the game.
 
 ## Known Issues
 
