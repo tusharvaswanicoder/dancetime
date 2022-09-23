@@ -114,6 +114,16 @@ The Logic App is only used for sending automated emails when a user tries to log
 
 1. Create a new [Logic App](https://portal.azure.com/#view/Microsoft_Azure_Marketplace/GalleryItemDetailsBladeNopdl/id/Microsoft.LogicApp/product/).
 
+2. Choose **Workflow** publish and **Consumption** plan type.
+3. Create the resource.
+4. Once it finishes, go to the API connections blade of the Logic app.
+5. Add a new Gmail API connection.
+6. Navigate to the Logic app code view blade.
+7. Paste the code from `logic-app-code.json` into the code view. Edit the gmail connection info at the bottom, such as the subscription id and resource group name. 
+8. Save.
+9. Go to the Logic app designer blade. Click on the box "When a HTTP request is received" and copy the HTTP POST URL. 
+10. Add this URL to the `EMAIL_POST_ENDPOINT` field of your environment settings.
+
 ### Content Moderator
 
 Content Moderator is currently only used to check for inappropriate usernames. It is not required to play the game.
